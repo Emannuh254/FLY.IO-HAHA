@@ -25,6 +25,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Request logging middleware
+app.use((req, res, next) => {
+  const baseUrl = 'https://fly-io-haha.onrender.com';
+  const fullUrl = `${baseUrl}${req.originalUrl}`;
+  console.log(`[${new Date().toISOString()}] ${req.method} ${fullUrl}`);
+  next();
+});
+
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || 'forexpro-secret-key';
 
@@ -46,23 +54,74 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Function to kill process using a port
+// Function to kill process using a port with multiple fallback methods
 const killPort = (port) => {
   return new Promise((resolve, reject) => {
-    // Use fuser to kill the process with sudo
+    // Method 1: Try with sudo fuser
     exec(`sudo fuser -k ${port}/tcp`, (error, stdout, stderr) => {
-      if (error) {
-        // If the port is not in use, fuser returns an error, which is fine
-        if (error.message.includes('not found')) {
-          resolve();
-        } else {
-          console.error(`Error killing port ${port}:`, error.message);
-          reject(error);
-        }
-      } else {
-        console.log(`Killed process using port ${port}`);
+      if (!error) {
+        console.log(`Killed process using port ${port} with sudo fuser`);
         resolve();
+        return;
       }
+      
+      // Method 2: Try without sudo fuser
+      exec(`fuser -k ${port}/tcp`, (error, stdout, stderr) => {
+        if (!error) {
+          console.log(`Killed process using port ${port} with fuser (no sudo)`);
+          resolve();
+          return;
+        }
+        
+        // Method 3: Try with lsof
+        exec(`sudo lsof -ti:${port} | xargs kill -9`, (error, stdout, stderr) => {
+          if (!error) {
+            console.log(`Killed process using port ${port} with lsof`);
+            resolve();
+            return;
+          }
+          
+          // Method 4: Try without sudo lsof
+          exec(`lsof -ti:${port} | xargs kill -9`, (error, stdout, stderr) => {
+            if (!error) {
+              console.log(`Killed process using port ${port} with lsof (no sudo)`);
+              resolve();
+              return;
+            }
+            
+            // Method 5: Try with netstat
+            exec(`sudo netstat -tulpn | grep :${port} | awk '{print $7}' | cut -d'/' -f1 | xargs kill -9`, (error, stdout, stderr) => {
+              if (!error) {
+                console.log(`Killed process using port ${port} with netstat`);
+                resolve();
+                return;
+              }
+              
+              // Method 6: Try without sudo netstat
+              exec(`netstat -tulpn | grep :${port} | awk '{print $7}' | cut -d'/' -f1 | xargs kill -9`, (error, stdout, stderr) => {
+                if (!error) {
+                  console.log(`Killed process using port ${port} with netstat (no sudo)`);
+                  resolve();
+                  return;
+                }
+                
+                // If all methods failed, check if the port is actually in use
+                exec(`netstat -tulpn | grep :${port}`, (error, stdout, stderr) => {
+                  if (error || !stdout) {
+                    // Port is not in use, which is fine
+                    console.log(`Port ${port} is not in use`);
+                    resolve();
+                  } else {
+                    // Port is in use but we couldn't kill it
+                    console.error(`Could not kill process using port ${port}. Continuing anyway...`);
+                    resolve();
+                  }
+                });
+              });
+            });
+          });
+        });
+      });
     });
   });
 };
@@ -453,6 +512,7 @@ const startServer = async () => {
     // Start the server
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(`Base URL: https://fly-io-haha.onrender.com`);
     });
   } catch (err) {
     console.error('Failed to start server:', err);
