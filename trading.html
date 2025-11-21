@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForexPro - Live Trading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100dvh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+        .card-shadow {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .profit-glow { 
+            text-shadow: 0 0 20px rgba(34, 197, 94, 0.8); 
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .loss-glow { 
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); 
+            animation: pulse 2s infinite;
+        }
+        .btn-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-ripple:after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple 0.6s ease-out;
+        }
+        @keyframes ripple {
+            to { width: 300px; height: 300px; opacity: 0; }
+        }
+        .price-ticker {
+            animation: pulse 2s infinite;
+        }
+        .user-avatar {
+            position: relative;
+            cursor: pointer;
+        }
+        .user-avatar:hover img {
+            transform: scale(1.1);
+            transition: 0.3s;
+        }
+        .pair-btn.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .tf-btn.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .notification.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .trade-execution {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .trade-execution.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .execution-content {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .login-required {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .login-required.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .login-content {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="glass-card shadow-2xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-chart-line text-2xl text-blue-400"></i>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="dashboard.html" class="hover:text-blue-300 transition">Dashboard</a>
+                    <a href="trading.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Trading</a>
+                    <a href="deposit-withdraw.html" class="hover:text-blue-300 transition">Wallet</a>
+                    <a href="referrals.html" class="hover:text-blue-300 transition">Referrals</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
+                    <div class="user-avatar">
+                        <img id="userImage" src="" alt="You" class="w-10 h-10 rounded-full ring-2 ring-blue-400">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <!-- Trading Pair Selector -->
+        <div class="glass-card p-6 hover-lift">
+            <h2 class="text-xl font-bold mb-4">Select Trading Pair</h2>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="pairContainer">
+                <!-- Buttons will be inserted here via JS -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Chart Section -->
+            <div class="lg:col-span-2 flex flex-col space-y-6">
+
+                <!-- Chart -->
+                <div class="glass-card p-6 hover-lift">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold"><span id="current-pair">EUR/USD</span> Live Chart</h2>
+                        <div class="flex gap-2" id="timeframeContainer">
+                            <!-- Timeframe buttons will be inserted here via JS -->
+                        </div>
+                    </div>
+                    <div class="h-96 bg-black/30 rounded-xl p-4">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Market News -->
+                <div class="glass-card p-6 hover-lift">
+                    <h2 class="text-2xl font-bold mb-4">Market News</h2>
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-blue-500 pl-4 py-2">
+                            <h3 class="font-medium text-gray-900">ECB Announces Interest Rate Decision</h3>
+                            <p class="text-sm text-gray-600 mt-1">European Central Bank maintains interest rates at current levels, signaling stability in the Eurozone economy.</p>
+                            <p class="text-xs text-gray-500 mt-1">2 hours ago</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4 py-2">
+                            <h3 class="font-medium text-gray-900">US Jobs Report Exceeds Expectations</h3>
+                            <p class="text-sm text-gray-600 mt-1">Non-farm payrolls increased by 250,000 in September, beating forecasts of 180,000.</p>
+                            <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+                        </div>
+                        <div class="border-l-4 border-yellow-500 pl-4 py-2">
+                            <h3 class="font-medium text-gray-900">Bitcoin Surges Past $30,000</h3>
+                            <p class="text-sm text-gray-600 mt-1">Cryptocurrency market sees renewed interest as Bitcoin reaches new monthly highs.</p>
+                            <p class="text-xs text-gray-500 mt-1">1 day ago</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Trading Panel -->
+            <div class="space-y-6">
+
+                <!-- Price Info -->
+                <div class="glass-card p-6 text-center hover-lift">
+                    <p class="text-gray-400 text-sm">Current Price</p>
+                    <p id="live-price" class="text-5xl font-bold price-ticker profit-glow">1.08542</p>
+                    <p class="text-emerald-400 text-lg">+0.00234 (+0.22%)</p>
+                    <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
+                        <div><p class="text-gray-400">24h High</p><p class="font-bold">1.08765</p></div>
+                        <div><p class="text-gray-400">24h Low</p><p class="font-bold">1.08210</p></div>
+                    </div>
+                </div>
+
+                <!-- Trade Form -->
+                <div class="glass-card p-6 hover-lift">
+                    <h2 class="text-xl font-bold mb-4">Place Trade</h2>
+                    <form id="tradeForm" class="space-y-4">
+                        <div>
+                            <label class="text-sm text-gray-300">Amount (USD)</label>
+                            <input type="number" id="trade-amount" class="w-full bg-white/10 rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Amount USD" min="10" step="10">
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-300">Leverage</label>
+                            <select id="leverage" class="w-full bg-white/10 rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1">1:1</option>
+                                <option value="5">1:5</option>
+                                <option value="10" selected>1:10</option>
+                                <option value="25">1:25</option>
+                                <option value="50">1:50</option>
+                                <option value="100">1:100</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-300">Stop Loss (optional)</label>
+                            <input type="number" id="stop-loss" class="w-full bg-white/10 rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Stop Loss">
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-300">Take Profit (optional)</label>
+                            <input type="number" id="take-profit" class="w-full bg-white/10 rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Take Profit">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" class="buy-btn btn-ripple bg-emerald-600 hover:bg-emerald-700 py-4 rounded-xl font-bold text-lg">
+                                <i class="fas fa-arrow-up mr-2"></i> Buy
+                            </button>
+                            <button type="button" class="sell-btn btn-ripple bg-red-600 hover:bg-red-700 py-4 rounded-xl font-bold text-lg">
+                                <i class="fas fa-arrow-down mr-2"></i> Sell
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Open Positions -->
+                <div class="glass-card p-6 hover-lift">
+                    <h2 class="text-xl font-bold mb-4">Open Positions</h2>
+                    <div class="space-y-4 overflow-y-auto max-h-80 scrollbar-hide">
+                        <div class="bg-white/10 rounded-xl p-4">
+                            <div class="flex justify-between">
+                                <div>
+                                    <h3 class="font-medium text-gray-900">EUR/USD</h3>
+                                    <p class="text-sm text-gray-400">Buy • 0.1 lots</p>
+                                </div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">+$12.50</span>
+                            </div>
+                            <div class="mt-2 text-sm space-y-1">
+                                <div class="flex justify-between"><span class="text-gray-400">Open Price:</span><span>1.08420</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Current Price:</span><span>1.08542</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Stop Loss:</span><span>1.08000</span></div>
+                            </div>
+                            <button class="mt-2 text-sm text-red-600 hover:text-red-800">Close Position</button>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-4">
+                            <div class="flex justify-between">
+                                <div>
+                                    <h3 class="font-medium text-gray-900">GBP/USD</h3>
+                                    <p class="text-sm text-gray-400">Sell • 0.05 lots</p>
+                                </div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">-$8.30</span>
+                            </div>
+                            <div class="mt-2 text-sm space-y-1">
+                                <div class="flex justify-between"><span class="text-gray-400">Open Price:</span><span>1.22350</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Current Price:</span><span>1.22480</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Take Profit:</span><span>1.22000</span></div>
+                            </div>
+                            <button class="mt-2 text-sm text-red-600 hover:text-red-800">Close Position</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">
+        <div class="flex justify-around py-3">
+            <a href="dashboard.html" class="text-gray-400 text-center">
+                <i class="fas fa-home text-2xl"></i>
+                <p class="text-xs">Home</p>
+            </a>
+            <a href="trading.html" class="text-blue-400 text-center">
+                <i class="fas fa-exchange-alt text-2xl"></i>
+                <p class="text-xs">Trade</p>
+            </a>
+            <a href="deposit-withdraw.html" class="text-gray-400 text-center">
+                <i class="fas fa-wallet text-2xl"></i>
+                <p class="text-xs">Wallet</p>
+            </a>
+            <a href="referrals.html" class="text-gray-400 text-center">
+                <i class="fas fa-users text-2xl"></i>
+                <p class="text-xs">Referrals</p>
+            </a>
+
+            <a href="profile.html" class="text-gray-400 text-center">
+                <i class="fas fa-users text-2xl"></i>
+                <p class="text-xs">Profile</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Login Required Modal -->
+    <div id="loginRequiredModal" class="login-required">
+        <div class="login-content">
+            <i class="fas fa-exclamation-triangle text-yellow-400 text-5xl mb-4"></i>
+            <h2 class="text-2xl font-bold mb-4">Login Required</h2>
+            <p class="text-gray-300 mb-6">You need to login to your account before placing trades.</p>
+            <div class="flex flex-col gap-3">
+                <button id="goToLoginBtn" class="bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold">
+                    Go to Login
+                </button>
+                <button id="cancelLoginBtn" class="bg-gray-600 hover:bg-gray-700 py-3 rounded-xl font-bold">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Trade Execution Modal -->
+    <div id="tradeExecutionModal" class="trade-execution">
+        <div class="execution-content">
+            <div class="text-center mb-6">
+                <i class="fas fa-check-circle text-emerald-400 text-5xl mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">Trade Executed Successfully</h2>
+                <p class="text-gray-300">Your trade has been placed and is now active</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-4 mb-6">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-400">Pair:</span>
+                    <span id="tradePair" class="font-bold">EUR/USD</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-400">Type:</span>
+                    <span id="tradeType" class="font-bold">BUY</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-400">Amount:</span>
+                    <span id="tradeAmount" class="font-bold">$10,000</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Leverage:</span>
+                    <span id="tradeLeverage" class="font-bold">1:100</span>
+                </div>
+            </div>
+            <button id="closeTradeModal" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold">
+                Continue Trading
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Generate trading pair buttons
+        const pairs = ["EUR/USD","GBP/USD","USD/JPY","AUD/USD","BTC/USD","XAU/USD"];
+        const pairContainer = document.getElementById('pairContainer');
+
+        pairs.forEach(pair => {
+            const btn = document.createElement('button');
+            btn.textContent = pair;
+            btn.className = `pair-btn py-3 rounded-xl font-bold transition ${pair === 'EUR/USD' ? 'bg-blue-600' : 'bg-white/10 hover:bg-white/20'} text-white`;
+            pairContainer.appendChild(btn);
+
+            btn.addEventListener('click', () => {
+                document.getElementById('current-pair').textContent = pair;
+                // Update button styles
+                document.querySelectorAll('.pair-btn').forEach(b => b.classList.remove('bg-blue-600'));
+                btn.classList.add('bg-blue-600');
+            });
+        });
+
+        // Generate timeframe buttons
+        const timeframes = ["1m","5m","15m","1h","4h","1d"];
+        const tfContainer = document.getElementById('timeframeContainer');
+
+        timeframes.forEach(tf => {
+            const btn = document.createElement('button');
+            btn.textContent = tf;
+            btn.className = `tf-btn px-4 py-2 rounded-lg text-sm font-medium ${tf === '1h' ? 'bg-blue-600' : 'bg-white/10 hover:bg-white/20'} text-white`;
+            tfContainer.appendChild(btn);
+
+            btn.addEventListener('click', () => {
+                tfContainer.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('bg-blue-600'));
+                btn.classList.add('bg-blue-600');
+            });
+        });
+
+        // Check if user is logged in
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        
+        // Load user data if logged in
+        let userData = null;
+        if (isLoggedIn) {
+            userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        }
+
+        // Load profile image
+        const savedPhoto = localStorage.getItem('forexpro_profile') || 'https://randomuser.me/api/portraits/men/45.jpg';
+        document.getElementById('userImage').src = savedPhoto;
+
+        // Chart setup
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(50).fill(''),
+                datasets: [{
+                    data: Array(50).fill(1.085).map((p, i) => p + Math.sin(i/5)*0.005 + Math.random()*0.002),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    x: { display: false }, 
+                    y: { 
+                        display: true, 
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: {
+                            color: 'rgba(255,255,255,0.7)'
+                        }
+                    } 
+                },
+                plugins: { 
+                    legend: { display: false } 
+                }
+            }
+        });
+
+        // Live price update
+        setInterval(() => {
+            const change = (Math.random() - 0.5) * 0.0005;
+            const newPrice = (parseFloat(document.getElementById('live-price').textContent) + change).toFixed(5);
+            document.getElementById('live-price').textContent = newPrice;
+
+            // Update chart
+            chart.data.datasets[0].data.shift();
+            chart.data.datasets[0].data.push(parseFloat(newPrice));
+            chart.update('none');
+        }, 2000);
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Show login required modal
+        function showLoginRequired() {
+            document.getElementById('loginRequiredModal').classList.add('show');
+        }
+
+        // Hide login required modal
+        function hideLoginRequired() {
+            document.getElementById('loginRequiredModal').classList.remove('show');
+        }
+
+        // Show trade execution modal
+        function showTradeExecution(type, amount, leverage) {
+            document.getElementById('tradePair').textContent = document.getElementById('current-pair').textContent;
+            document.getElementById('tradeType').textContent = type;
+            document.getElementById('tradeAmount').textContent = `$${parseInt(amount).toLocaleString()}`;
+            document.getElementById('tradeLeverage').textContent = leverage;
+            document.getElementById('tradeExecutionModal').classList.add('show');
+        }
+
+        // Hide trade execution modal
+        function hideTradeExecution() {
+            document.getElementById('tradeExecutionModal').classList.remove('show');
+        }
+
+        // Buy button click handler
+        document.querySelector('.buy-btn').addEventListener('click', function(e) {
+            this.innerHTML += '<span class="btn-ripple"></span>';
+            
+            if (!isLoggedIn) {
+                showLoginRequired();
+                return;
+            }
+            
+            const amount = document.getElementById('trade-amount').value;
+            const leverage = document.getElementById('leverage').value;
+            const stopLoss = document.getElementById('stop-loss').value;
+            const takeProfit = document.getElementById('take-profit').value;
+            
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            // Show trade execution modal
+            showTradeExecution('BUY', amount, leverage);
+        });
+
+        // Sell button click handler
+        document.querySelector('.sell-btn').addEventListener('click', function(e) {
+            this.innerHTML += '<span class="btn-ripple"></span>';
+            
+            if (!isLoggedIn) {
+                showLoginRequired();
+                return;
+            }
+            
+            const amount = document.getElementById('trade-amount').value;
+            const leverage = document.getElementById('leverage').value;
+            const stopLoss = document.getElementById('stop-loss').value;
+            const takeProfit = document.getElementById('take-profit').value;
+            
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            // Show trade execution modal
+            showTradeExecution('SELL', amount, leverage);
+        });
+
+        // Go to login button
+        document.getElementById('goToLoginBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Cancel login button
+        document.getElementById('cancelLoginBtn').addEventListener('click', () => {
+            hideLoginRequired();
+        });
+
+        // Close trade modal button
+        document.getElementById('closeTradeModal').addEventListener('click', () => {
+            hideTradeExecution();
+        });
+
+        // Pair buttons
+        document.querySelectorAll('.pair-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.pair-btn').forEach(b => b.classList.remove('bg-blue-600'));
+                btn.classList.add('bg-blue-600');
+                document.getElementById('current-pair').textContent = btn.textContent;
+            });
+        });
+
+        // Timeframe buttons
+        document.querySelectorAll('.tf-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('bg-blue-600'));
+                btn.classList.add('bg-blue-600');
+            });
+        });
+    </script>
+</body>
+</html>

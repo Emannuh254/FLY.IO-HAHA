@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForexPro - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            min-height: 100dvh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .profit-glow { text-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+        .bot-img {
+            height: 140px; object-fit: cover; border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        .progress-bar { height: 10px; background: rgba(255, 255, 255, 0.15); border-radius: 999px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 999px; transition: width 1.5s ease; }
+        .user-avatar { position: relative; cursor: pointer; transition: all 0.3s ease; }
+        .user-avatar:hover { transform: scale(1.05); }
+        .upload-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .user-avatar:hover .upload-overlay { opacity: 1; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .double-badge { position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-radius: 12px; z-index: 10; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .clickable { cursor: pointer; }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .notification.success { background-color: #3b82f6; }
+        .notification.error { background-color: #ef4444; }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+
+    <!-- Top Navbar -->
+    <nav class="glass-card shadow-2xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-chart-line text-2xl text-blue-400"></i>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="dashboard.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Dashboard</a>
+                    <a href="trading.html" class="hover:text-blue-300 transition">Trading</a>
+                    <a href="deposit-withdraw.html" class="hover:text-blue-300 transition">Wallet</a>
+                    <a href="referrals.html" class="hover:text-blue-300 transition">Referrals</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
+                    <div class="user-avatar" id="userAvatar">
+                        <img id="userImage" src="" alt="You" class="w-10 h-10 rounded-full ring-2 ring-blue-400">
+                        <div class="upload-overlay"><i class="fas fa-camera text-white"></i></div>
+                        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Welcome with real name -->
+        <div class="text-center md:text-left">
+            <h1 class="text-4xl md:text-5xl font-bold">Welcome back, <span id="userName">Loading...</span>!</h1>
+            <p class="text-gray-300 mt-2 text-lg">Your investments are growing strong</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+            <div class="glass-card p-6 hover-lift text-center clickable">
+                <i class="fas fa-wallet text-3xl text-blue-400 mb-3"></i>
+                <p class="text-gray-300 text-sm">Total Balance</p>
+                <p class="text-3xl font-bold" id="totalBalance">KSH 0</p>
+            </div>
+            <div class="glass-card p-6 hover-lift text-center profit-glow clickable">
+                <i class="fas fa-arrow-trend-up text-3xl text-blue-400 mb-3"></i>
+                <p class="text-gray-300 text-sm">Total Profit</p>
+                <p class="text-3xl font-bold" id="totalProfit">KSH 0</p>
+            </div>
+            <div class="glass-card p-6 hover-lift text-center clickable">
+                <i class="fas fa-robot text-3xl text-blue-400 mb-3"></i>
+                <p class="text-gray-300 text-sm">Active Bots</p>
+                <p class="text-3xl font-bold" id="activeBots">0</p>
+            </div>
+            <div class="glass-card p-6 hover-lift text-center clickable">
+                <i class="fas fa-users text-3xl text-blue-400 mb-3"></i>
+                <p class="text-gray-300 text-sm">Referrals</p>
+                <p class="text-3xl font-bold" id="referrals">0</p>
+            </div>
+        </div>
+
+        <!-- Trading Bots -->
+        <div class="glass-card p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">Your Trading Bots</h2>
+                    <p class="text-gray-300">Automated profits running 24/7</p>
+                </div>
+                <button id="addBotBtn" class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-3 rounded-full font-bold hover:scale-105 transition">
+                    <i class="fas fa-plus mr-2"></i> Add Bot
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bots-container">
+                <!-- Bots will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Investment Plans -->
+        <div class="glass-card p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6 text-center md:text-left">Choose Your Investment Plan</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white/10 rounded-2xl p-6 hover-lift border border-white/20">
+                    <h3 class="text-xl font-bold">Starter</h3>
+                    <p class="text-4xl font-bold mt-4">KSH 1,000</p>
+                    <p class="text-blue-400 text-lg">Daily Profit: <strong>KSH 70</strong></p>
+                    <p class="text-sm text-gray-300 mt-4">30 Days → Total: <strong>KSH 3,100</strong></p>
+                    <button class="invest-btn mt-6 w-full bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 transition" data-price="1000">
+                        Invest Now
+                    </button>
+                </div>
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 hover-lift relative overflow-hidden transform scale-105">
+                    <div class="absolute top-0 right-0 bg-yellow-400 text-black text-xs font-bold px-4 py-1 rounded-bl-lg">MOST POPULAR</div>
+                    <h3 class="text-xl font-bold">Professional</h3>
+                    <p class="text-4xl font-bold mt-4">KSH 10,000</p>
+                    <p class="text-white text-lg">Daily Profit: <strong>KSH 800</strong></p>
+                    <p class="text-sm mt-4">30 Days → Total: <strong>KSH 34,000</strong></p>
+                    <button class="invest-btn mt-6 w-full bg-white text-black py-3 rounded-xl font-bold hover:bg-gray-200 transition" data-price="10000">
+                        Invest Now
+                    </button>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-6 hover-lift border border-white/20">
+                    <h3 class="text-xl font-bold">Premium VIP</h3>
+                    <p class="text-4xl font-bold mt-4">KSH 340,000</p>
+                    <p class="text-blue-400 text-lg">Daily Profit: <strong>KSH 30,600</strong></p>
+                    <p class="text-sm text-gray-300 mt-4">30 Days → Total: <strong>KSH 1,258,000</strong></p>
+                    <button class="invest-btn mt-6 w-full bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 transition" data-price="340000">
+                        Invest Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="glass-card p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold text-lg mb-2">How do I deposit funds?</h3>
+                    <p class="text-gray-300">You can deposit funds using cryptocurrency (USDT, BTC, ETH) or fiat methods like M-Pesa. Go to the Wallet section to make a deposit.</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold text-lg mb-2">What is the minimum deposit amount?</h3>
+                    <p class="text-gray-300">The minimum deposit amount is KSH 1,000 for fiat deposits and $10 for cryptocurrency deposits.</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold text-lg mb-2">How long do withdrawals take?</h3>
+                    <p class="text-gray-300">Cryptocurrency withdrawals are processed within 24 hours, while fiat withdrawals may take 1-3 business days.</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold text-lg mb-2">Need help?</h3>
+                    <p class="text-gray-300">Contact our support team at <a href="tel:+254739119490" class="text-blue-400">+254739119490</a> for assistance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">
+        <div class="flex justify-around py-3">
+            <a href="dashboard.html" class="text-blue-400 text-center">
+                <i class="fas fa-home text-2xl"></i>
+                <p class="text-xs">Home</p>
+            </a>
+            <a href="trading.html" class="text-gray-400 text-center">
+                <i class="fas fa-exchange-alt text-2xl"></i>
+                <p class="text-xs">Trade</p>
+            </a>
+            <a href="deposit-withdraw.html" class="text-gray-400 text-center">
+                <i class="fas fa-wallet text-2xl"></i>
+                <p class="text-xs">Wallet</p>
+            </a>
+            <a href="referrals.html" class="text-gray-400 text-center">
+                <i class="fas fa-users text-2xl"></i>
+                <p class="text-xs">Referrals</p>
+            </a>
+                        <a href="profile.html" class="text-gray-400 text-center">
+                <i class="fas fa-users text-2xl"></i>
+                <p class="text-xs">Profile</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="glass-card p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-4">Authentication Required</h3>
+            <p class="text-gray-300 mb-6">Please sign in to continue.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button id="signInBtn" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 transition">
+                    Sign In
+                </button>
+                <button id="signUpBtn" class="flex-1 bg-blue-800 py-3 rounded-xl font-bold hover:bg-blue-900 transition">
+                    Sign Up
+                </button>
+            </div>
+            <button id="closeModal" class="mt-4 text-gray-400 hover:text-white">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // API Base URL
+        const API_BASE = '/api';
+
+        // Check if user is logged in
+        let token = localStorage.getItem('token');
+        let user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+        // Load user data
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('totalBalance').textContent = `KSH ${parseFloat(user.balance || 0).toLocaleString()}`;
+            document.getElementById('totalProfit').textContent = `KSH ${parseFloat(user.profit || 0).toLocaleString()}`;
+            document.getElementById('activeBots').textContent = user.active_bots || 0;
+            document.getElementById('referrals').textContent = user.referrals || 0;
+            document.getElementById('userImage').src = user.profile_image || 'https://randomuser.me/api/portraits/men/45.jpg';
+        }
+
+        // Load saved photo on start
+        const savedPhoto = localStorage.getItem('forexpro_profile');
+        if (savedPhoto) document.getElementById('userImage').src = savedPhoto;
+
+        // Photo upload
+        document.getElementById('userAvatar').addEventListener('click', () => {
+            document.getElementById('imageUpload').click();
+        });
+
+        document.getElementById('imageUpload').addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const newImg = ev.target.result;
+                    document.getElementById('userImage').src = newImg;
+                    localStorage.setItem('forexpro_profile', newImg);
+                    showNotification('Profile photo updated!', 'success');
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Load trading bots
+        async function loadBots() {
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/bots`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const bots = await response.json();
+                    const container = document.getElementById('bots-container');
+                    container.innerHTML = '';
+
+                    bots.forEach(bot => {
+                        const profitPercent = Math.round(((bot.total_profit - bot.investment) / bot.investment) * 100);
+                        const card = document.createElement('div');
+                        card.className = 'glass-card p-5 rounded-2xl hover-lift border border-white/20 relative overflow-hidden clickable';
+                        card.innerHTML = `
+                            <div class="double-badge">2X RETURN</div>
+                            <img src="${bot.image_url || 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0'}" alt="${bot.name}" class="bot-img w-full mb-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-bold">${bot.name}</h3>
+                                <span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold">ACTIVE</span>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between"><span class="text-gray-300">Invested:</span> <strong>KSH ${parseFloat(bot.investment).toLocaleString()}</strong></div>
+                                <div class="flex justify-between text-blue-400"><span>Daily Profit:</span> <strong>KSH ${parseFloat(bot.daily_profit).toLocaleString()}</strong></div>
+                                <div class="flex justify-between text-blue-400 font-bold"><span>Expected Total:</span> <strong>KSH ${parseFloat(bot.total_profit).toLocaleString()}</strong></div>
+                                <div class="flex justify-between text-blue-400"><span>Return:</span> <strong>${profitPercent}%</strong></div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="progress-bar"><div class="progress-fill" style="width: ${bot.progress}%"></div></div>
+                                <div class="flex justify-between mt-2 text-xs text-gray-400"><span>30-Day Cycle</span><span>${bot.progress}% Complete</span></div>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading bots:', err);
+            }
+        }
+
+        // Load bots on page load
+        if (token) loadBots();
+
+        // Add bot button
+        document.getElementById('addBotBtn').addEventListener('click', () => {
+            if (!token) {
+                document.getElementById('authModal').classList.add('active');
+                return;
+            }
+            // In a real app, this would open a bot creation modal
+            showNotification('Bot creation feature coming soon!', 'success');
+        });
+
+        // Investment plan buttons
+        document.querySelectorAll('.invest-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!token) {
+                    document.getElementById('authModal').classList.add('active');
+                    return;
+                }
+
+                const price = this.getAttribute('data-price');
+                // In a real app, this would process the investment
+                showNotification(`Investment of KSH ${parseInt(price).toLocaleString()} initiated!`, 'success');
+            });
+        });
+
+        // Auth modal
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('authModal').classList.remove('active');
+        });
+
+        document.getElementById('signInBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        document.getElementById('signUpBtn').addEventListener('click', () => {
+            window.location.href = 'index.html#signup';
+        });
+
+        // Notification function
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

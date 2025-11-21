@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForexPro - Deposit & Withdraw</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            min-height: 100dvh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .btn-primary {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .notification.success { background-color: #3b82f6; }
+        .notification.error { background-color: #ef4444; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        .coming-soon {
+            position: relative;
+            overflow: hidden;
+        }
+        .coming-soon::after {
+            content: "Coming Soon";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="glass-card shadow-2xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-chart-line text-2xl text-blue-400"></i>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="dashboard.html" class="hover:text-blue-300 transition">Dashboard</a>
+                    <a href="trading.html" class="hover:text-blue-300 transition">Trading</a>
+                    <a href="deposit-withdraw.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Wallet</a>
+                    <a href="referrals.html" class="hover:text-blue-300 transition">Referrals</a>
+                    <a href="profile.html" class="hover:text-blue-300 transition">Profile</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
+                    <div class="user-avatar">
+                        <img id="userImage" src="" alt="You" class="w-10 h-10 rounded-full ring-2 ring-blue-400">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <!-- Balance Overview -->
+        <div class="glass-card p-6 hover-lift">
+            <div class="px-6 py-5 border-b border-white/10">
+                <h2 class="text-lg font-medium">Account Balance</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400">Total Balance</p>
+                        <p class="text-3xl font-bold" id="totalBalance">$0.00</p>
+                        <p class="text-sm text-gray-400 mt-1" id="totalBalanceKSH">≈ KSH 0</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400">Available Balance</p>
+                        <p class="text-3xl font-bold" id="availableBalance">$0.00</p>
+                        <p class="text-sm text-gray-400 mt-1" id="availableBalanceKSH">≈ KSH 0</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400">Invested Balance</p>
+                        <p class="text-3xl font-bold" id="investedBalance">$0.00</p>
+                        <p class="text-sm text-gray-400 mt-1" id="investedBalanceKSH">≈ KSH 0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deposit/Withdraw Tabs -->
+        <div class="glass-card">
+            <div class="border-b border-white/10">
+                <nav class="-mb-px flex">
+                    <button class="tab-btn border-b-2 border-blue-500 py-4 px-6 text-center border-transparent text-sm font-medium text-blue-400" data-tab="deposit">
+                        <i class="fas fa-plus-circle mr-2"></i> Deposit Funds
+                    </button>
+                    <button class="tab-btn border-b-2 border-transparent py-4 px-6 text-center border-transparent text-sm font-medium text-gray-500 hover:text-gray-300" data-tab="withdraw">
+                        <i class="fas fa-minus-circle mr-2"></i> Withdraw Funds
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Deposit Tab Content -->
+            <div id="deposit-tab" class="tab-content p-6">
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-2">Select Deposit Method</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button class="deposit-method border-2 border-blue-500 rounded-lg p-4 text-center hover-lift" data-method="crypto">
+                            <div class="flex justify-center mb-2">
+                                <i class="fab fa-bitcoin text-3xl text-yellow-500"></i>
+                            </div>
+                            <h4 class="font-medium">Cryptocurrency</h4>
+                            <p class="text-sm text-gray-400 mt-1">BTC, ETH, USDT</p>
+                        </button>
+                        <button class="deposit-method border border-white/20 rounded-lg p-4 text-center hover-lift coming-soon opacity-50" data-method="bank" disabled>
+                            <div class="flex justify-center mb-2">
+                                <i class="fas fa-university text-3xl text-blue-400"></i>
+                            </div>
+                            <h4 class="font-medium">Bank Transfer</h4>
+                            <p class="text-sm text-gray-400 mt-1">Direct bank deposit</p>
+                        </button>
+                        <button class="deposit-method border border-white/20 rounded-lg p-4 text-center hover-lift coming-soon opacity-50" data-method="mpesa" disabled>
+                            <div class="flex justify-center mb-2">
+                                <i class="fas fa-mobile-alt text-3xl text-green-500"></i>
+                            </div>
+                            <h4 class="font-medium">M-Pesa</h4>
+                            <p class="text-sm text-gray-400 mt-1">Mobile money transfer</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Crypto Deposit Form -->
+                <div id="crypto-deposit" class="deposit-form">
+                    <div class="bg-blue-900/20 rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-medium mb-4">Deposit Cryptocurrency</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Select Coin</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button class="coin-btn bg-white/10 rounded-lg p-3 text-center hover-lift border-2 border-blue-500" data-coin="USDT">
+                                    <div class="flex justify-center mb-2">
+                                        <i class="fab fa-bitcoin text-2xl text-yellow-500"></i>
+                                    </div>
+                                    <h4 class="font-medium">USDT</h4>
+                                    <p class="text-xs text-gray-400">TetherUS</p>
+                                </button>
+                                <button class="coin-btn bg-white/10 rounded-lg p-3 text-center hover-lift border border-white/20" data-coin="BTC">
+                                    <div class="flex justify-center mb-2">
+                                        <i class="fab fa-bitcoin text-2xl text-yellow-500"></i>
+                                    </div>
+                                    <h4 class="font-medium">BTC</h4>
+                                    <p class="text-xs text-gray-400">Bitcoin</p>
+                                </button>
+                                <button class="coin-btn bg-white/10 rounded-lg p-3 text-center hover-lift border border-white/20" data-coin="ETH">
+                                    <div class="flex justify-center mb-2">
+                                        <i class="fab fa-ethereum text-2xl text-blue-400"></i>
+                                    </div>
+                                    <h4 class="font-medium">ETH</h4>
+                                    <p class="text-xs text-gray-400">Ethereum</p>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Select Network</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button class="network-btn bg-white/10 rounded-lg p-3 text-center hover-lift border-2 border-blue-500" data-network="BSC">
+                                    <h4 class="font-medium">BSC</h4>
+                                    <p class="text-xs text-gray-400">BNB Smart Chain (BEP20)</p>
+                                </button>
+                                <button class="network-btn bg-white/10 rounded-lg p-3 text-center hover-lift border border-white/20" data-network="ETH">
+                                    <h4 class="font-medium">ETH</h4>
+                                    <p class="text-xs text-gray-400">Ethereum</p>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Amount (USD)</label>
+                            <input type="number" id="crypto-amount" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="100" min="10" step="10">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Deposit Address</label>
+                            <div class="bg-white/10 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm text-gray-400">Contract address ending in</span>
+                                    <span class="text-sm font-medium">97955</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <p class="font-mono text-sm break-all pr-2">0x081fc7d993439f0aa44e8d9514c00d0b560fb940</p>
+                                    <button class="text-blue-400 hover:text-blue-300 copy-address">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">QR Code</label>
+                            <div class="qr-code">
+                                <i class="fas fa-qrcode text-6xl text-gray-700"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-400">
+                                        <strong>Important:</strong> Send only the selected cryptocurrency to this address. Sending any other cryptocurrency may result in permanent loss. Minimum deposit: $10.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="crypto-deposit-btn" class="btn-primary w-full py-4 rounded-lg text-white font-medium">
+                            I Have Sent The Funds
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bank Deposit Form -->
+                <div id="bank-deposit" class="deposit-form hidden">
+                    <div class="bg-blue-900/20 rounded-lg p-6 mb-6 text-center">
+                        <i class="fas fa-tools text-5xl text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-medium mb-2">Bank Transfer Coming Soon</h3>
+                        <p class="text-gray-300 mb-4">We're working hard to bring you bank transfer deposits. Please check back later or use our cryptocurrency deposit option.</p>
+                        <button class="btn-primary px-6 py-2 rounded-lg text-white font-medium" onclick="document.querySelector('[data-method=\"crypto\"]').click()">
+                            Use Crypto Deposit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- M-Pesa Deposit Form -->
+                <div id="mpesa-deposit" class="deposit-form hidden">
+                    <div class="bg-blue-900/20 rounded-lg p-6 mb-6 text-center">
+                        <i class="fas fa-tools text-5xl text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-medium mb-2">M-Pesa Deposit Coming Soon</h3>
+                        <p class="text-gray-300 mb-4">We're working hard to bring you M-Pesa deposits. Please check back later or use our cryptocurrency deposit option.</p>
+                        <button class="btn-primary px-6 py-2 rounded-lg text-white font-medium" onclick="document.querySelector('[data-method=\"crypto\"]').click()">
+                            Use Crypto Deposit
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Withdraw Tab Content -->
+            <div id="withdraw-tab" class="tab-content p-6 hidden">
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-2">Select Withdrawal Method</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button class="withdraw-method border-2 border-blue-500 rounded-lg p-4 text-center hover-lift" data-method="crypto">
+                            <div class="flex justify-center mb-2">
+                                <i class="fab fa-bitcoin text-3xl text-yellow-500"></i>
+                            </div>
+                            <h4 class="font-medium">Cryptocurrency</h4>
+                            <p class="text-sm text-gray-400 mt-1">BTC, ETH, USDT</p>
+                        </button>
+                        <button class="withdraw-method border border-white/20 rounded-lg p-4 text-center hover-lift" data-method="mpesa">
+                            <div class="flex justify-center mb-2">
+                                <i class="fas fa-mobile-alt text-3xl text-green-500"></i>
+                            </div>
+                            <h4 class="font-medium">M-Pesa</h4>
+                            <p class="text-sm text-gray-400 mt-1">Mobile money transfer</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Crypto Withdrawal Form -->
+                <div id="crypto-withdraw" class="withdraw-form">
+                    <div class="bg-red-900/20 rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-medium mb-4">Withdraw Cryptocurrency</h3>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Amount (USD)</label>
+                            <input type="number" id="crypto-withdraw-amount" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="100" min="10" step="10">
+                            <p class="text-xs text-gray-400 mt-1">Available balance: <span id="crypto-available-balance">$0.00</span></p>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Cryptocurrency</label>
+                            <select id="crypto-withdraw-type" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="USDT">Tether (USDT)</option>
+                                <option value="BTC">Bitcoin (BTC)</option>
+                                <option value="ETH">Ethereum (ETH)</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Wallet Address</label>
+                            <input type="text" id="crypto-address" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your wallet address">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Account Password</label>
+                            <input type="password" id="crypto-password" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your password">
+                        </div>
+                        <div class="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-400">
+                                        <strong>Important:</strong> Withdrawals take 1-2 business days to process (excluding Sundays). A withdrawal fee of 0.0005 BTC or equivalent will be charged.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="crypto-withdraw-btn" class="btn-primary w-full py-4 rounded-lg text-white font-medium">
+                            Withdraw Funds
+                        </button>
+                    </div>
+                </div>
+
+                <!-- M-Pesa Withdrawal Form -->
+                <div id="mpesa-withdraw" class="withdraw-form hidden">
+                    <div class="bg-red-900/20 rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-medium mb-4">Withdraw to M-Pesa</h3>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Amount (KSH)</label>
+                            <input type="number" id="mpesa-withdraw-amount" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1000" min="1000" step="100">
+                            <p class="text-xs text-gray-400 mt-1">Available balance: <span id="mpesa-available-balance">KSH 0</span></p>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">M-Pesa Phone Number</label>
+                            <input type="tel" id="mpesa-withdraw-phone" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0712345678">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Account Password</label>
+                            <input type="password" id="mpesa-password" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your password">
+                        </div>
+                        <div class="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-400">
+                                        <strong>Important:</strong> Withdrawals take 1-2 business days to process (excluding Sundays). A withdrawal fee of KSH 50 will be charged for each transaction.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="mpesa-withdraw-btn" class="btn-primary w-full py-4 rounded-lg text-white font-medium">
+                            Withdraw Funds
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="glass-card p-6 hover-lift">
+            <div class="px-6 py-5 border-b border-white/10">
+                <h2 class="text-lg font-medium">Recent Transactions</h2>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-white/10">
+                        <thead class="bg-white/5">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Type
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Method
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Amount
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Status
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10" id="transaction-history">
+                            <!-- Transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                    <div id="no-transactions" class="text-center py-8 text-gray-400">
+                        No transactions found
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-center">
+                    <button id="view-all-btn" class="inline-flex items-center px-4 py-2 border border-white/20 text-sm font-medium rounded-md text-gray-300 bg-white/5 hover:bg-white/10">
+                        View All Transactions
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="glass-card p-6 hover-lift">
+            <h2 class="text-xl font-bold mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold mb-2">How long do deposits take to process?</h3>
+                    <p class="text-gray-300">Cryptocurrency deposits are processed within 10-30 minutes after confirmation. Bank transfers and M-Pesa deposits are coming soon.</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold mb-2">What is the minimum withdrawal amount?</h3>
+                    <p class="text-gray-300">The minimum withdrawal amount is $10 for cryptocurrency and KSH 1,000 for M-Pesa.</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold mb-2">How long do withdrawals take?</h3>
+                    <p class="text-gray-300">Withdrawals take 1-2 business days to process (excluding Sundays). Cryptocurrency withdrawals may take additional time for blockchain confirmation.</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <h3 class="font-bold mb-2">Need help with deposits or withdrawals?</h3>
+                    <p class="text-gray-300">Contact our support team at <a href="tel:+254739119490" class="text-blue-400">+254739119490</a> for assistance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">
+        <div class="flex justify-around py-3">
+            <a href="dashboard.html" class="text-gray-400 text-center">
+                <i class="fas fa-home text-2xl"></i>
+                <p class="text-xs">Home</p>
+            </a>
+            <a href="trading.html" class="text-gray-400 text-center">
+                <i class="fas fa-exchange-alt text-2xl"></i>
+                <p class="text-xs">Trade</p>
+            </a>
+            <a href="deposit-withdraw.html" class="text-blue-400 text-center">
+                <i class="fas fa-wallet text-2xl"></i>
+                <p class="text-xs">Wallet</p>
+            </a>
+            <a href="referrals.html" class="text-gray-400 text-center">
+                <i class="fas fa-users text-2xl"></i>
+                <p class="text-xs">Referrals</p>
+            </a>
+            
+            <a href="referrals.html" class="text-gray-400 text-center">
+                <i class="fas fa-users text-2xl"></i>
+                <p class="text-xs">Referrals</p>
+                </a>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // API Base URL
+        const API_BASE = '/api';
+
+        // Check if user is logged in
+        let token = localStorage.getItem('token');
+        let user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+        // Load user data
+        if (user) {
+            document.getElementById('userImage').src = user.profile_image || 'https://randomuser.me/api/portraits/men/45.jpg';
+            updateBalances();
+            loadTransactions();
+        }
+
+        // Update balances
+        function updateBalances() {
+            if (!user) return;
+
+            // Convert balance to KSH (assuming 1 USD = 135 KSH)
+            const usdToKsh = 135;
+            const totalBalance = parseFloat(user.balance || 0);
+            const availableBalance = totalBalance * 0.7; // Assume 70% available
+            const investedBalance = totalBalance * 0.3; // Assume 30% invested
+
+            document.getElementById('totalBalance').textContent = `$${totalBalance.toFixed(2)}`;
+            document.getElementById('totalBalanceKSH').textContent = `≈ KSH ${(totalBalance * usdToKsh).toFixed(0)}`;
+            document.getElementById('availableBalance').textContent = `$${availableBalance.toFixed(2)}`;
+            document.getElementById('availableBalanceKSH').textContent = `≈ KSH ${(availableBalance * usdToKsh).toFixed(0)}`;
+            document.getElementById('investedBalance').textContent = `$${investedBalance.toFixed(2)}`;
+            document.getElementById('investedBalanceKSH').textContent = `≈ KSH ${(investedBalance * usdToKsh).toFixed(0)}`;
+            document.getElementById('crypto-available-balance').textContent = `$${availableBalance.toFixed(2)}`;
+            document.getElementById('mpesa-available-balance').textContent = `KSH ${(availableBalance * usdToKsh).toFixed(0)}`;
+        }
+
+        // Load transactions
+        async function loadTransactions() {
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/transactions`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const transactions = await response.json();
+                    const tbody = document.getElementById('transaction-history');
+                    const noTransactions = document.getElementById('no-transactions');
+                    
+                    if (transactions.length === 0) {
+                        tbody.innerHTML = '';
+                        noTransactions.style.display = 'block';
+                        return;
+                    }
+
+                    noTransactions.style.display = 'none';
+                    tbody.innerHTML = '';
+
+                    transactions.slice(0, 5).forEach(tx => {
+                        const row = document.createElement('tr');
+                        const statusClass = tx.status === 'completed' ? 'bg-green-500/20 text-green-400' : 
+                                          tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' : 
+                                          'bg-red-500/20 text-red-400';
+                        
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                ${new Date(tx.created_at).toLocaleDateString()}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium">${tx.type}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                ${tx.method}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                ${tx.currency === 'KSH' ? 'KSH' : '$'}${parseFloat(tx.amount).toLocaleString()}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                    ${tx.status}
+                                </span>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading transactions:', err);
+            }
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // Update active tab button
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('border-blue-500', 'text-blue-400');
+                    b.classList.add('border-transparent', 'text-gray-500');
+                });
+                this.classList.remove('border-transparent', 'text-gray-500');
+                this.classList.add('border-blue-500', 'text-blue-400');
+                
+                // Show/hide tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+            });
+        });
+
+        // Deposit method selection
+        document.querySelectorAll('.deposit-method').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Skip if disabled
+                if (this.disabled) return;
+                
+                const method = this.dataset.method;
+                
+                // Update active method button
+                document.querySelectorAll('.deposit-method').forEach(b => {
+                    b.classList.remove('border-2', 'border-blue-500');
+                    b.classList.add('border', 'border-white/20');
+                });
+                this.classList.remove('border', 'border-white/20');
+                this.classList.add('border-2', 'border-blue-500');
+                
+                // Show/hide deposit forms
+                document.querySelectorAll('.deposit-form').forEach(form => {
+                    form.classList.add('hidden');
+                });
+                document.getElementById(`${method}-deposit`).classList.remove('hidden');
+            });
+        });
+
+        // Coin selection
+        let selectedCoin = 'USDT';
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                selectedCoin = this.dataset.coin;
+                
+                // Update active coin button
+                document.querySelectorAll('.coin-btn').forEach(b => {
+                    b.classList.remove('border-2', 'border-blue-500');
+                    b.classList.add('border', 'border-white/20');
+                });
+                this.classList.remove('border', 'border-white/20');
+                this.classList.add('border-2', 'border-blue-500');
+            });
+        });
+
+        // Network selection
+        let selectedNetwork = 'BSC';
+        document.querySelectorAll('.network-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                selectedNetwork = this.dataset.network;
+                
+                // Update active network button
+                document.querySelectorAll('.network-btn').forEach(b => {
+                    b.classList.remove('border-2', 'border-blue-500');
+                    b.classList.add('border', 'border-white/20');
+                });
+                this.classList.remove('border', 'border-white/20');
+                this.classList.add('border-2', 'border-blue-500');
+            });
+        });
+
+        // Withdrawal method selection
+        document.querySelectorAll('.withdraw-method').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const method = this.dataset.method;
+                
+                // Update active method button
+                document.querySelectorAll('.withdraw-method').forEach(b => {
+                    b.classList.remove('border-2', 'border-blue-500');
+                    b.classList.add('border', 'border-white/20');
+                });
+                this.classList.remove('border', 'border-white/20');
+                this.classList.add('border-2', 'border-blue-500');
+                
+                // Show/hide withdrawal forms
+                document.querySelectorAll('.withdraw-form').forEach(form => {
+                    form.classList.add('hidden');
+                });
+                document.getElementById(`${method}-withdraw`).classList.remove('hidden');
+            });
+        });
+
+        // Copy address functionality
+        document.querySelector('.copy-address').addEventListener('click', function() {
+            const address = '0x081fc7d993439f0aa44e8d9514c00d0b560fb940';
+            navigator.clipboard.writeText(address);
+            
+            // Show copied notification
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 2000);
+        });
+
+        // Deposit buttons
+        document.getElementById('crypto-deposit-btn').addEventListener('click', async function() {
+            if (!token) {
+                showNotification('Please login to make a deposit', 'error');
+                return;
+            }
+
+            const amount = document.getElementById('crypto-amount').value;
+            if (!amount || amount < 10) {
+                showNotification('Please enter a valid amount (minimum $10)', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/deposit`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        amount: parseFloat(amount),
+                        method: 'crypto',
+                        currency: 'USD',
+                        network: selectedNetwork,
+                        address: '0x081fc7d993439f0aa44e8d9514c00d0b560fb940'
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showNotification('Deposit request submitted successfully', 'success');
+                    // Update user balance
+                    user.balance = parseFloat(user.balance || 0) + parseFloat(amount);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    updateBalances();
+                    loadTransactions();
+                } else {
+                    showNotification(data.message || 'Deposit failed', 'error');
+                }
+            } catch (err) {
+                showNotification('Network error. Please try again.', 'error');
+            }
+        });
+
+        // Withdrawal buttons
+        document.getElementById('crypto-withdraw-btn').addEventListener('click', async function() {
+            if (!token) {
+                showNotification('Please login to make a withdrawal', 'error');
+                return;
+            }
+
+            const amount = document.getElementById('crypto-withdraw-amount').value;
+            const address = document.getElementById('crypto-address').value;
+            const password = document.getElementById('crypto-password').value;
+            const cryptoType = document.getElementById('crypto-withdraw-type').value;
+            
+            if (!amount || amount < 10) {
+                showNotification('Please enter a valid amount (minimum $10)', 'error');
+                return;
+            }
+            if (!address) {
+                showNotification('Please enter a valid wallet address', 'error');
+                return;
+            }
+            if (!password) {
+                showNotification('Please enter your password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/withdraw`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        amount: parseFloat(amount),
+                        method: 'crypto',
+                        currency: 'USD',
+                        address,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showNotification('Withdrawal request submitted successfully. Processing time: 1-2 business days (excluding Sundays)', 'success');
+                    // Update user balance
+                    user.balance = parseFloat(user.balance || 0) - parseFloat(amount);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    updateBalances();
+                    loadTransactions();
+                } else {
+                    showNotification(data.message || 'Withdrawal failed', 'error');
+                }
+            } catch (err) {
+                showNotification('Network error. Please try again.', 'error');
+            }
+        });
+
+        document.getElementById('mpesa-withdraw-btn').addEventListener('click', async function() {
+            if (!token) {
+                showNotification('Please login to make a withdrawal', 'error');
+                return;
+            }
+
+            const amount = document.getElementById('mpesa-withdraw-amount').value;
+            const phone = document.getElementById('mpesa-withdraw-phone').value;
+            const password = document.getElementById('mpesa-password').value;
+            
+            if (!amount || amount < 1000) {
+                showNotification('Please enter a valid amount (minimum KSH 1,000)', 'error');
+                return;
+            }
+            if (!phone || !/^(07|01)[0-9]{8}$/.test(phone)) {
+                showNotification('Please enter a valid phone number', 'error');
+                return;
+            }
+            if (!password) {
+                showNotification('Please enter your password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/withdraw`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        amount: parseFloat(amount),
+                        method: 'mpesa',
+                        currency: 'KSH',
+                        address: phone,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showNotification('Withdrawal request submitted successfully. Processing time: 1-2 business days (excluding Sundays)', 'success');
+                    // Update user balance (convert KSH to USD)
+                    const usdAmount = parseFloat(amount) / 135;
+                    user.balance = parseFloat(user.balance || 0) - usdAmount;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    updateBalances();
+                    loadTransactions();
+                } else {
+                    showNotification(data.message || 'Withdrawal failed', 'error');
+                }
+            } catch (err) {
+                showNotification('Network error. Please try again.', 'error');
+            }
+        });
+
+        // View all transactions button
+        document.getElementById('view-all-btn').addEventListener('click', function() {
+            // In a real app, this would navigate to a full transaction history page
+            showNotification('Full transaction history coming soon!', 'success');
+        });
+
+        // Notification function
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
