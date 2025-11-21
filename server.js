@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
+const fs = require('fs');
 const { exec } = require('child_process');
 
 const app = express();
@@ -23,7 +24,6 @@ const pool = new pg.Pool({
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -184,6 +184,16 @@ const initializeDatabase = async () => {
     console.error('Error initializing database:', err);
   }
 };
+
+// Check if public directory exists, create if it doesn't
+const publicDir = path.join(__dirname, 'public');
+if (!fs.existsSync(publicDir)) {
+  console.log('Creating public directory...');
+  fs.mkdirSync(publicDir, { recursive: true });
+}
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // API Routes
 app.post('/api/auth/signup', async (req, res) => {
@@ -494,9 +504,63 @@ app.post('/api/bots', authenticateToken, async (req, res) => {
   }
 });
 
-// Serve the main HTML file
+// Serve the main HTML file for all other routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  
+  // Check if index.html exists
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>ForexPro - Page Not Found</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+          }
+          .container {
+            max-width: 600px;
+            padding: 2rem;
+          }
+          h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+          }
+          p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+          }
+          a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: bold;
+          }
+          a:hover {
+            text-decoration: underline;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>404 - Page Not Found</h1>
+          <p>The page you are looking for does not exist.</p>
+          <p><a href="/">Go to Homepage</a></p>
+        </div>
+      </body>
+      </html>
+    `);
+  }
 });
 
 // Start server
@@ -513,6 +577,18 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Base URL: https://fly-io-haha.onrender.com`);
+      console.log(`Public directory: ${publicDir}`);
+      
+      // List files in public directory
+      const files = fs.readdirSync(publicDir);
+      console.log('Files in public directory:', files);
+      
+      // Check if .env is in public directory (security warning)
+      if (files.includes('.env')) {
+        console.error('⚠️  SECURITY WARNING: .env file found in public directory!');
+        console.error('   This could expose your environment variables to the public.');
+        console.error('   Move .env to the root directory of your project.');
+      }
     });
   } catch (err) {
     console.error('Failed to start server:', err);
