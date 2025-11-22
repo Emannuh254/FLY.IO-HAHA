@@ -65,14 +65,22 @@ pool.on('error', (err) => {
 });
 
 // ==================== MIDDLEWARE ====================
-// Enhanced helmet configuration
+// Replace your current helmet configuration with this:
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+      defaultSrc: ["'self'", "data:", "blob:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
+      fontSrc: ["'self'", "https:", "data:"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https:"],
+      mediaSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      childSrc: ["'self'", "https:"],
+      workerSrc: ["'self'", "blob:"],
+      frameSrc: ["'self'", "https:"],
+      formAction: ["'self'", "https:"],
     },
   },
 }));
