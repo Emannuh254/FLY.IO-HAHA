@@ -1,5 +1,5 @@
 // API Base URL - Updated to match your admin server port
-const API_BASE = 'http://localhost:3007';
+const API_BASE = 'https://forexproo.onrender.com';
 
 // Check if admin is logged in
 let adminToken = localStorage.getItem('adminToken');
