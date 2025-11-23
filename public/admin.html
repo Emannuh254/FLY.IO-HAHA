@@ -7,265 +7,382 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .gradient-bg {
+        /* Optimized base styles */
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-            min-height: 100dvh;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
+        
+        /* Simplified glass effect for better performance */
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
         }
-        .hover-lift { transition: all 0.3s ease; }
-        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
-        .btn-primary {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
+        
+        /* Optimized button styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+        }
+        
         .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
+        
+        .btn-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Notification styles */
         .notification {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 8px;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
             color: white;
             font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            max-width: 300px;
         }
+        
         .notification.show {
             transform: translateY(0);
             opacity: 1;
         }
-        .notification.success { background-color: #3b82f6; }
+        
+        .notification.success { background-color: var(--primary); }
         .notification.error { background-color: #ef4444; }
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1rem;
         }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .data-table th {
+            background: var(--glass-bg);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        /* Status badges */
         .status-badge {
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-block;
         }
-        .status-pending {
-            background-color: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-        }
-        .status-completed {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-        .status-failed {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
+        
+        .status-pending { background-color: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-completed { background-color: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-failed { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        
+        /* Modal styles */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            padding: 1rem;
         }
+        
         .modal.show {
             opacity: 1;
             visibility: visible;
         }
+        
+        .modal-content {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Loading spinner */
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
         }
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        .debug-info {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
-            max-width: 300px;
-            z-index: 1000;
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 1rem;
+            }
+            
+            .data-table {
+                font-size: 0.875rem;
+            }
+            
+            .data-table th, .data-table td {
+                padding: 0.5rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .notification {
+                right: 0.5rem;
+                left: 0.5rem;
+                max-width: none;
+            }
         }
+        
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .font-bold { font-weight: 700; }
+        .w-full { width: 100%; }
+        .overflow-x-auto { overflow-x: auto; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .sticky { position: sticky; }
+        .top-0 { top: 0; }
+        .z-50 { z-index: 50; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="gradient-bg text-white min-h-screen">
-
+<body>
     <!-- Login Form -->
-    <div id="loginForm" class="login-container glass-card p-8">
-        <div class="text-center mb-8">
-            <i class="fas fa-user-shield text-5xl text-blue-400"></i>
-            <h1 class="text-3xl font-bold mt-4">Admin Panel</h1>
-            <p class="text-gray-300">Login to access the admin dashboard</p>
-            <div class="mt-2 text-xs text-gray-400">
-                Server: <span id="serverUrl">http://localhost:3007</span>
+    <div id="loginForm" class="flex items-center justify-center min-h-screen p-4">
+        <div class="glass-card p-6 w-full max-w-md">
+            <div class="text-center mb-6">
+                <i class="fas fa-user-shield text-4xl text-blue-400 mb-3"></i>
+                <h1 class="text-2xl font-bold">Admin Panel</h1>
+                <p class="text-gray-300 text-sm">Login to access the admin dashboard</p>
+                <div class="mt-2 text-xs text-gray-400">
+                    Server: <span id="serverUrl">http://localhost:3007</span>
+                </div>
             </div>
-        </div>
-        
-        <form id="adminLoginForm" class="space-y-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                <input type="text" id="username" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white" placeholder="mannuh" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1">Password</label>
-                <input type="password" id="password" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white" placeholder="•••••••••" required>
-            </div>
-            <div>
-                <button type="submit" class="btn-primary w-full py-3 rounded-md text-white font-medium">
-                    Login
+            
+            <form id="adminLoginForm" class="space-y-4">
+                <div class="form-group">
+                    <label class="form-label" for="username">Email</label>
+                    <input type="text" id="username" class="form-input" placeholder="mannuh" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="•••••••••" required>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary w-full">
+                        Login
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-4 text-center">
+                <button id="testConnectionBtn" class="text-blue-400 hover:text-blue-300 text-sm">
+                    Test Server Connection
                 </button>
             </div>
-        </form>
-        
-        <div class="mt-4 text-center">
-            <button id="testConnectionBtn" class="text-blue-400 hover:text-blue-300 text-sm">
-                Test Server Connection
-            </button>
         </div>
     </div>
 
     <!-- Admin Dashboard -->
     <div id="adminDashboard" class="hidden">
         <!-- Navigation -->
-        <nav class="glass-card shadow-2xl sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-user-shield text-2xl text-blue-400"></i>
-                        <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro Admin</span>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition">
-                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                        </button>
-                    </div>
+        <nav class="glass-card sticky top-0 z-50 shadow-lg p-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-user-shield text-xl text-blue-400"></i>
+                    <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro Admin</span>
                 </div>
+                <button id="logoutBtn" class="btn bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </nav>
 
-        <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <div class="p-4 space-y-6">
             <!-- Stats Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                <div class="glass-card p-6 hover-lift text-center">
-                    <i class="fas fa-users text-3xl text-blue-400 mb-3"></i>
-                    <p class="text-gray-300 text-sm">Total Users</p>
-                    <p class="text-3xl font-bold" id="totalUsers">0</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card p-4 text-center">
+                    <i class="fas fa-users text-2xl text-blue-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">Total Users</p>
+                    <p class="text-xl font-bold" id="totalUsers">0</p>
                 </div>
-                <div class="glass-card p-6 hover-lift text-center">
-                    <i class="fas fa-exchange-alt text-3xl text-blue-400 mb-3"></i>
-                    <p class="text-gray-300 text-sm">Total Transactions</p>
-                    <p class="text-3xl font-bold" id="totalTransactions">0</p>
+                <div class="glass-card p-4 text-center">
+                    <i class="fas fa-exchange-alt text-2xl text-blue-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">Total Transactions</p>
+                    <p class="text-xl font-bold" id="totalTransactions">0</p>
                 </div>
-                <div class="glass-card p-6 hover-lift text-center">
-                    <i class="fas fa-clock text-3xl text-blue-400 mb-3"></i>
-                    <p class="text-gray-300 text-sm">Pending Transactions</p>
-                    <p class="text-3xl font-bold" id="pendingTransactions">0</p>
+                <div class="glass-card p-4 text-center">
+                    <i class="fas fa-clock text-2xl text-blue-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">Pending Transactions</p>
+                    <p class="text-xl font-bold" id="pendingTransactions">0</p>
                 </div>
-                <div class="glass-card p-6 hover-lift text-center">
-                    <i class="fas fa-wallet text-3xl text-blue-400 mb-3"></i>
-                    <p class="text-gray-300 text-sm">Total Volume</p>
-                    <p class="text-3xl font-bold" id="totalVolume">$0</p>
+                <div class="glass-card p-4 text-center">
+                    <i class="fas fa-wallet text-2xl text-blue-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">Total Volume</p>
+                    <p class="text-xl font-bold" id="totalVolume">$0</p>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="glass-card p-6 hover-lift">
-                <h2 class="text-2xl font-bold mb-6">Quick Actions</h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <button id="depositToUserBtn" class="bg-blue-600 hover:bg-blue-700 p-4 rounded-lg text-center transition">
-                        <i class="fas fa-hand-holding-usd text-2xl mb-2"></i>
-                        <h3 class="font-bold">Deposit to User</h3>
-                        <p class="text-sm text-gray-300">Add funds to any user account</p>
+            <div class="glass-card p-4">
+                <h2 class="text-xl font-bold mb-4">Quick Actions</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <button id="depositToUserBtn" class="btn bg-blue-600 hover:bg-blue-700 flex-col p-3">
+                        <i class="fas fa-hand-holding-usd text-xl mb-1"></i>
+                        <span class="text-xs">Deposit to User</span>
                     </button>
-                    <button id="manageBotsBtn" class="bg-green-600 hover:bg-green-700 p-4 rounded-lg text-center transition">
-                        <i class="fas fa-robot text-2xl mb-2"></i>
-                        <h3 class="font-bold">Manage Bots</h3>
-                        <p class="text-sm text-gray-300">Create and delete trading bots</p>
+                    <button id="manageBotsBtn" class="btn bg-green-600 hover:bg-green-700 flex-col p-3">
+                        <i class="fas fa-robot text-xl mb-1"></i>
+                        <span class="text-xs">Manage Bots</span>
                     </button>
-                    <button id="refreshDataBtn" class="bg-yellow-600 hover:bg-yellow-700 p-4 rounded-lg text-center transition">
-                        <i class="fas fa-sync-alt text-2xl mb-2"></i>
-                        <h3 class="font-bold">Refresh Data</h3>
-                        <p class="text-sm text-gray-300">Update all statistics</p>
+                    <button id="refreshDataBtn" class="btn bg-yellow-600 hover:bg-yellow-700 flex-col p-3">
+                        <i class="fas fa-sync-alt text-xl mb-1"></i>
+                        <span class="text-xs">Refresh Data</span>
                     </button>
-                    <button id="manageDepositAddressBtn" class="bg-purple-600 hover:bg-purple-700 p-4 rounded-lg text-center transition">
-                        <i class="fas fa-qrcode text-2xl mb-2"></i>
-                        <h3 class="font-bold">Deposit Address</h3>
-                        <p class="text-sm text-gray-300">Manage deposit addresses</p>
+                    <button id="manageDepositAddressBtn" class="btn bg-purple-600 hover:bg-purple-700 flex-col p-3">
+                        <i class="fas fa-qrcode text-xl mb-1"></i>
+                        <span class="text-xs">Deposit Address</span>
                     </button>
                 </div>
             </div>
 
             <!-- Transactions Management -->
-            <div class="glass-card p-6 hover-lift">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Transactions Management</h2>
-                    <div class="flex space-x-2">
-                        <button class="filter-btn bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition" data-filter="all">
-                            All
-                        </button>
-                        <button class="filter-btn bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition" data-filter="pending">
-                            Pending
-                        </button>
-                        <button class="filter-btn bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition" data-filter="completed">
-                            Completed
-                        </button>
+            <div class="glass-card p-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+                    <h2 class="text-xl font-bold">Transactions Management</h2>
+                    <div class="flex gap-2">
+                        <button class="filter-btn btn btn-primary text-xs" data-filter="all">All</button>
+                        <button class="filter-btn btn bg-gray-700 hover:bg-gray-600 text-xs" data-filter="pending">Pending</button>
+                        <button class="filter-btn btn bg-gray-700 hover:bg-gray-600 text-xs" data-filter="completed">Completed</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-white/10">
-                        <thead class="bg-white/5">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    ID
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    User
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Type
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Amount
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Date
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Actions
-                                </th>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-white/10" id="transactionsTable">
+                        <tbody id="transactionsTable">
                             <!-- Transactions will be loaded here -->
                         </tbody>
                     </table>
@@ -273,41 +390,29 @@
             </div>
 
             <!-- Users Management -->
-            <div class="glass-card p-6 hover-lift">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Users Management</h2>
-                    <div class="flex space-x-2">
-                        <input type="text" id="userSearch" placeholder="Search users..." class="bg-white/10 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
-                        <button id="searchUserBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+            <div class="glass-card p-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+                    <h2 class="text-xl font-bold">Users Management</h2>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <input type="text" id="userSearch" placeholder="Search users..." class="form-input flex-1">
+                        <button id="searchUserBtn" class="btn btn-primary">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-white/10">
-                        <thead class="bg-white/5">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    ID
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Name
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Email
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Balance
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Referrals
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Actions
-                                </th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Balance</th>
+                                <th>Referrals</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-white/10" id="usersTable">
+                        <tbody id="usersTable">
                             <!-- Users will be loaded here -->
                         </tbody>
                     </table>
@@ -318,30 +423,26 @@
 
     <!-- Deposit to User Modal -->
     <div id="depositModal" class="modal">
-        <div class="glass-card p-8 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-bold mb-4">Deposit to User</h3>
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4">Deposit to User</h3>
             <form id="depositForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Select User</label>
-                    <select id="userSelect" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+                <div class="form-group">
+                    <label class="form-label" for="userSelect">Select User</label>
+                    <select id="userSelect" class="form-select">
                         <option value="">Select a user</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Amount (KSH)</label>
-                    <input type="number" id="depositAmount" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" placeholder="1000" min="100" step="100">
+                <div class="form-group">
+                    <label class="form-label" for="depositAmount">Amount (KSH)</label>
+                    <input type="number" id="depositAmount" class="form-input" placeholder="1000" min="100" step="100">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Note (Optional)</label>
-                    <textarea id="depositNote" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" rows="3" placeholder="Add a note for this transaction"></textarea>
+                <div class="form-group">
+                    <label class="form-label" for="depositNote">Note (Optional)</label>
+                    <textarea id="depositNote" class="form-input" rows="2" placeholder="Add a note for this transaction"></textarea>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold transition">
-                        Deposit
-                    </button>
-                    <button type="button" id="cancelDeposit" class="flex-1 bg-gray-600 hover:bg-gray-700 py-3 rounded-xl font-bold transition">
-                        Cancel
-                    </button>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1">Deposit</button>
+                    <button type="button" id="cancelDeposit" class="btn bg-gray-600 hover:bg-gray-700 flex-1">Cancel</button>
                 </div>
             </form>
         </div>
@@ -349,79 +450,59 @@
 
     <!-- Bots Management Modal -->
     <div id="botsModal" class="modal">
-        <div class="glass-card p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Trading Bots Management</h3>
-                <button id="cancelBots" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
+        <div class="modal-content max-w-4xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Trading Bots Management</h3>
+                <button id="cancelBots" class="btn-icon bg-gray-700 hover:bg-gray-600">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div class="mb-6">
-                <button id="createBotBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition">
+            <div class="mb-4">
+                <button id="createBotBtn" class="btn bg-green-600 hover:bg-green-700">
                     <i class="fas fa-plus mr-2"></i> Create New Bot
                 </button>
             </div>
             
             <!-- Create Bot Form (Hidden by default) -->
-            <form id="botsForm" class="hidden glass-card p-6 mb-6">
-                <h4 class="text-xl font-bold mb-4">Create New Trading Bot</h4>
+            <form id="botsForm" class="glass-card p-4 mb-4 hidden">
+                <h4 class="text-lg font-bold mb-3">Create New Trading Bot</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">User ID</label>
-                        <input type="number" id="botUserId" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" placeholder="User ID" required>
+                    <div class="form-group">
+                        <label class="form-label" for="botUserId">User ID</label>
+                        <input type="number" id="botUserId" class="form-input" placeholder="User ID" required>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Bot Name</label>
-                        <input type="text" id="botName" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" placeholder="Bot name" required>
+                    <div class="form-group">
+                        <label class="form-label" for="botName">Bot Name</label>
+                        <input type="text" id="botName" class="form-input" placeholder="Bot name" required>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Investment (KSH)</label>
-                        <input type="number" id="botInvestment" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" placeholder="1000" min="1000" step="100" required>
+                    <div class="form-group">
+                        <label class="form-label" for="botInvestment">Investment (KSH)</label>
+                        <input type="number" id="botInvestment" class="form-input" placeholder="1000" min="1000" step="100" required>
                     </div>
                 </div>
-                <div class="flex justify-end mt-4 space-x-3">
-                    <button type="button" id="cancelBotForm" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
-                        Cancel
-                    </button>
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition">
-                        Create Bot
-                    </button>
+                <div class="flex justify-end mt-3 gap-3">
+                    <button type="button" id="cancelBotForm" class="btn bg-gray-600 hover:bg-gray-700">Cancel</button>
+                    <button type="submit" class="btn bg-green-600 hover:bg-green-700">Create Bot</button>
                 </div>
             </form>
             
             <!-- Bots Table -->
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-white/10">
-                    <thead class="bg-white/5">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                ID
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                User
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Name
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Investment
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Daily Profit
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Total Profit
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Actions
-                            </th>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Name</th>
+                            <th>Investment</th>
+                            <th>Daily Profit</th>
+                            <th>Total Profit</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/10" id="botsTable">
+                    <tbody id="botsTable">
                         <!-- Bots will be loaded here -->
                     </tbody>
                 </table>
@@ -431,35 +512,31 @@
 
     <!-- Deposit Address Management Modal -->
     <div id="depositAddressModal" class="modal">
-        <div class="glass-card p-8 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-bold mb-4">Manage Deposit Address</h3>
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4">Manage Deposit Address</h3>
             <form id="depositAddressForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Coin</label>
-                    <select id="coinSelect" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+                <div class="form-group">
+                    <label class="form-label" for="coinSelect">Coin</label>
+                    <select id="coinSelect" class="form-select">
                         <option value="USDT">USDT</option>
                         <option value="BTC">BTC</option>
                         <option value="ETH">ETH</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Network</label>
-                    <select id="networkSelect" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+                <div class="form-group">
+                    <label class="form-label" for="networkSelect">Network</label>
+                    <select id="networkSelect" class="form-select">
                         <option value="BSC">BSC (BNB Smart Chain)</option>
                         <option value="ETH">Ethereum</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Deposit Address</label>
-                    <input type="text" id="depositAddressInput" class="w-full bg-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" placeholder="Enter deposit address">
+                <div class="form-group">
+                    <label class="form-label" for="depositAddressInput">Deposit Address</label>
+                    <input type="text" id="depositAddressInput" class="form-input" placeholder="Enter deposit address">
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold transition">
-                        Update Address
-                    </button>
-                    <button type="button" id="cancelDepositAddress" class="flex-1 bg-gray-600 hover:bg-gray-700 py-3 rounded-xl font-bold transition">
-                        Cancel
-                    </button>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1">Update Address</button>
+                    <button type="button" id="cancelDepositAddress" class="btn bg-gray-600 hover:bg-gray-700 flex-1">Cancel</button>
                 </div>
             </form>
         </div>
@@ -467,12 +544,6 @@
 
     <!-- Notification -->
     <div id="notification" class="notification"></div>
-
-    <!-- Debug Info -->
-    <div id="debugInfo" class="debug-info hidden">
-        <div>Debug Information:</div>
-        <div id="debugContent"></div>
-    </div>
 
     <script src="js/admin.js"></script>
 </body>

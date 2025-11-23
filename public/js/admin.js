@@ -1,748 +1,608 @@
-// API Base URL - Updated to match your admin server port
-const API_BASE = 'https://forexproo.onrender.com';
-
-// Check if admin is logged in
-let adminToken = localStorage.getItem('adminToken');
-
-// DOM Elements
-const loginForm = document.getElementById('loginForm');
-const adminDashboard = document.getElementById('adminDashboard');
-const adminLoginForm = document.getElementById('adminLoginForm');
-const logoutBtn = document.getElementById('logoutBtn');
-const depositModal = document.getElementById('depositModal');
-const depositForm = document.getElementById('depositForm');
-const cancelDeposit = document.getElementById('cancelDeposit');
-const depositToUserBtn = document.getElementById('depositToUserBtn');
-const refreshDataBtn = document.getElementById('refreshDataBtn');
-const searchUserBtn = document.getElementById('searchUserBtn');
-const userSearch = document.getElementById('userSearch');
-const manageDepositAddressBtn = document.getElementById('manageDepositAddressBtn');
-const depositAddressModal = document.getElementById('depositAddressModal');
-const depositAddressForm = document.getElementById('depositAddressForm');
-const cancelDepositAddress = document.getElementById('cancelDepositAddress');
-const testConnectionBtn = document.getElementById('testConnectionBtn');
-const debugInfo = document.getElementById('debugInfo');
-const debugContent = document.getElementById('debugContent');
-
-// New DOM Elements for Bots Management
-const botsModal = document.getElementById('botsModal');
-const botsForm = document.getElementById('botsForm');
-const cancelBots = document.getElementById('cancelBots');
-const createBotBtn = document.getElementById('createBotBtn');
-const manageBotsBtn = document.getElementById('manageBotsBtn');
-const botsTable = document.getElementById('botsTable');
-const cancelBotForm = document.getElementById('cancelBotForm');
-
-// Show notification
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
-    notification.classList.add('show');
+// admin.js - Optimized for mobile and performance
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const elements = {
+        loginForm: document.getElementById('loginForm'),
+        adminDashboard: document.getElementById('adminDashboard'),
+        adminLoginForm: document.getElementById('adminLoginForm'),
+        testConnectionBtn: document.getElementById('testConnectionBtn'),
+        logoutBtn: document.getElementById('logoutBtn'),
+        serverUrl: document.getElementById('serverUrl'),
+        notification: document.getElementById('notification'),
+        
+        // Stats
+        totalUsers: document.getElementById('totalUsers'),
+        totalTransactions: document.getElementById('totalTransactions'),
+        pendingTransactions: document.getElementById('pendingTransactions'),
+        totalVolume: document.getElementById('totalVolume'),
+        
+        // Quick Actions
+        depositToUserBtn: document.getElementById('depositToUserBtn'),
+        manageBotsBtn: document.getElementById('manageBotsBtn'),
+        refreshDataBtn: document.getElementById('refreshDataBtn'),
+        manageDepositAddressBtn: document.getElementById('manageDepositAddressBtn'),
+        
+        // Transactions
+        transactionsTable: document.getElementById('transactionsTable'),
+        
+        // Users
+        usersTable: document.getElementById('usersTable'),
+        userSearch: document.getElementById('userSearch'),
+        searchUserBtn: document.getElementById('searchUserBtn'),
+        
+        // Modals
+        depositModal: document.getElementById('depositModal'),
+        botsModal: document.getElementById('botsModal'),
+        depositAddressModal: document.getElementById('depositAddressModal'),
+        
+        // Forms
+        depositForm: document.getElementById('depositForm'),
+        botsForm: document.getElementById('botsForm'),
+        depositAddressForm: document.getElementById('depositAddressForm'),
+        
+        // Modal Controls
+        cancelDeposit: document.getElementById('cancelDeposit'),
+        cancelBots: document.getElementById('cancelBots'),
+        cancelBotForm: document.getElementById('cancelBotForm'),
+        createBotBtn: document.getElementById('createBotBtn'),
+        cancelDepositAddress: document.getElementById('cancelDepositAddress')
+    };
     
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
-}
-
-// Debug function
-function debug(message) {
-    console.log(message);
-    debugContent.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-    debugInfo.classList.remove('hidden');
-}
-
-// Test server connection
-testConnectionBtn.addEventListener('click', async () => {
-    try {
-        debug('Testing server connection...');
-        const response = await fetch(`${API_BASE}/`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        debug(`Response status: ${response.status}`);
-        debug(`Response headers: ${JSON.stringify([...response.headers.entries()])}`);
-        
-        const contentType = response.headers.get('content-type');
-        debug(`Content-Type: ${contentType}`);
-        
-        if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
-            debug(`Response data: ${JSON.stringify(data)}`);
-        } else {
-            const text = await response.text();
-            debug(`Response text (first 200 chars): ${text.substring(0, 200)}`);
-        }
-        
-        showNotification('Connection test completed. Check console for details.', 'success');
-    } catch (err) {
-        debug(`Connection test error: ${err.message}`);
-        showNotification('Connection test failed. Check console for details.', 'error');
-    }
-});
-
-// Admin login
-adminLoginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // API Configuration
+    const API_BASE = 'https://fly-io-haha.onrender.com/';
+    let authToken = localStorage.getItem('adminAuthToken');
     
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    
-    // Show loading state
-    const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="loading"></span> Logging in...';
-    submitBtn.disabled = true;
-    
-    try {
-        debug(`Attempting login to: ${API_BASE}/api/admin/login`);
-        debug(`With credentials: ${username} / ${password}`);
-        
-        const response = await fetch(`${API_BASE}/api/admin/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        
-        debug(`Response status: ${response.status}`);
-        debug(`Response headers: ${JSON.stringify([...response.headers.entries()])}`);
-        
-        const contentType = response.headers.get('content-type');
-        debug(`Content-Type: ${contentType}`);
-        
-        let data;
-        if (contentType && contentType.includes('application/json')) {
-            data = await response.json();
-            debug(`Response data: ${JSON.stringify(data)}`);
-        } else {
-            const text = await response.text();
-            debug(`Response text (first 500 chars): ${text.substring(0, 500)}`);
-            throw new Error('Server returned non-JSON response');
-        }
-        
-        if (response.ok) {
-            adminToken = data.token;
-            localStorage.setItem('adminToken', adminToken);
-            loginForm.classList.add('hidden');
-            adminDashboard.classList.remove('hidden');
+    // Initialize
+    function init() {
+        // Check if already logged in
+        if (authToken) {
+            showDashboard();
             loadDashboardData();
-            showNotification('Login successful!', 'success');
-        } else {
-            debug(`Login failed: ${data.message || 'Unknown error'}`);
-            showNotification(data.message || 'Login failed', 'error');
-        }
-    } catch (err) {
-        debug(`Login error: ${err.message}`);
-        showNotification(`Network error: ${err.message}`, 'error');
-    } finally {
-        // Reset button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-
-// Logout
-logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('adminToken');
-    adminToken = null;
-    adminDashboard.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-    showNotification('Logged out successfully', 'success');
-});
-
-// Load dashboard data
-async function loadDashboardData() {
-    try {
-        debug('Loading dashboard data...');
-        
-        // Load stats
-        const usersResponse = await fetch(`${API_BASE}/api/admin/users`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        
-        if (!usersResponse.ok) {
-            throw new Error(`Failed to fetch users: ${usersResponse.status}`);
         }
         
-        const usersData = await usersResponse.json();
-        document.getElementById('totalUsers').textContent = usersData.length;
-        
-        const transactionsResponse = await fetch(`${API_BASE}/api/admin/transactions`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        
-        if (!transactionsResponse.ok) {
-            throw new Error(`Failed to fetch transactions: ${transactionsResponse.status}`);
-        }
-        
-        const transactionsData = await transactionsResponse.json();
-        document.getElementById('totalTransactions').textContent = transactionsData.length;
-        
-        const pendingTransactions = transactionsData.filter(t => t.status === 'pending');
-        document.getElementById('pendingTransactions').textContent = pendingTransactions.length;
-        
-        const totalVolume = transactionsData.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        document.getElementById('totalVolume').textContent = `$${totalVolume.toFixed(2)}`;
-        
-        // Load transactions table
-        loadTransactionsTable(transactionsData);
-        
-        // Load users table
-        loadUsersTable(usersData);
-        
-        // Load user select for deposit
-        loadUserSelect(usersData);
-        
-        // Load bots table
-        loadBotsTable();
-    } catch (err) {
-        debug(`Dashboard data error: ${err.message}`);
-        showNotification(`Failed to load dashboard data: ${err.message}`, 'error');
-    }
-}
-
-// Load transactions table
-function loadTransactionsTable(transactions) {
-    const tbody = document.getElementById('transactionsTable');
-    tbody.innerHTML = '';
-    
-    transactions.forEach(transaction => {
-        const statusClass = transaction.status === 'completed' ? 'status-completed' : 
-                            transaction.status === 'pending' ? 'status-pending' : 'status-failed';
-        
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                ${transaction.id}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium">${transaction.user_name || 'N/A'}</div>
-                <div class="text-xs text-gray-400">${transaction.user_email || 'N/A'}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                ${transaction.type}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                ${transaction.currency === 'KSH' ? 'KSH' : '$'}${parseFloat(transaction.amount).toLocaleString()}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="status-badge ${statusClass}">${transaction.status}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                ${new Date(transaction.created_at).toLocaleDateString()}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                ${transaction.status === 'pending' ? 
-                    `<button class="text-green-400 hover:text-green-300 complete-transaction" data-id="${transaction.id}">Complete</button>` : 
-                    '-'}
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-    
-    // Add event listeners to complete buttons
-    document.querySelectorAll('.complete-transaction').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const transactionId = this.getAttribute('data-id');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/admin/transactions/${transactionId}`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${adminToken}`
-                    },
-                    body: JSON.stringify({ status: 'completed' })
-                });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    showNotification('Transaction completed successfully!', 'success');
-                    loadDashboardData();
-                } else {
-                    showNotification(data.message || 'Failed to complete transaction', 'error');
-                }
-            } catch (err) {
-                debug(`Complete transaction error: ${err.message}`);
-                showNotification('Network error. Please try again.', 'error');
-            }
-        });
-    });
-}
-
-// Load users table
-function loadUsersTable(users) {
-    const tbody = document.getElementById('usersTable');
-    tbody.innerHTML = '';
-    
-    users.forEach(user => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                ${user.id}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                ${user.name}
-                ${user.verified ? '<span class="ml-2 px-2 py-1 text-xs bg-green-500 text-white rounded-full">Verified</span>' : ''}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                ${user.email}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                ${user.currency === 'USD' ? '$' : 'KSH'}${parseFloat(user.balance || 0).toLocaleString()}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                ${user.referrals || 0}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="text-blue-400 hover:text-blue-300 deposit-to-user mr-2" data-id="${user.id}" data-name="${user.name}">
-                    Deposit
-                </button>
-                <button class="text-${user.verified ? 'yellow' : 'green'}-400 hover:text-${user.verified ? 'yellow' : 'green'}-300 verify-user" data-id="${user.id}" data-verified="${user.verified}">
-                    ${user.verified ? 'Unverify' : 'Verify'}
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-    
-    // Add event listeners to deposit buttons
-    document.querySelectorAll('.deposit-to-user').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const userId = this.getAttribute('data-id');
-            const userName = this.getAttribute('data-name');
-            
-            // Open deposit modal with pre-selected user
-            document.getElementById('userSelect').value = userId;
-            depositModal.classList.add('show');
-        });
-    });
-    
-    // Add event listeners to verify buttons
-    document.querySelectorAll('.verify-user').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const userId = this.getAttribute('data-id');
-            const isVerified = this.getAttribute('data-verified') === 'true';
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/admin/users/${userId}/verify`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${adminToken}`
-                    },
-                    body: JSON.stringify({ verified: !isVerified })
-                });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    showNotification(`User ${!isVerified ? 'verified' : 'unverified'} successfully!`, 'success');
-                    loadDashboardData();
-                } else {
-                    showNotification(data.message || `Failed to ${!isVerified ? 'verify' : 'unverify'} user`, 'error');
-                }
-            } catch (err) {
-                debug(`Verify user error: ${err.message}`);
-                showNotification('Network error. Please try again.', 'error');
-            }
-        });
-    });
-}
-
-// Load user select for deposit modal
-function loadUserSelect(users) {
-    const userSelect = document.getElementById('userSelect');
-    userSelect.innerHTML = '<option value="">Select a user</option>';
-    
-    users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.name} (${user.email})`;
-        userSelect.appendChild(option);
-    });
-}
-
-// Load bots table
-async function loadBotsTable() {
-    try {
-        const response = await fetch(`${API_BASE}/api/admin/bots`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Failed to fetch bots: ${response.status}`);
-        }
-        
-        const botsData = await response.json();
-        const tbody = document.getElementById('botsTable');
-        tbody.innerHTML = '';
-        
-        botsData.forEach(bot => {
-            const statusClass = bot.status === 'completed' ? 'status-completed' : 
-                                bot.status === 'active' ? 'status-pending' : 'status-failed';
-            
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    ${bot.id}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium">${bot.user_name || 'N/A'}</div>
-                    <div class="text-xs text-gray-400">${bot.user_email || 'N/A'}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    ${bot.name}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    ${bot.formatted_investment}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    ${bot.formatted_daily_profit}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    ${bot.formatted_total_profit}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="status-badge ${statusClass}">${bot.status}</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div class="flex space-x-2">
-                        <button class="text-red-400 hover:text-red-300 delete-bot" data-id="${bot.id}">
-                            Delete
-                        </button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-        
-        // Add event listeners to delete buttons
-        document.querySelectorAll('.delete-bot').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const botId = this.getAttribute('data-id');
-                
-                if (confirm('Are you sure you want to delete this bot?')) {
-                    try {
-                        const response = await fetch(`${API_BASE}/api/admin/bots/${botId}`, {
-                            method: 'DELETE',
-                            headers: { 
-                                'Authorization': `Bearer ${adminToken}`
-                            }
-                        });
-                        
-                        const data = await response.json();
-                        if (response.ok) {
-                            showNotification('Bot deleted successfully!', 'success');
-                            loadBotsTable();
-                            loadDashboardData();
-                        } else {
-                            showNotification(data.message || 'Failed to delete bot', 'error');
-                        }
-                    } catch (err) {
-                        debug(`Delete bot error: ${err.message}`);
-                        showNotification('Network error. Please try again.', 'error');
-                    }
-                }
-            });
-        });
-    } catch (err) {
-        debug(`Load bots table error: ${err.message}`);
-        showNotification('Failed to load bots data', 'error');
-    }
-}
-
-// Deposit modal functionality
-depositToUserBtn.addEventListener('click', () => {
-    depositModal.classList.add('show');
-});
-
-cancelDeposit.addEventListener('click', () => {
-    depositModal.classList.remove('show');
-    depositForm.reset();
-});
-
-depositForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const userId = document.getElementById('userSelect').value;
-    const amount = document.getElementById('depositAmount').value;
-    const note = document.getElementById('depositNote').value;
-    
-    if (!userId || !amount) {
-        showNotification('Please fill in all required fields', 'error');
-        return;
+        // Set up event listeners
+        setupEventListeners();
     }
     
-    // Show loading state
-    const submitBtn = depositForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="loading"></span> Processing...';
-    submitBtn.disabled = true;
-    
-    try {
-        const response = await fetch(`${API_BASE}/api/admin/deposit`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${adminToken}`
-            },
-            body: JSON.stringify({ 
-                userId: userId, 
-                amount: amount,
-                currency: 'KSH',
-                note: note
-            })
+    // Set up event listeners
+    function setupEventListeners() {
+        // Login form
+        elements.adminLoginForm.addEventListener('submit', handleLogin);
+        
+        // Test connection
+        elements.testConnectionBtn.addEventListener('click', testConnection);
+        
+        // Logout
+        elements.logoutBtn.addEventListener('click', logout);
+        
+        // Quick actions
+        elements.depositToUserBtn.addEventListener('click', () => showModal('depositModal'));
+        elements.manageBotsBtn.addEventListener('click', () => {
+            showModal('botsModal');
+            loadBots();
+        });
+        elements.refreshDataBtn.addEventListener('click', loadDashboardData);
+        elements.manageDepositAddressBtn.addEventListener('click', () => showModal('depositAddressModal'));
+        
+        // User search
+        elements.searchUserBtn.addEventListener('click', searchUsers);
+        elements.userSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchUsers();
         });
         
-        const data = await response.json();
-        if (response.ok) {
-            showNotification('Deposit successful!', 'success');
-            depositModal.classList.remove('show');
-            depositForm.reset();
-            loadDashboardData();
-        } else {
-            showNotification(data.message || 'Failed to process deposit', 'error');
-        }
-    } catch (err) {
-        debug(`Deposit error: ${err.message}`);
-        showNotification('Network error. Please try again.', 'error');
-    } finally {
-        // Reset button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-
-// Bots modal functionality
-manageBotsBtn.addEventListener('click', () => {
-    botsModal.classList.add('show');
-    loadBotsTable();
-});
-
-cancelBots.addEventListener('click', () => {
-    botsModal.classList.remove('show');
-    botsForm.reset();
-    botsForm.classList.add('hidden');
-});
-
-cancelBotForm.addEventListener('click', () => {
-    botsForm.classList.add('hidden');
-    botsForm.reset();
-});
-
-createBotBtn.addEventListener('click', () => {
-    botsForm.classList.remove('hidden');
-    document.getElementById('botUserId').focus();
-});
-
-botsForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const userId = document.getElementById('botUserId').value;
-    const name = document.getElementById('botName').value;
-    const investment = document.getElementById('botInvestment').value;
-    
-    if (!userId || !name || !investment) {
-        showNotification('Please fill in all required fields', 'error');
-        return;
-    }
-    
-    // Show loading state
-    const submitBtn = botsForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="loading"></span> Creating...';
-    submitBtn.disabled = true;
-    
-    try {
-        const response = await fetch(`${API_BASE}/api/admin/bots`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${adminToken}`
-            },
-            body: JSON.stringify({ 
-                userId: userId, 
-                name: name,
-                investment: investment
-            })
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => filterTransactions(btn.dataset.filter));
         });
         
-        const data = await response.json();
-        if (response.ok) {
-            showNotification('Bot created successfully!', 'success');
-            botsForm.reset();
-            botsForm.classList.add('hidden');
-            loadBotsTable();
-            loadDashboardData();
-        } else {
-            showNotification(data.message || 'Failed to create bot', 'error');
-        }
-    } catch (err) {
-        debug(`Create bot error: ${err.message}`);
-        showNotification('Network error. Please try again.', 'error');
-    } finally {
-        // Reset button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-
-// Deposit address management
-manageDepositAddressBtn.addEventListener('click', async () => {
-    // Load current deposit addresses
-    try {
-        const response = await fetch(`${API_BASE}/api/admin/deposit/addresses`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
+        // Modal controls
+        elements.cancelDeposit.addEventListener('click', () => hideModal('depositModal'));
+        elements.cancelBots.addEventListener('click', () => hideModal('botsModal'));
+        elements.cancelBotForm.addEventListener('click', () => {
+            elements.botsForm.classList.add('hidden');
         });
-        
-        if (response.ok) {
-            const addresses = await response.json();
-            
-            // Pre-select the first address if available
-            if (addresses.length > 0) {
-                document.getElementById('coinSelect').value = addresses[0].coin;
-                document.getElementById('networkSelect').value = addresses[0].network;
-                document.getElementById('depositAddressInput').value = addresses[0].address;
-            }
-            
-            depositAddressModal.classList.add('show');
-        } else {
-            showNotification('Failed to load deposit addresses', 'error');
-        }
-    } catch (err) {
-        debug(`Load deposit addresses error: ${err.message}`);
-        showNotification('Network error. Please try again.', 'error');
-    }
-});
-
-cancelDepositAddress.addEventListener('click', () => {
-    depositAddressModal.classList.remove('show');
-    depositAddressForm.reset();
-});
-
-depositAddressForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const coin = document.getElementById('coinSelect').value;
-    const network = document.getElementById('networkSelect').value;
-    const address = document.getElementById('depositAddressInput').value;
-    
-    if (!coin || !network || !address) {
-        showNotification('Please fill in all fields', 'error');
-        return;
-    }
-    
-    // Show loading state
-    const submitBtn = depositAddressForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="loading"></span> Updating...';
-    submitBtn.disabled = true;
-    
-    try {
-        const response = await fetch(`${API_BASE}/api/admin/deposit/address`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${adminToken}`
-            },
-            body: JSON.stringify({ coin, network, address })
+        elements.createBotBtn.addEventListener('click', () => {
+            elements.botsForm.classList.remove('hidden');
         });
+        elements.cancelDepositAddress.addEventListener('click', () => hideModal('depositAddressModal'));
         
-        const data = await response.json();
-        if (response.ok) {
-            showNotification('Deposit address updated successfully!', 'success');
-            depositAddressModal.classList.remove('show');
-            depositAddressForm.reset();
-        } else {
-            showNotification(data.message || 'Failed to update deposit address', 'error');
-        }
-    } catch (err) {
-        debug(`Update deposit address error: ${err.message}`);
-        showNotification('Network error. Please try again.', 'error');
-    } finally {
-        // Reset button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-
-// Refresh data button
-refreshDataBtn.addEventListener('click', () => {
-    loadDashboardData();
-    showNotification('Data refreshed successfully!', 'success');
-});
-
-// Search users functionality
-searchUserBtn.addEventListener('click', async () => {
-    const searchTerm = userSearch.value.trim();
-    
-    if (!searchTerm) {
-        loadDashboardData();
-        return;
+        // Form submissions
+        elements.depositForm.addEventListener('submit', handleDeposit);
+        elements.botsForm.addEventListener('submit', handleCreateBot);
+        elements.depositAddressForm.addEventListener('submit', handleUpdateDepositAddress);
     }
     
-    try {
-        const response = await fetch(`${API_BASE}/api/admin/users`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
+    // Handle login
+    async function handleLogin(e) {
+        e.preventDefault();
         
-        if (response.ok) {
-            const usersData = await response.json();
-            // Filter users based on search term
-            const filteredUsers = usersData.filter(user => 
-                user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                user.email.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            loadUsersTable(filteredUsers);
-        } else {
-            showNotification('Failed to search users', 'error');
-        }
-    } catch (err) {
-        debug(`Search users error: ${err.message}`);
-        showNotification('Network error. Please try again.', 'error');
-    }
-});
-
-// Filter transactions
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', async function() {
-        // Update active button style
-        document.querySelectorAll('.filter-btn').forEach(b => {
-            b.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            b.classList.add('bg-white/10', 'hover:bg-white/20');
-        });
-        this.classList.remove('bg-white/10', 'hover:bg-white/20');
-        this.classList.add('bg-blue-600', 'hover:bg-blue-700');
-        
-        // Filter transactions
-        const filter = this.getAttribute('data-filter');
+        const username = elements.adminLoginForm.username.value;
+        const password = elements.adminLoginForm.password.value;
         
         try {
-            const response = await fetch(`${API_BASE}/api/admin/transactions`, {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
+            const response = await fetch(`${API_BASE}/api/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
             });
             
+            const data = await response.json();
+            
             if (response.ok) {
-                const transactionsData = await response.json();
-                // Filter transactions based on status
-                const filteredTransactions = filter === 'all' 
-                    ? transactionsData 
-                    : transactionsData.filter(t => t.status === filter);
-                loadTransactionsTable(filteredTransactions);
+                authToken = data.token;
+                localStorage.setItem('adminAuthToken', authToken);
+                showNotification('Login successful!', 'success');
+                showDashboard();
+                loadDashboardData();
             } else {
-                showNotification('Failed to filter transactions', 'error');
+                showNotification(data.message || 'Login failed', 'error');
             }
-        } catch (err) {
-            debug(`Filter transactions error: ${err.message}`);
+        } catch (error) {
+            console.error('Login error:', error);
             showNotification('Network error. Please try again.', 'error');
         }
-    });
+    }
+    
+    // Test server connection
+    async function testConnection() {
+        try {
+            const response = await fetch(`${API_BASE}/api/admin/test`);
+            
+            if (response.ok) {
+                showNotification('Server connection successful!', 'success');
+            } else {
+                showNotification('Server connection failed', 'error');
+            }
+        } catch (error) {
+            console.error('Connection test error:', error);
+            showNotification('Unable to connect to server', 'error');
+        }
+    }
+    
+    // Logout
+    function logout() {
+        localStorage.removeItem('adminAuthToken');
+        authToken = null;
+        elements.loginForm.classList.remove('hidden');
+        elements.adminDashboard.classList.add('hidden');
+        showNotification('Logged out successfully', 'success');
+    }
+    
+    // Show dashboard
+    function showDashboard() {
+        elements.loginForm.classList.add('hidden');
+        elements.adminDashboard.classList.remove('hidden');
+    }
+    
+    // Load dashboard data
+    async function loadDashboardData() {
+        try {
+            // Load stats
+            const statsResponse = await apiRequest('/api/admin/stats');
+            if (statsResponse) {
+                const stats = await statsResponse.json();
+                elements.totalUsers.textContent = stats.totalUsers || 0;
+                elements.totalTransactions.textContent = stats.totalTransactions || 0;
+                elements.pendingTransactions.textContent = stats.pendingTransactions || 0;
+                elements.totalVolume.textContent = `$${stats.totalVolume || 0}`;
+            }
+            
+            // Load transactions
+            loadTransactions();
+            
+            // Load users
+            loadUsers();
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+            showNotification('Failed to load dashboard data', 'error');
+        }
+    }
+    
+    // Load transactions
+    async function loadTransactions() {
+        try {
+            const response = await apiRequest('/api/admin/transactions');
+            if (response) {
+                const transactions = await response.json();
+                renderTransactions(transactions);
+            }
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+            elements.transactionsTable.innerHTML = '<tr><td colspan="7" class="text-center">Failed to load transactions</td></tr>';
+        }
+    }
+    
+    // Render transactions
+    function renderTransactions(transactions) {
+        elements.transactionsTable.innerHTML = '';
+        
+        if (transactions.length === 0) {
+            elements.transactionsTable.innerHTML = '<tr><td colspan="7" class="text-center">No transactions found</td></tr>';
+            return;
+        }
+        
+        transactions.forEach(transaction => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${transaction.id}</td>
+                <td>${transaction.user_name || 'N/A'}</td>
+                <td>${transaction.type}</td>
+                <td>${transaction.formatted_amount || '$0'}</td>
+                <td><span class="status-badge status-${transaction.status}">${transaction.status}</span></td>
+                <td>${new Date(transaction.created_at).toLocaleDateString()}</td>
+                <td>
+                    ${transaction.status === 'pending' ? 
+                        `<button class="btn btn-primary text-xs" onclick="updateTransactionStatus(${transaction.id}, 'completed')">Approve</button>` : 
+                        '-'}
+                </td>
+            `;
+            elements.transactionsTable.appendChild(row);
+        });
+    }
+    
+    // Filter transactions
+    function filterTransactions(filter) {
+        // Update button styles
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            if (btn.dataset.filter === filter) {
+                btn.className = 'filter-btn btn btn-primary text-xs';
+            } else {
+                btn.className = 'filter-btn btn bg-gray-700 hover:bg-gray-600 text-xs';
+            }
+        });
+        
+        // In a real implementation, this would filter the data
+        // For now, we'll just reload all transactions
+        loadTransactions();
+    }
+    
+    // Load users
+    async function loadUsers() {
+        try {
+            const response = await apiRequest('/api/admin/users');
+            if (response) {
+                const users = await response.json();
+                renderUsers(users);
+            }
+        } catch (error) {
+            console.error('Error loading users:', error);
+            elements.usersTable.innerHTML = '<tr><td colspan="6" class="text-center">Failed to load users</td></tr>';
+        }
+    }
+    
+    // Render users
+    function renderUsers(users) {
+        elements.usersTable.innerHTML = '';
+        
+        if (users.length === 0) {
+            elements.usersTable.innerHTML = '<tr><td colspan="6" class="text-center">No users found</td></tr>';
+            return;
+        }
+        
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.name || 'N/A'}</td>
+                <td>${user.email}</td>
+                <td>${user.formatted_balance || '$0'}</td>
+                <td>${user.referrals || 0}</td>
+                <td>
+                    <button class="btn btn-primary text-xs" onclick="loadUserSelect(${user.id})">Select</button>
+                </td>
+            `;
+            elements.usersTable.appendChild(row);
+        });
+    }
+    
+    // Search users
+    async function searchUsers() {
+        const query = elements.userSearch.value.trim();
+        
+        if (!query) {
+            loadUsers();
+            return;
+        }
+        
+        try {
+            const response = await apiRequest(`/api/admin/users?search=${encodeURIComponent(query)}`);
+            if (response) {
+                const users = await response.json();
+                renderUsers(users);
+            }
+        } catch (error) {
+            console.error('Error searching users:', error);
+            showNotification('Failed to search users', 'error');
+        }
+    }
+    
+    // Load user select for deposit modal
+    async function loadUserSelect(userId) {
+        try {
+            // Load users for the select dropdown
+            const response = await apiRequest('/api/admin/users');
+            if (response) {
+                const users = await response.json();
+                
+                const userSelect = document.getElementById('userSelect');
+                userSelect.innerHTML = '<option value="">Select a user</option>';
+                
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = `${user.name} (${user.email})`;
+                    if (user.id === userId) {
+                        option.selected = true;
+                    }
+                    userSelect.appendChild(option);
+                });
+                
+                showModal('depositModal');
+            }
+        } catch (error) {
+            console.error('Error loading users for select:', error);
+            showNotification('Failed to load users', 'error');
+        }
+    }
+    
+    // Handle deposit
+    async function handleDeposit(e) {
+        e.preventDefault();
+        
+        const userId = document.getElementById('userSelect').value;
+        const amount = document.getElementById('depositAmount').value;
+        const note = document.getElementById('depositNote').value;
+        
+        if (!userId || !amount) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        try {
+            const response = await apiRequest('/api/admin/deposit', {
+                method: 'POST',
+                body: JSON.stringify({ userId, amount, note }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showNotification(data.message, 'success');
+                hideModal('depositModal');
+                elements.depositForm.reset();
+                loadDashboardData();
+            } else {
+                showNotification(data.message || 'Deposit failed', 'error');
+            }
+        } catch (error) {
+            console.error('Deposit error:', error);
+            showNotification('Failed to process deposit', 'error');
+        }
+    }
+    
+    // Load bots
+    async function loadBots() {
+        try {
+            const response = await apiRequest('/api/admin/bots');
+            if (response) {
+                const bots = await response.json();
+                renderBots(bots);
+            }
+        } catch (error) {
+            console.error('Error loading bots:', error);
+            document.getElementById('botsTable').innerHTML = '<tr><td colspan="8" class="text-center">Failed to load bots</td></tr>';
+        }
+    }
+    
+    // Render bots
+    function renderBots(bots) {
+        const botsTable = document.getElementById('botsTable');
+        botsTable.innerHTML = '';
+        
+        if (bots.length === 0) {
+            botsTable.innerHTML = '<tr><td colspan="8" class="text-center">No bots found</td></tr>';
+            return;
+        }
+        
+        bots.forEach(bot => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${bot.id}</td>
+                <td>${bot.user_name || 'N/A'}</td>
+                <td>${bot.name}</td>
+                <td>${bot.formatted_investment || '$0'}</td>
+                <td>${bot.formatted_daily_profit || '$0'}</td>
+                <td>${bot.formatted_total_profit || '$0'}</td>
+                <td><span class="status-badge status-${bot.status}">${bot.status}</span></td>
+                <td>
+                    <button class="btn bg-red-600 hover:bg-red-700 text-xs" onclick="deleteBot(${bot.id})">Delete</button>
+                </td>
+            `;
+            botsTable.appendChild(row);
+        });
+    }
+    
+    // Handle create bot
+    async function handleCreateBot(e) {
+        e.preventDefault();
+        
+        const userId = document.getElementById('botUserId').value;
+        const name = document.getElementById('botName').value;
+        const investment = document.getElementById('botInvestment').value;
+        
+        if (!userId || !name || !investment) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        try {
+            const response = await apiRequest('/api/admin/bots', {
+                method: 'POST',
+                body: JSON.stringify({ userId, name, investment }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showNotification(data.message, 'success');
+                elements.botsForm.reset();
+                elements.botsForm.classList.add('hidden');
+                loadBots();
+                loadDashboardData();
+            } else {
+                showNotification(data.message || 'Failed to create bot', 'error');
+            }
+        } catch (error) {
+            console.error('Create bot error:', error);
+            showNotification('Failed to create bot', 'error');
+        }
+    }
+    
+    // Delete bot
+    async function deleteBot(botId) {
+        if (!confirm('Are you sure you want to delete this bot?')) {
+            return;
+        }
+        
+        try {
+            const response = await apiRequest(`/api/admin/bots/${botId}`, {
+                method: 'DELETE',
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showNotification(data.message, 'success');
+                loadBots();
+                loadDashboardData();
+            } else {
+                showNotification(data.message || 'Failed to delete bot', 'error');
+            }
+        } catch (error) {
+            console.error('Delete bot error:', error);
+            showNotification('Failed to delete bot', 'error');
+        }
+    }
+    
+    // Handle update deposit address
+    async function handleUpdateDepositAddress(e) {
+        e.preventDefault();
+        
+        const coin = document.getElementById('coinSelect').value;
+        const network = document.getElementById('networkSelect').value;
+        const address = document.getElementById('depositAddressInput').value;
+        
+        if (!coin || !network || !address) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
+        
+        try {
+            const response = await apiRequest('/api/admin/deposit/address', {
+                method: 'PUT',
+                body: JSON.stringify({ coin, network, address }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showNotification(data.message, 'success');
+                hideModal('depositAddressModal');
+                elements.depositAddressForm.reset();
+            } else {
+                showNotification(data.message || 'Failed to update address', 'error');
+            }
+        } catch (error) {
+            console.error('Update deposit address error:', error);
+            showNotification('Failed to update deposit address', 'error');
+        }
+    }
+    
+    // Update transaction status
+    async function updateTransactionStatus(transactionId, status) {
+        try {
+            const response = await apiRequest(`/api/admin/transactions/${transactionId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showNotification(data.message, 'success');
+                loadTransactions();
+                loadDashboardData();
+            } else {
+                showNotification(data.message || 'Failed to update transaction', 'error');
+            }
+        } catch (error) {
+            console.error('Update transaction error:', error);
+            showNotification('Failed to update transaction', 'error');
+        }
+    }
+    
+    // Show modal
+    function showModal(modalId) {
+        document.getElementById(modalId).classList.add('show');
+    }
+    
+    // Hide modal
+    function hideModal(modalId) {
+        document.getElementById(modalId).classList.remove('show');
+    }
+    
+    // Show notification
+    function showNotification(message, type = 'success') {
+        elements.notification.textContent = message;
+        elements.notification.className = `notification ${type}`;
+        elements.notification.classList.add('show');
+        
+        setTimeout(() => {
+            elements.notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    // API request helper
+    async function apiRequest(endpoint, options = {}) {
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            }
+        };
+        
+        const mergedOptions = {
+            ...defaultOptions,
+            ...options,
+            headers: {
+                ...defaultOptions.headers,
+                ...(options.headers || {})
+            }
+        };
+        
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}`, mergedOptions);
+            
+            if (response.status === 401) {
+                // Unauthorized
+                logout();
+                return null;
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('API request error:', error);
+            throw error;
+        }
+    }
+    
+    // Global functions for onclick handlers
+    window.updateTransactionStatus = updateTransactionStatus;
+    window.deleteBot = deleteBot;
+    window.loadUserSelect = loadUserSelect;
+    
+    // Initialize the app
+    init();
 });
-
-// Check if already logged in
-if (adminToken) {
-    loginForm.classList.add('hidden');
-    adminDashboard.classList.remove('hidden');
-    loadDashboardData();
-}

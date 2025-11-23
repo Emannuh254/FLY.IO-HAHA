@@ -7,286 +7,451 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        /* All existing styles remain the same */
-        .gradient-bg {
+        /* Optimized base styles */
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-            min-height: 100dvh;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
+        
+        /* Simplified glass effect for better performance */
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
         }
-        .hover-lift { transition: all 0.3s ease; }
-        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
-        .profit-glow { text-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
-        .bot-img {
-            height: 140px; object-fit: cover; border-radius: 1rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        
+        /* Optimized button styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
-        .progress-bar { height: 10px; background: rgba(255, 255, 255, 0.15); border-radius: 999px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 999px; transition: width 1.5s ease; }
-        .user-avatar { position: relative; cursor: pointer; transition: all 0.3s ease; }
-        .user-avatar:hover { transform: scale(1.05); }
-        .user-avatar img {
-            width: 40px;
-            height: 40px;
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-icon {
+            width: 2.5rem;
+            height: 2.5rem;
             border-radius: 50%;
-            object-fit: cover;
-        }
-        .user-avatar .default-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(59, 130, 246, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .user-avatar .default-avatar i {
-            font-size: 24px;
-            color: #3b82f6;
-        }
-        .upload-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
-        }
-        .user-avatar:hover .upload-overlay { opacity: 1; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; align-items: center; justify-content: center; }
-        .modal.active { display: flex; }
-        .double-badge { position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-radius: 12px; z-index: 10; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .clickable { cursor: pointer; }
+        
+        /* Notification styles */
         .notification {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 8px;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
             color: white;
             font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            max-width: 300px;
         }
+        
         .notification.show {
             transform: translateY(0);
             opacity: 1;
         }
-        .notification.success { background-color: #3b82f6; }
+        
+        .notification.success { background-color: var(--secondary); }
         .notification.error { background-color: #ef4444; }
-        .loading-spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1rem;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
         }
-        .certificate {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border: 2px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 20px;
-            color: #1e293b;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Bot card styles */
+        .bot-card {
+            transition: all 0.2s ease;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             position: relative;
+        }
+        
+        .bot-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .bot-card-header {
+            position: relative;
+            height: 140px;
             overflow: hidden;
         }
-        .certificate::before {
+        
+        .bot-card-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .bot-card-header::after {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIi8+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjwvZz48L3N2Zz4=');
-            opacity: 0.05;
-            z-index: 0;
-        }
-        .certificate-header {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
             z-index: 1;
         }
-        .certificate-title {
-            font-size: 24px;
+        
+        .bot-card-title {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 2;
             font-weight: bold;
-            color: #1e40af;
-            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        .certificate-subtitle {
-            font-size: 16px;
-            color: #64748b;
+        
+        .bot-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
         }
-        .certificate-content {
+        
+        .bot-status.active {
+            background: rgba(16, 185, 129, 0.8);
+        }
+        
+        .bot-status.demo {
+            background: rgba(239, 68, 68, 0.8);
+        }
+        
+        .bot-status.completed {
+            background: rgba(16, 185, 129, 0.8);
+        }
+        
+        .bot-stats {
+            padding: 1rem;
+        }
+        
+        .bot-stat {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        .certificate-left, .certificate-right {
-            flex: 1;
-        }
-        .certificate-seal {
-            width: 100px;
-            height: 100px;
-            border: 2px solid #1e40af;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-        .certificate-seal::before {
-            content: '';
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border: 1px solid #1e40af;
-            border-radius: 50%;
-        }
-        .certificate-seal i {
-            font-size: 36px;
-            color: #1e40af;
-        }
-        .certificate-footer {
-            text-align: center;
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        .kra-pin {
-            background: #1e40af;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .whatsapp-float {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            bottom: 40px;
-            right: 40px;
-            background-color: #25d366;
-            color: #FFF;
-            border-radius: 50px;
-            text-align: center;
-            font-size: 30px;
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .whatsapp-float:hover {
-            transform: scale(1.1);
-        }
-        .daily-bonus {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            z-index: 100;
-            max-width: 300px;
-            transform: translateX(350px);
-            transition: transform 0.5s ease;
-        }
-        .daily-bonus.show {
-            transform: translateX(0);
-        }
-        .daily-bonus h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        .daily-bonus p {
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .daily-bonus button {
-            background: white;
-            color: #059669;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .daily-bonus button:hover {
-            background: #f0fdfa;
-        }
-        .signup-prompt {
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-        }
-        .signup-prompt h3 {
-            font-size: 1.5rem;
             margin-bottom: 0.5rem;
         }
-        .signup-prompt p {
-            margin-bottom: 1rem;
-            opacity: 0.9;
+        
+        .bot-stat-label {
+            color: rgba(255, 255, 255, 0.7);
         }
-        .signup-prompt button {
-            background: white;
-            color: #1e40af;
+        
+        .bot-stat-value {
             font-weight: bold;
-            padding: 0.5rem 1.5rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
         }
-        .signup-prompt button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        
+        .bot-progress {
+            margin-top: 1rem;
         }
-        .company-story {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.2));
-            border-radius: 1.5rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+        
+        .bot-progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
         }
-        .company-story h2 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
+        
+        .bot-progress-fill {
+            height: 100%;
             background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            border-radius: 4px;
+            transition: width 1s ease;
         }
+        
+        .bot-progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Bot card enhancements */
+        .bot-card.completed-bot {
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .bot-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Enhanced notification styles */
+        .notification {
+            max-width: 400px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            padding: 1rem;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 1rem;
+            }
+            
+            .notification {
+                right: 0.5rem;
+                left: 0.5rem;
+                max-width: none;
+            }
+            
+            .bot-actions {
+                flex-direction: column;
+            }
+            
+            .btn-sm {
+                width: 100%;
+            }
+        }
+        
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .text-5xl { font-size: 3rem; }
+        .font-bold { font-weight: 700; }
+        .w-full { width: 100%; }
+        .overflow-x-auto { overflow-x: auto; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .sticky { position: sticky; }
+        .top-0 { top: 0; }
+        .z-50 { z-index: 50; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .text-gray-300 { color: rgba(255, 255, 255, 0.7); }
+        .text-blue-400 { color: #60a5fa; }
+        .bg-blue-600 { background-color: #2563eb; }
+        .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
+        .hover\:text-blue-300:hover { color: #93c5fd; }
+        .transition { transition: all 0.15s ease; }
+        .cursor-pointer { cursor: pointer; }
+        
+        /* Custom styles for specific elements */
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+        
+        .stats-icon {
+            font-size: 2rem;
+            color: #60a5fa;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stats-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .bot-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .investment-card {
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .investment-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .investment-price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        
         .timeline {
             position: relative;
             margin: 2rem 0;
         }
+        
         .timeline::before {
             content: '';
             position: absolute;
@@ -296,14 +461,17 @@
             width: 2px;
             background: linear-gradient(to bottom, #3b82f6, #1e40af);
         }
+        
         .timeline-item {
             position: relative;
             padding-left: 3rem;
             margin-bottom: 2rem;
         }
+        
         .timeline-item:last-child {
             margin-bottom: 0;
         }
+        
         .timeline-item::before {
             content: '';
             position: absolute;
@@ -315,16 +483,329 @@
             background: #3b82f6;
             border: 2px solid white;
         }
+        
         .timeline-date {
             font-weight: bold;
             color: #60a5fa;
             margin-bottom: 0.5rem;
         }
+        
         .timeline-content {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 0.5rem;
             padding: 1rem;
         }
+        
+        .certificate {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 1.25rem;
+            color: #1e293b;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48Y2lyY2xlIGN4PSIyNSIgY3k9IjI1IiByPSIyIiBmaWxsPSIjZTJlOGYwIiBmaWxsLW9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==');
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 0.25rem;
+        }
+        
+        .certificate-subtitle {
+            font-size: 1rem;
+            color: #64748b;
+        }
+        
+        .certificate-content {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate-left, .certificate-right {
+            flex: 1;
+        }
+        
+        .certificate-seal {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #1e40af;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate-seal::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 1px solid #1e40af;
+            border-radius: 50%;
+        }
+        
+        .certificate-seal i {
+            font-size: 1.5rem;
+            color: #1e40af;
+        }
+        
+        .certificate-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .kra-pin {
+            background: #1e40af;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+        
+        .faq-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .faq-question {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 80px;
+            right: 20px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 1.875rem;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+        
+        .daily-bonus {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            z-index: 100;
+            max-width: 300px;
+            transform: translateX(350px);
+            transition: transform 0.5s ease;
+        }
+        
+        .daily-bonus.show {
+            transform: translateX(0);
+        }
+        
+        .daily-bonus h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .daily-bonus p {
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .daily-bonus button {
+            background: white;
+            color: #059669;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .daily-bonus button:hover {
+            background: #f0fdfa;
+        }
+        
+        .signup-prompt {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .signup-prompt h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .signup-prompt p {
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+        
+        .signup-prompt button {
+            background: white;
+            color: #1e40af;
+            font-weight: bold;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .signup-prompt button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-avatar {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        .user-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-avatar .default-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-avatar .default-avatar i {
+            font-size: 1.5rem;
+            color: #3b82f6;
+        }
+        
+        .upload-overlay {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity 0.2s ease;
+        }
+        
+        .user-avatar:hover .upload-overlay { 
+            opacity: 1; 
+        }
+        
+        .mobile-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.75rem 0;
+        }
+        
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s ease;
+        }
+        
+        .mobile-nav-item.active {
+            color: #60a5fa;
+        }
+        
+        .mobile-nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mobile-nav-item span {
+            font-size: 0.75rem;
+        }
+        
+        .company-story {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.2));
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .company-story h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
         .partners {
             display: flex;
             justify-content: space-around;
@@ -332,257 +813,351 @@
             margin-top: 2rem;
             flex-wrap: wrap;
         }
+        
         .partner {
             text-align: center;
             margin: 1rem;
             flex: 1;
-            min-width: 150px;
+            min-width: 120px;
         }
+        
         .partner-logo {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 0.5rem;
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: #60a5fa;
         }
-        .bot-card {
-            transition: all 0.3s ease;
-            overflow: hidden;
+        
+        .invest-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
         }
-        .bot-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        
+        .invest-btn:hover {
+            background: #1d4ed8;
         }
-        .bot-card-header {
-            position: relative;
-            overflow: hidden;
-        }
-        .bot-card-header::after {
-            content: '';
+        
+        .most-popular {
             position: absolute;
             top: 0;
-            left: 0;
             right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
-            z-index: 1;
-        }
-        .bot-card-header img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-        }
-        .bot-card-title {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            z-index: 2;
+            background: #fbbf24;
+            color: #000;
+            font-size: 0.75rem;
             font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            padding: 0.25rem 0.75rem;
+            border-bottom-left-radius: 0.5rem;
         }
-        .bot-status {
+        
+        .profit-glow {
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+        }
+        
+        /* New styles for enhanced UI */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .bot-card-header .bot-badge {
             position: absolute;
             top: 10px;
-            right: 10px;
-            z-index: 2;
-            padding: 4px 8px;
+            left: 10px;
+            background: rgba(59, 130, 246, 0.8);
+            color: white;
+            padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-size: 0.7rem;
             font-weight: bold;
+            z-index: 2;
         }
-        .bot-status.active {
+        
+        .bot-card.completed-bot .bot-badge {
             background: rgba(16, 185, 129, 0.8);
         }
-        .bot-status.demo {
+        
+        .bot-card.demo-bot .bot-badge {
             background: rgba(239, 68, 68, 0.8);
         }
-        .bot-stats {
-            padding: 1rem;
+        
+        .refresh-btn {
+            position: relative;
         }
-        .bot-stat {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
+        
+        .refresh-btn i {
+            transition: transform 0.5s ease;
         }
-        .bot-stat-label {
-            color: rgba(255, 255, 255, 0.7);
+        
+        .refresh-btn.active i {
+            animation: spin 1s linear infinite;
         }
-        .bot-stat-value {
-            font-weight: bold;
-        }
-        .bot-progress {
+        
+        .bot-simulation {
             margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
         }
-        .bot-progress-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
+        
+        .bot-simulation i {
+            margin-right: 0.5rem;
+            color: #60a5fa;
         }
-        .bot-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            border-radius: 4px;
-            transition: width 1.5s ease;
+        
+        .bot-simulation.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: rgba(255, 255, 255, 0.9);
         }
-        .bot-progress-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
+        
+        .bot-simulation.active i {
+            color: #10b981;
         }
-        /* New styles for bot creation modal */
-        .modal-content {
-            background: rgba(30, 41, 59, 0.95);
-            border-radius: 1rem;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: bold;
+        
+        .bot-simulation.completed {
+            background: rgba(16, 185, 129, 0.2);
             color: white;
         }
+        
+        .bot-simulation.completed i {
+            color: #10b981;
+        }
+        
+        .certificate-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 5rem;
+            color: rgba(30, 64, 175, 0.05);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
         .close-btn {
             background: none;
             border: none;
             color: white;
             font-size: 1.5rem;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
         }
+        
         .close-btn:hover {
             color: #ef4444;
         }
-        .form-group {
-            margin-bottom: 1.5rem;
+        
+        .bot-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 500;
+        
+        .bot-stat-full {
+            grid-column: span 2;
         }
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
+        
+        .timeline-item:hover .timeline-content {
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-        .form-select {
-            width: 100%;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .form-select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-        .form-select option {
-            background: #1e293b;
-            color: white;
-        }
-        .form-text {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 0.25rem;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s ease;
         }
-        .btn-secondary {
+        
+        .partner:hover .partner-logo {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .faq-item:hover {
             background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 1rem;
+            transition: background 0.2s ease;
         }
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
+        
+        .stats-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .stats-card:hover .stats-icon {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Certificate styles */
+        .certificate {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 1.25rem;
+            color: #1e293b;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .certificate-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 5rem;
+            color: rgba(30, 64, 175, 0.05);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 0.25rem;
+        }
+        
+        .certificate-subtitle {
+            font-size: 1rem;
+            color: #64748b;
+        }
+        
+        .certificate-content {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate-left, .certificate-right {
+            flex: 1;
+        }
+        
+        .certificate-seal {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #1e40af;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate-seal::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 1px solid #1e40af;
+            border-radius: 50%;
+        }
+        
+        .certificate-seal i {
+            font-size: 1.5rem;
+            color: #1e40af;
+        }
+        
+        .certificate-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .kra-pin {
+            background: #1e40af;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
-<body class="gradient-bg text-white min-h-screen">
-
+<body>
     <!-- Top Navbar -->
-    <nav class="glass-card shadow-2xl sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-chart-line text-2xl text-blue-400"></i>
-                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
-                </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="dashboard.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Dashboard</a>
-                    <a href="trading.html" class="hover:text-blue-300 transition">Trading</a>
-                    <a href="deposit-withdraw.html" class="hover:text-blue-300 transition">Wallet</a>
-                    <a href="referrals.html" class="hover:text-blue-300 transition">Referrals</a>
-                    <a href="profile.html" class="hover:text-blue-300 transition">Profile</a>
-                    <button id="logoutBtn" class="text-red-400 hover:text-red-300 transition" style="display: none;">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
-                    <div class="user-avatar" id="userAvatar">
-                        <div id="userImageContainer"></div>
-                        <div class="upload-overlay"><i class="fas fa-camera text-white"></i></div>
-                        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
-                    </div>
+    <nav class="glass-card shadow-lg sticky top-0 z-50 p-4 hidden md:block">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-chart-line text-2xl text-blue-400"></i>
+                <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="dashboard.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Dashboard</a>
+                <a href="trading.html" class="text-gray-300 hover:text-blue-300 transition">Trading</a>
+                <a href="deposit-withdraw.html" class="text-gray-300 hover:text-blue-300 transition">Wallet</a>
+                <a href="referrals.html" class="text-gray-300 hover:text-blue-300 transition">Referrals</a>
+                <a href="profile.html" class="text-gray-300 hover:text-blue-300 transition">Profile</a>
+                <button id="logoutBtn" class="text-red-400 hover:text-red-300 transition hidden">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
+                <div class="user-avatar" id="userAvatar">
+                    <div id="userImageContainer"></div>
+                    <div class="upload-overlay"><i class="fas fa-camera text-white"></i></div>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+    <!-- Mobile Top Bar -->
+    <div class="glass-card shadow-lg sticky top-0 z-50 p-3 md:hidden">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-chart-line text-xl text-blue-400"></i>
+                <span class="text-xl font-bold">ForexPro</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="mobileLogoutBtn" class="text-red-400 hover:text-red-300 transition hidden">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+                <div class="user-avatar" id="mobileUserAvatar">
+                    <div id="mobileUserImageContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="p-4 pb-20 md:pb-8 space-y-6">
         <!-- Welcome with real name -->
         <div class="text-center md:text-left">
             <h1 class="text-4xl md:text-5xl font-bold">Welcome back, <span id="userName">Guest</span>!</h1>
@@ -590,54 +1165,54 @@
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-            <div class="glass-card p-6 hover-lift text-center clickable">
-                <i class="fas fa-wallet text-3xl text-blue-400 mb-3"></i>
+        <div class="stats-container">
+            <div class="glass-card stats-card">
+                <i class="fas fa-wallet stats-icon"></i>
                 <p class="text-gray-300 text-sm">Total Balance</p>
-                <p class="text-3xl font-bold" id="totalBalance">KSH 0</p>
+                <p class="stats-value" id="totalBalance">KSH 0</p>
             </div>
-            <div class="glass-card p-6 hover-lift text-center profit-glow clickable">
-                <i class="fas fa-arrow-trend-up text-3xl text-blue-400 mb-3"></i>
+            <div class="glass-card stats-card">
+                <i class="fas fa-arrow-trend-up stats-icon profit-glow"></i>
                 <p class="text-gray-300 text-sm">Total Profit</p>
-                <p class="text-3xl font-bold" id="totalProfit">KSH 0</p>
+                <p class="stats-value" id="totalProfit">KSH 0</p>
             </div>
-            <div class="glass-card p-6 hover-lift text-center clickable">
-                <i class="fas fa-robot text-3xl text-blue-400 mb-3"></i>
+            <div class="glass-card stats-card">
+                <i class="fas fa-robot stats-icon"></i>
                 <p class="text-gray-300 text-sm">Active Bots</p>
-                <p class="text-3xl font-bold" id="activeBots">0</p>
+                <p class="stats-value" id="activeBots">0</p>
             </div>
-            <div class="glass-card p-6 hover-lift text-center clickable">
-                <i class="fas fa-users text-3xl text-blue-400 mb-3"></i>
+            <div class="glass-card stats-card">
+                <i class="fas fa-users stats-icon"></i>
                 <p class="text-gray-300 text-sm">Referrals</p>
-                <p class="text-3xl font-bold" id="referrals">0</p>
+                <p class="stats-value" id="referrals">0</p>
             </div>
         </div>
 
         <!-- Trading Bots -->
-        <div class="glass-card p-6 md:p-8">
-            <div class="flex justify-between items-center mb-6">
+        <div class="glass-card p-4 md:p-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h2 class="text-2xl font-bold">Your Trading Bots</h2>
                     <p class="text-gray-300">Automated profits running 24/7</p>
                 </div>
-                <div class="flex space-x-3">
-                    <button id="refreshBotsBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
-                        <i class="fas fa-sync-alt mr-2"></i> Refresh
+                <div class="flex gap-3">
+                    <button id="refreshBotsBtn" class="btn bg-blue-600 hover:bg-blue-700 refresh-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                    <button id="addBotBtn" class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-3 rounded-full font-bold hover:scale-105 transition">
-                        <i class="fas fa-plus mr-2"></i> Add Bot
+                    <button id="addBotBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Bot
                     </button>
                 </div>
             </div>
             
             <!-- Sign Up Prompt (shown only when not logged in) -->
-            <div id="signupPrompt" class="signup-prompt" style="display: none;">
+            <div id="signupPrompt" class="signup-prompt hidden">
                 <h3><i class="fas fa-gift mr-2"></i> Get KSH 200 Sign-Up Bonus!</h3>
                 <p>Sign up now to receive KSH 200 bonus and start trading with our automated bots.</p>
                 <button id="signupPromptBtn">Sign Up Now</button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bots-container">
+            <div class="bot-container" id="bots-container">
                 <!-- Bots will be loaded here -->
             </div>
         </div>
@@ -720,34 +1295,34 @@
         </div>
 
         <!-- Investment Plans -->
-        <div class="glass-card p-6 md:p-8">
+        <div class="glass-card p-4 md:p-6">
             <h2 class="text-2xl font-bold mb-6 text-center md:text-left">Choose Your Investment Plan</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white/10 rounded-2xl p-6 hover-lift border border-white/20">
+                <div class="investment-card">
                     <h3 class="text-xl font-bold">Starter</h3>
-                    <p class="text-4xl font-bold mt-4">KSH 1,000</p>
+                    <p class="investment-price">KSH 1,000</p>
                     <p class="text-blue-400 text-lg">Daily Profit: <strong>KSH 75</strong></p>
-                    <p class="text-sm text-gray-300 mt-4">30 Days → Total: <strong>KSH 2,250</strong></p>
-                    <button class="invest-btn mt-6 w-full bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 transition" data-price="1000" data-plan="Starter">
+                    <p class="text-sm text-gray-300 mt-2">30 Days → Total: <strong>KSH 2,250</strong></p>
+                    <button class="invest-btn mt-4" data-price="1000" data-plan="Starter">
                         Invest Now
                     </button>
                 </div>
-                <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 hover-lift relative overflow-hidden transform scale-105">
-                    <div class="absolute top-0 right-0 bg-yellow-400 text-black text-xs font-bold px-4 py-1 rounded-bl-lg">MOST POPULAR</div>
+                <div class="investment-card relative overflow-hidden">
+                    <div class="most-popular">MOST POPULAR</div>
                     <h3 class="text-xl font-bold">Professional</h3>
-                    <p class="text-4xl font-bold mt-4">KSH 10,000</p>
+                    <p class="investment-price">KSH 10,000</p>
                     <p class="text-white text-lg">Daily Profit: <strong>KSH 750</strong></p>
-                    <p class="text-sm mt-4">30 Days → Total: <strong>KSH 22,500</strong></p>
-                    <button class="invest-btn mt-6 w-full bg-white text-black py-3 rounded-xl font-bold hover:bg-gray-200 transition" data-price="10000" data-plan="Professional">
+                    <p class="text-sm mt-2">30 Days → Total: <strong>KSH 22,500</strong></p>
+                    <button class="invest-btn mt-4 bg-white text-black hover:bg-gray-200" data-price="10000" data-plan="Professional">
                         Invest Now
                     </button>
                 </div>
-                <div class="bg-white/10 rounded-2xl p-6 hover-lift border border-white/20">
+                <div class="investment-card">
                     <h3 class="text-xl font-bold">Premium VIP</h3>
-                    <p class="text-4xl font-bold mt-4">KSH 100,000</p>
+                    <p class="investment-price">KSH 100,000</p>
                     <p class="text-blue-400 text-lg">Daily Profit: <strong>KSH 7,500</strong></p>
-                    <p class="text-sm text-gray-300 mt-4">30 Days → Total: <strong>KSH 225,000</strong></p>
-                    <button class="invest-btn mt-6 w-full bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 transition" data-price="100000" data-plan="Premium VIP">
+                    <p class="text-sm text-gray-300 mt-2">30 Days → Total: <strong>KSH 225,000</strong></p>
+                    <button class="invest-btn mt-4" data-price="100000" data-plan="Premium VIP">
                         Invest Now
                     </button>
                 </div>
@@ -755,7 +1330,7 @@
         </div>
 
         <!-- How to Earn Section -->
-        <div class="glass-card p-6 md:p-8">
+        <div class="glass-card p-4 md:p-6">
             <h2 class="text-2xl font-bold mb-6 text-center md:text-left">How to Earn with ForexPro</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
@@ -785,29 +1360,134 @@
                 </div>
                 <div>
                     <h3 class="text-xl font-bold mb-4 text-blue-400">Crypto Mining Certificate</h3>
-                    <div class="certificate">
-                        <div class="certificate-header">
-                            <div class="certificate-title">CRYPTO MINING CERTIFICATE</div>
-                            <div class="certificate-subtitle">Verification of Mining Capacity</div>
+                    <!-- Crypto Mining Certificate - REALISTIC & PROFESSIONAL -->
+                    <div class="certificate relative overflow-hidden shadow-2xl">
+                        <!-- Subtle watermark -->
+                        <div class="certificate-watermark opacity-5 pointer-events-none select-none">
+                            FOREXPRO CERTIFIED
                         </div>
-                        <div class="certificate-content">
-                            <div class="certificate-left">
-                                <p><strong>Certificate ID:</strong> FX-2023-<span id="certId">742869</span></p>
-                                <p><strong>Issued To:</strong> <span id="certName">ForexPro User</span></p>
-                                <p><strong>Mining Capacity:</strong> 0.0247 TH/s</p>
-                                <p><strong>Algorithm:</strong> SHA-256</p>
-                                <p><strong>Issue Date:</strong> November 2024</p>
-                                <p><strong>KRA PIN:</strong> <span id="kraPin">P012345678Q</span></p>
+
+                        <!-- Decorative border pattern -->
+                        <div class="absolute inset-0 pointer-events-none">
+                            <div class="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-blue-900 to-transparent opacity-30"></div>
+                            <div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-blue-900 to-transparent opacity-30"></div>
+                            <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-blue-900 to-transparent opacity-30"></div>
+                            <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-blue-900 to-transparent opacity-30"></div>
+                            
+                            <!-- Corner ornaments -->
+                            <div class="absolute top-4 left-4 text-blue-900 opacity-40 text-4xl">❖</div>
+                            <div class="absolute top-4 right-4 text-blue-900 opacity-40 text-4xl rotate-90">❖</div>
+                            <div class="absolute bottom-4 left-4 text-blue-900 opacity-40 text-4xl -rotate-90">❖</div>
+                            <div class="absolute bottom-4 right-4 text-blue-900 opacity-40 text-4xl rotate-180">❖</div>
+                        </div>
+
+                        <div class="relative z-10 p-8 md:p-12">
+                            <!-- Header -->
+                            <div class="text-center mb-10">
+                                <div class="flex justify-center items-center gap-4 mb-4">
+                                    <img src="https://via.placeholder.com/80x80/1e40af/ffffff?text=FP" alt="ForexPro Seal" class="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-blue-900 shadow-lg">
+                                    <div>
+                                        <h2 class="text-3xl md:text-4xl font-bold text-blue-900 tracking-wider">FOREXPRO LIMITED</h2>
+                                        <p class="text-lg text-gray-700 font-medium">Registered Cryptocurrency Investment Platform</p>
+                                    </div>
+                                    <img src="https://via.placeholder.com/80x80/10b981/ffffff?text=✓" alt="Verified" class="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-green-700 shadow-lg">
+                                </div>
+                                <hr class="my-6 border-t-2 border-blue-900 opacity-50">
+                                <h1 class="text-4xl md:text-5xl font-bold text-blue-900 mb-2 tracking-widest">
+                                    CERTIFICATE OF CRYPTOCURRENCY MINING
+                                </h1>
+                                <p class="text-xl text-gray-700 italic">Official Verification of Mining Capacity Allocation</p>
                             </div>
-                            <div class="certificate-right">
-                                <div class="certificate-seal">
-                                    <i class="fas fa-certificate"></i>
+
+                            <!-- Body -->
+                            <div class="bg-white bg-opacity-95 rounded-lg p-8 shadow-inner">
+                                <div class="grid md:grid-cols-2 gap-8 text-gray-800">
+                                    <div class="space-y-5">
+                                        <div>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Certificate Number</p>
+                                            <p class="text-xl font-mono font-bold text-blue-900" id="certId">FXM-2025-KE742869</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wider">This Certifies That</p>
+                                            <p class="text-2xl font-bold text-blue-900 border-b-2 border-blue-900 inline-block pb-1" id="certName">JOHN DOE</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Has Been Allocated Mining Capacity Of</p>
+                                            <p class="text-3xl font-bold text-green-600">0.0247 TH/s</p>
+                                            <p class="text-sm text-gray-600">Algorithm: SHA-256 | Network: Bitcoin</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-5">
+                                        <div>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Issue Date</p>
+                                            <p class="text-lg font-semibold">23rd November 2025</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Valid Until</p>
+                                            <p class="text-lg font-semibold">23rd November 2026</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Kenya Revenue Authority PIN</p>
+                                            <p class="text-xl font-mono bg-blue-900 text-white inline-block px-3 py-1 rounded" id="kraPin">P0512345678Q</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Official Seal & Signatures -->
+                                <div class="mt-12 flex flex-col md:flex-row justify-between items-end gap-8">
+                                    <div class="text-center">
+                                        <div class="w-32 h-32 mx-auto relative">
+                                            <div class="absolute inset-0 rounded-full border-8 border-blue-900 opacity-20"></div>
+                                            <div class="absolute inset-4 rounded-full border-4 border-blue-900 opacity-40"></div>
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <i class="fas fa-shield-alt text-6xl text-blue-900"></i>
+                                            </div>
+                                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                                OFFICIAL SEAL
+                                            </div>
+                                        </div>
+                                        <p class="mt-4 text-sm text-gray-600">Digital Verification Seal</p>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <div class="border-t-2 border-gray-800 w-48 mb-2"></div>
+                                        <p class="font-bold text-blue-900">Dr. Sarah Kamau</p>
+                                        <p class="text-sm text-gray-600">Chief Executive Officer<br>ForexPro Limited</p>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <div class="border-t-2 border-gray-800 w-48 mb-2"></div>
+                                        <p class="font-bold text-blue-900">Michael Ochieng</p>
+                                        <p class="text-sm text-gray-600">Chief Technology Officer<br>Blockchain Division</p>
+                                    </div>
+                                </div>
+
+                                <!-- Verification Footer -->
+                                <div class="mt-10 pt-6 border-t-2 border-dashed border-gray-400 text-center">
+                                    <p class="text-xs text-gray-600 mb-2">
+                                        <strong>Verify authenticity at:</strong> 
+                                        <span class="font-mono text-blue-700">https://forexpro.ke/verify?code=</span>
+                                        <span class="font-mono text-blue-900 font-bold" id="certCode">FX7A3B9C2D8E1F5G6H</span>
+                                    </p>
+                                    <p class="text-xs text-gray-500 italic">
+                                        This is a digitally issued certificate. No physical copy required.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="certificate-footer">
-                            <p>This certificate verifies that the above-named entity has been registered as a legitimate cryptocurrency mining operator with ForexPro.</p>
-                            <p class="mt-2"><strong>Verification Code:</strong> <span id="certCode">FX-7A3B9C2D8E1F5G6</span></p>
+
+                        <!-- Trust badges below certificate -->
+                        <div class="flex justify-center gap-6 mt-6 flex-wrap">
+                            <div class="bg-gray-800 text-green-400 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
+                                <i class="fas fa-lock"></i> SSL Secured
+                            </div>
+                            <div class="bg-gray-800 text-blue-400 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
+                                <i class="fas fa-shield-alt"></i> KRA Compliant
+                            </div>
+                            <div class="bg-gray-800 text-yellow-400 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
+                                <i class="fas fa-certificate"></i> ISO 27001 Certified
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -815,27 +1495,27 @@
         </div>
 
         <!-- FAQ Section -->
-        <div class="glass-card p-6 md:p-8">
+        <div class="glass-card p-4 md:p-6">
             <h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
             <div class="space-y-4">
-                <div class="bg-white/5 rounded-xl p-4">
-                    <h3 class="font-bold text-lg mb-2">How do I deposit funds?</h3>
+                <div class="faq-item">
+                    <h3 class="faq-question">How do I deposit funds?</h3>
                     <p class="text-gray-300">You can deposit funds using cryptocurrency (USDT, BTC, ETH) or fiat methods like M-Pesa. Go to the Wallet section to make a deposit.</p>
                 </div>
-                <div class="bg-white/5 rounded-xl p-4">
-                    <h3 class="font-bold text-lg mb-2">What is the minimum deposit amount?</h3>
+                <div class="faq-item">
+                    <h3 class="faq-question">What is the minimum deposit amount?</h3>
                     <p class="text-gray-300">The minimum deposit amount is KSH 1,000 for fiat deposits and $10 for cryptocurrency deposits.</p>
                 </div>
-                <div class="bg-white/5 rounded-xl p-4">
-                    <h3 class="font-bold text-lg mb-2">How long do withdrawals take?</h3>
+                <div class="faq-item">
+                    <h3 class="faq-question">How long do withdrawals take?</h3>
                     <p class="text-gray-300">Cryptocurrency withdrawals are processed within 24 hours, while fiat withdrawals may take 1-3 business days.</p>
                 </div>
-                <div class="bg-white/5 rounded-xl p-4">
-                    <h3 class="font-bold text-lg mb-2">How do I claim my daily login bonus?</h3>
+                <div class="faq-item">
+                    <h3 class="faq-question">How do I claim my daily login bonus?</h3>
                     <p class="text-gray-300">Simply log in to your account each day to claim your KSH 50 daily bonus. The bonus will be automatically credited to your account.</p>
                 </div>
-                <div class="bg-white/5 rounded-xl p-4">
-                    <h3 class="font-bold text-lg mb-2">Need help?</h3>
+                <div class="faq-item">
+                    <h3 class="faq-question">Need help?</h3>
                     <p class="text-gray-300">Contact our support team at <a href="tel:+254739119490" class="text-blue-400">+254739119490</a> or click the WhatsApp button below for assistance.</p>
                 </div>
             </div>
@@ -844,26 +1524,26 @@
 
     <!-- Mobile Bottom Nav -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">
-        <div class="flex justify-around py-3">
-            <a href="dashboard.html" class="text-blue-400 text-center">
-                <i class="fas fa-home text-2xl"></i>
-                <p class="text-xs">Home</p>
+        <div class="mobile-nav">
+            <a href="dashboard.html" class="mobile-nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
             </a>
-            <a href="trading.html" class="text-gray-400 text-center">
-                <i class="fas fa-exchange-alt text-2xl"></i>
-                <p class="text-xs">Trade</p>
+            <a href="trading.html" class="mobile-nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Trade</span>
             </a>
-            <a href="deposit-withdraw.html" class="text-gray-400 text-center">
-                <i class="fas fa-wallet text-2xl"></i>
-                <p class="text-xs">Wallet</p>
+            <a href="deposit-withdraw.html" class="mobile-nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Wallet</span>
             </a>
-            <a href="referrals.html" class="text-gray-400 text-center">
-                <i class="fas fa-users text-2xl"></i>
-                <p class="text-xs">Referrals</p>
+            <a href="referrals.html" class="mobile-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Referrals</span>
             </a>
-            <a href="profile.html" class="text-gray-400 text-center">
-                <i class="fas fa-user text-2xl"></i>
-                <p class="text-xs">Profile</p>
+            <a href="profile.html" id="mobileProfileLink" class="mobile-nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
             </a>
         </div>
     </div>
@@ -882,14 +1562,14 @@
 
     <!-- Auth Modal -->
     <div id="authModal" class="modal">
-        <div class="glass-card p-8 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-bold mb-4">Authentication Required</h3>
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4">Authentication Required</h3>
             <p class="text-gray-300 mb-6">Please sign in to continue.</p>
             <div class="flex flex-col sm:flex-row gap-4">
-                <button id="signInBtn" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 transition">
+                <button id="signInBtn" class="btn btn-primary flex-1">
                     Sign In
                 </button>
-                <button id="signUpBtn" class="flex-1 bg-blue-800 py-3 rounded-xl font-bold hover:bg-blue-900 transition">
+                <button id="signUpBtn" class="btn bg-gray-700 hover:bg-gray-600 flex-1">
                     Sign Up
                 </button>
             </div>
@@ -900,8 +1580,8 @@
     <!-- Add Bot Modal -->
     <div id="addBotModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Create New Trading Bot</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Create New Trading Bot</h3>
                 <button class="close-btn" id="closeAddBotModal">&times;</button>
             </div>
             <form id="addBotForm">
@@ -912,7 +1592,7 @@
                 <div class="form-group">
                     <label class="form-label" for="botInvestment">Investment Amount (KSH)</label>
                     <input type="number" id="botInvestment" class="form-input" placeholder="Enter investment amount" min="1000" step="100" required>
-                    <p class="form-text">Minimum investment: KSH 1,000</p>
+                    <p class="text-sm text-gray-400 mt-1">Minimum investment: KSH 1,000</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="botImage">Bot Image (Optional)</label>
@@ -925,8 +1605,8 @@
                         <option value="https://images.unsplash.com/photo-1636678146495-0f3022d8f9e7">Crypto Portfolio</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-primary">Create Bot</button>
-                <button type="button" class="btn-secondary" id="cancelAddBot">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Bot</button>
+                <button type="button" class="btn bg-gray-700 hover:bg-gray-600 mt-3" id="cancelAddBot">Cancel</button>
             </form>
         </div>
     </div>
@@ -934,566 +1614,7 @@
     <!-- Notification -->
     <div id="notification" class="notification"></div>
 
-    <script>
-        // API Base URL
-        const API_BASE = 'https://fly-io-haha.onrender.com/';
-
-        // Check if user is logged in
-        let token = localStorage.getItem('token');
-        let user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-
-        // Function to extract username from email
-        function getUsernameFromEmail(email) {
-            if (!email) return 'Guest';
-            return email.split('@')[0];
-        }
-
-        // Function to render user avatar
-        function renderUserAvatar(imageUrl) {
-            const container = document.getElementById('userImageContainer');
-            
-            if (imageUrl) {
-                container.innerHTML = `<img src="${imageUrl}" alt="You" class="w-10 h-10 rounded-full ring-2 ring-blue-400">`;
-            } else {
-                container.innerHTML = `
-                    <div class="default-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                `;
-            }
-        }
-
-        // Load user data
-        function loadUserData() {
-            if (user) {
-                // Use email username for display
-                const username = getUsernameFromEmail(user.email);
-                document.getElementById('userName').textContent = username;
-                
-                document.getElementById('totalBalance').textContent = `KSH ${parseFloat(user.balance || 0).toLocaleString()}`;
-                document.getElementById('totalProfit').textContent = `KSH ${parseFloat(user.profit || 0).toLocaleString()}`;
-                document.getElementById('activeBots').textContent = user.active_bots || 0;
-                document.getElementById('referrals').textContent = user.referrals || 0;
-                
-                // Render user avatar
-                const savedPhoto = localStorage.getItem('forexpro_profile');
-                renderUserAvatar(savedPhoto || user.profile_image);
-                
-                // Update certificate with user data
-                document.getElementById('certName').textContent = user.name || username;
-                
-                // Show logout button if user is logged in
-                document.getElementById('logoutBtn').style.display = 'block';
-                
-                // Hide signup prompt
-                document.getElementById('signupPrompt').style.display = 'none';
-                
-                // Check for daily login bonus
-                checkDailyBonus();
-            } else {
-                // Show guest data
-                document.getElementById('userName').textContent = 'Guest';
-                document.getElementById('totalBalance').textContent = 'KSH 0';
-                document.getElementById('totalProfit').textContent = 'KSH 0';
-                document.getElementById('activeBots').textContent = '0';
-                document.getElementById('referrals').textContent = '0';
-                
-                // Render default avatar
-                renderUserAvatar(null);
-                
-                // Update certificate with guest data
-                document.getElementById('certName').textContent = 'Guest User';
-                
-                // Hide logout button if user is not logged in
-                document.getElementById('logoutBtn').style.display = 'none';
-                
-                // Show signup prompt
-                document.getElementById('signupPrompt').style.display = 'block';
-            }
-        }
-
-        // Check and award daily login bonus
-        function checkDailyBonus() {
-            const today = new Date().toDateString();
-            const lastLogin = localStorage.getItem('lastLoginDate');
-            const bonusClaimed = localStorage.getItem('dailyBonusClaimed');
-            
-            if (lastLogin !== today) {
-                // New day login
-                localStorage.setItem('lastLoginDate', today);
-                localStorage.setItem('dailyBonusClaimed', 'false');
-                
-                // Show daily bonus notification
-                setTimeout(() => {
-                    document.getElementById('dailyBonus').classList.add('show');
-                }, 1000);
-            } else if (bonusClaimed === 'false') {
-                // Same day but bonus not claimed yet
-                setTimeout(() => {
-                    document.getElementById('dailyBonus').classList.add('show');
-                }, 1000);
-            }
-        }
-
-        // Claim daily bonus
-        document.getElementById('claimBonusBtn').addEventListener('click', function() {
-            if (user) {
-                // Simulate adding bonus to user balance
-                const currentBalance = parseFloat(user.balance || 0);
-                const bonusAmount = 50;
-                const newBalance = currentBalance + bonusAmount;
-                
-                // Update user data
-                user.balance = newBalance;
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                // Update UI
-                document.getElementById('totalBalance').textContent = `KSH ${newBalance.toLocaleString()}`;
-                
-                // Mark bonus as claimed
-                localStorage.setItem('dailyBonusClaimed', 'true');
-                
-                // Hide bonus notification
-                document.getElementById('dailyBonus').classList.remove('show');
-                
-                // Show success notification
-                showNotification('Daily bonus of KSH 50 claimed successfully!', 'success');
-            }
-        });
-
-        // Photo upload
-        document.getElementById('userAvatar').addEventListener('click', () => {
-            if (!user) {
-                document.getElementById('authModal').classList.add('active');
-                return;
-            }
-            document.getElementById('imageUpload').click();
-        });
-
-        document.getElementById('imageUpload').addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const newImg = ev.target.result;
-                    renderUserAvatar(newImg);
-                    localStorage.setItem('forexpro_profile', newImg);
-                    showNotification('Profile photo updated!', 'success');
-                };
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
-
-        // Logout functionality
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            token = null;
-            user = null;
-            loadUserData();
-            loadBots();
-            showNotification('Logged out successfully', 'success');
-        });
-
-        // Generate cool bot names
-        function generateBotNames() {
-            const prefixes = ['Crypto', 'Quantum', 'Nexus', 'Apex', 'Prime', 'Ultra', 'Mega', 'Hyper', 'Max', 'Elite'];
-            const suffixes = ['Miner', 'Trader', 'Bot', 'Pro', 'Master', 'Expert', 'Genius', 'Wizard', 'Ninja', 'Guru'];
-            const specialWords = ['Satoshi', 'Nakamoto', 'Blockchain', 'Bitcoin', 'Ethereum', 'Litecoin', 'Ripple', 'Stellar', 'Cardano', 'Polkadot'];
-            
-            const names = [];
-            
-            // Generate 10 unique names
-            while (names.length < 10) {
-                const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-                const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-                const special = specialWords[Math.floor(Math.random() * specialWords.length)];
-                
-                // Combine in different ways
-                const namePatterns = [
-                    `${prefix} ${special} ${suffix}`,
-                    `${special} ${prefix} ${suffix}`,
-                    `${prefix}${special}${suffix}`,
-                    `${special} ${prefix}`
-                ];
-                
-                const name = namePatterns[Math.floor(Math.random() * namePatterns.length)];
-                
-                if (!names.includes(name)) {
-                    names.push(name);
-                }
-            }
-            
-            return names;
-        }
-
-        // Format currency
-        function formatCurrency(amount, currency = 'KSH') {
-            if (currency === 'USD') {
-                return `$${parseFloat(amount).toFixed(2)}`;
-            } else {
-                return `KSH ${parseFloat(amount).toLocaleString()}`;
-            }
-        }
-
-        // Load trading bots
-        async function loadBots() {
-            const container = document.getElementById('bots-container');
-            container.innerHTML = '<div class="col-span-full text-center py-8"><div class="loading-spinner"></div> Loading bots...</div>';
-
-            try {
-                let userBots = [];
-                let demoBots = [];
-                
-                // Generate cool bot names
-                const botNames = generateBotNames();
-                
-                if (token) {
-                    // Load user's bots from server
-                    const response = await fetch(`${API_BASE}/api/bots`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
-                    if (response.ok) {
-                        userBots = await response.json();
-                    } else if (response.status === 401) {
-                        // Token expired or invalid
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        token = null;
-                        user = null;
-                        loadUserData();
-                        showNotification('Session expired. Please login again.', 'error');
-                    }
-                } else {
-                    // Create demo bots with cool names
-                    demoBots = [
-                        {
-                            id: 'demo1',
-                            name: botNames[0] || 'Crypto Miner Pro',
-                            investment: 5000,
-                            daily_profit: 375,
-                            total_profit: 11250,
-                            progress: 65,
-                            image_url: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0'
-                        },
-                        {
-                            id: 'demo2',
-                            name: botNames[1] || 'Quantum Trading Bot',
-                            investment: 10000,
-                            daily_profit: 750,
-                            total_profit: 22500,
-                            progress: 30,
-                            image_url: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05'
-                        },
-                        {
-                            id: 'demo3',
-                            name: botNames[2] || 'Nexus Mining Expert',
-                            investment: 20000,
-                            daily_profit: 1500,
-                            total_profit: 45000,
-                            progress: 80,
-                            image_url: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3'
-                        },
-                        {
-                            id: 'demo4',
-                            name: botNames[3] || 'Apex Crypto Master',
-                            investment: 15000,
-                            daily_profit: 1125,
-                            total_profit: 33750,
-                            progress: 45,
-                            image_url: 'https://images.unsplash.com/photo-1640601454426-2c2428f0f744'
-                        },
-                        {
-                            id: 'demo5',
-                            name: botNames[4] || 'Prime Bitcoin Wizard',
-                            investment: 25000,
-                            daily_profit: 1875,
-                            total_profit: 56250,
-                            progress: 90,
-                            image_url: 'https://images.unsplash.com/photo-1621504450181-5d356f61d307'
-                        },
-                        {
-                            id: 'demo6',
-                            name: botNames[5] || 'Ultra Ethereum Ninja',
-                            investment: 30000,
-                            daily_profit: 2250,
-                            total_profit: 67500,
-                            progress: 20,
-                            image_url: 'https://images.unsplash.com/photo-1636678146495-0f3022d8f9e7'
-                        }
-                    ];
-                }
-                
-                // Only show demo bots if user is not logged in
-                let allBots = token ? userBots : demoBots;
-                
-                container.innerHTML = '';
-
-                allBots.forEach(bot => {
-                    const profitPercent = Math.round(((bot.total_profit - bot.investment) / bot.investment) * 100);
-                    const isDemo = !token || bot.id.toString().startsWith('demo');
-                    
-                    const card = document.createElement('div');
-                    card.className = `bot-card glass-card rounded-2xl overflow-hidden ${isDemo ? 'demo-bot' : ''}`;
-                    
-                    card.innerHTML = `
-                        <div class="bot-card-header">
-                            <img src="${bot.image_url || 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0'}" alt="${bot.name}">
-                            <div class="bot-card-title">${bot.name}</div>
-                            <div class="bot-status ${isDemo ? 'demo' : 'active'}">${isDemo ? 'DEMO' : 'ACTIVE'}</div>
-                        </div>
-                        <div class="bot-stats">
-                            <div class="bot-stat">
-                                <span class="bot-stat-label">Invested:</span>
-                                <span class="bot-stat-value">${formatCurrency(bot.investment, bot.currency || 'KSH')}</span>
-                            </div>
-                            <div class="bot-stat">
-                                <span class="bot-stat-label">Daily Profit:</span>
-                                <span class="bot-stat-value text-blue-400">${formatCurrency(bot.daily_profit, bot.currency || 'KSH')}</span>
-                            </div>
-                            <div class="bot-stat">
-                                <span class="bot-stat-label">Expected Total:</span>
-                                <span class="bot-stat-value text-blue-400 font-bold">${formatCurrency(bot.total_profit, bot.currency || 'KSH')}</span>
-                            </div>
-                            <div class="bot-stat">
-                                <span class="bot-stat-label">Return:</span>
-                                <span class="bot-stat-value text-blue-400">${profitPercent}%</span>
-                            </div>
-                            <div class="bot-progress">
-                                <div class="bot-progress-bar">
-                                    <div class="bot-progress-fill" style="width: ${bot.progress}%"></div>
-                                </div>
-                                <div class="bot-progress-info">
-                                    <span>30-Day Cycle</span>
-                                    <span>${bot.progress}% Complete</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    container.appendChild(card);
-                });
-            } catch (err) {
-                console.error('Error loading bots:', err);
-                container.innerHTML = `
-                    <div class="col-span-full text-center py-8 text-gray-400">
-                        <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
-                        <p>Failed to load bots. Please try again later.</p>
-                    </div>
-                `;
-                showNotification('Failed to load bots. Please try again later.', 'error');
-            }
-        }
-
-        // Generate certificate details
-        function generateCertificateDetails() {
-            // Generate random certificate ID
-            const certId = Math.floor(100000 + Math.random() * 900000);
-            document.getElementById('certId').textContent = certId;
-            
-            // Set KRA PIN (visibly fake)
-            document.getElementById('kraPin').textContent = 'P012345678Q';
-            
-            // Generate random verification code
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let certCode = 'FX-';
-            for (let i = 0; i < 16; i++) {
-                if (i > 0 && i % 4 === 0) certCode += '-';
-                certCode += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            document.getElementById('certCode').textContent = certCode;
-        }
-
-        // Load user data and bots on page load
-        loadUserData();
-        loadBots();
-        generateCertificateDetails();
-
-        // Refresh bots button
-        document.getElementById('refreshBotsBtn').addEventListener('click', () => {
-            const icon = document.querySelector('#refreshBotsBtn i');
-            icon.classList.add('fa-spin');
-            
-            // Refresh user data first
-            if (token) {
-                fetch(`${API_BASE}/api/user/profile`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else if (response.status === 401) {
-                        throw new Error('Unauthorized');
-                    } else {
-                        throw new Error('Failed to fetch user data');
-                    }
-                })
-                .then(userData => {
-                    // Update user data
-                    user = userData;
-                    localStorage.setItem('user', JSON.stringify(user));
-                    loadUserData();
-                    
-                    // Then load bots
-                    return loadBots();
-                })
-                .then(() => {
-                    showNotification('Data refreshed successfully!', 'success');
-                })
-                .catch(err => {
-                    console.error('Error refreshing data:', err);
-                    if (err.message === 'Unauthorized') {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        token = null;
-                        user = null;
-                        loadUserData();
-                        loadBots();
-                        showNotification('Session expired. Please login again.', 'error');
-                    } else {
-                        showNotification('Failed to refresh data. Please try again.', 'error');
-                    }
-                })
-                .finally(() => {
-                    icon.classList.remove('fa-spin');
-                });
-            } else {
-                // Just refresh bots for non-logged in users
-                loadBots().then(() => {
-                    showNotification('Data refreshed successfully!', 'success');
-                    icon.classList.remove('fa-spin');
-                });
-            }
-        });
-
-        // Add bot button
-        document.getElementById('addBotBtn').addEventListener('click', () => {
-            if (!token) {
-                document.getElementById('authModal').classList.add('active');
-                return;
-            }
-            // Show the add bot modal
-            document.getElementById('addBotModal').classList.add('active');
-        });
-
-        // Add Bot Form Submission
-        document.getElementById('addBotForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const botName = document.getElementById('botName').value;
-            const botInvestment = document.getElementById('botInvestment').value;
-            const botImage = document.getElementById('botImage').value;
-            
-            // Close the modal
-            document.getElementById('addBotModal').classList.remove('active');
-            
-            // Create the bot
-            createBot(botName, botInvestment, botImage);
-            
-            // Reset the form
-            this.reset();
-        });
-
-        // Cancel Add Bot
-        document.getElementById('cancelAddBot').addEventListener('click', () => {
-            document.getElementById('addBotModal').classList.remove('active');
-            document.getElementById('addBotForm').reset();
-        });
-
-        // Close Add Bot Modal
-        document.getElementById('closeAddBotModal').addEventListener('click', () => {
-            document.getElementById('addBotModal').classList.remove('active');
-            document.getElementById('addBotForm').reset();
-        });
-
-        // Function to create a bot
-        function createBot(name, investment, imageUrl) {
-            // Show loading state
-            showNotification('Creating bot...', 'success');
-            
-            fetch(`${API_BASE}/api/bots`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    name: name,
-                    investment: parseFloat(investment),
-                    image_url: imageUrl
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to create bot');
-                }
-                return response.json();
-            })
-            .then(data => {
-                showNotification(data.message, 'success');
-                // Refresh bots and user data
-                loadUserData();
-                loadBots();
-            })
-            .catch(err => {
-                console.error('Error creating bot:', err);
-                showNotification('Failed to create bot. Please try again.', 'error');
-            });
-        }
-
-        // Investment plan buttons
-        document.querySelectorAll('.invest-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (!token) {
-                    document.getElementById('authModal').classList.add('active');
-                    return;
-                }
-
-                const price = this.getAttribute('data-price');
-                const planName = this.getAttribute('data-plan');
-                
-                // Create a bot with the plan name and investment amount
-                createBot(planName, price);
-            });
-        });
-
-        // WhatsApp button functionality
-        document.getElementById('whatsappBtn').addEventListener('click', function() {
-            const phoneNumber = '254739119490'; // Replace with your actual WhatsApp number
-            const message = 'I need assistance from your website';
-            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        });
-
-        // Auth modal
-        document.getElementById('closeModal').addEventListener('click', () => {
-            document.getElementById('authModal').classList.remove('active');
-        });
-
-        document.getElementById('signInBtn').addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-
-        document.getElementById('signUpBtn').addEventListener('click', () => {
-            window.location.href = 'index.html#signup';
-        });
-
-        // Signup prompt button
-        document.getElementById('signupPromptBtn').addEventListener('click', () => {
-            window.location.href = 'index.html#signup';
-        });
-
-        // Notification function
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-    </script>
+    <!-- Reference to external JavaScript file -->
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
