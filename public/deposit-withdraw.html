@@ -102,6 +102,29 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .whatsapp-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        .whatsapp-btn i {
+            color: white;
+            font-size: 28px;
+        }
     </style>
 </head>
 <body class="gradient-bg text-white min-h-screen">
@@ -482,11 +505,16 @@
                 </div>
                 <div class="bg-white/5 rounded-xl p-4">
                     <h3 class="font-bold mb-2">Need help with deposits or withdrawals?</h3>
-                    <p class="text-gray-300">Contact our support team at <a href="tel:+254739119490" class="text-blue-400">+254739119490</a> for assistance.</p>
+                    <p class="text-gray-300">Contact our support team on <a href="https://wa.me/254739119490" target="_blank" class="text-green-400 hover:text-green-300"><i class="fab fa-whatsapp"></i> WhatsApp</a> for assistance.</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/254739119490" target="_blank" class="whatsapp-btn" title="Contact us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
     <!-- Mobile Navigation -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">

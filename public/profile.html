@@ -126,6 +126,46 @@
             font-size: 0.875rem;
             color: #9ca3af;
         }
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .whatsapp-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        .whatsapp-btn i {
+            color: white;
+            font-size: 28px;
+        }
+        .verification-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .status-verified {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
     </style>
 </head>
 <body class="gradient-bg text-white min-h-screen">
@@ -173,7 +213,12 @@
                     <div class="text-center md:text-left">
                         <h3 class="text-xl font-bold text-white" id="profileName">Trader</h3>
                         <p class="text-sm text-gray-300" id="profileEmail">trade.oo1@gmail.com</p>
-                        <p class="text-sm text-gray-300" id="profilePhone">+254 712 345 678</p>
+                        <p class="text-sm text-gray-300" id="profilePhone">
+                            +254 712 345 678
+                            <span id="phoneVerificationStatus" class="verification-status status-pending">
+                                <i class="fas fa-clock mr-1"></i> Not Verified
+                            </span>
+                        </p>
                         <div class="mt-2">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400">
                                 <i class="fas fa-check-circle mr-1"></i> Verified Account
@@ -199,6 +244,48 @@
                     <div class="stat-card">
                         <div class="stat-value" id="referrals">0</div>
                         <div class="stat-label">Referrals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phone Verification Section -->
+        <div class="glass-card p-6 hover-lift mb-8">
+            <div class="px-6 py-5 border-b border-white/10">
+                <h2 class="text-lg font-medium">Phone Verification</h2>
+            </div>
+            <div class="p-6">
+                <div id="phoneVerificationSection">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1" for="verificationPhone">
+                            Phone Number
+                        </label>
+                        <input type="tel" id="verificationPhone" name="verificationPhone"
+                            class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
+                            placeholder="+254712345678">
+                    </div>
+                    <div class="mb-4">
+                        <button id="requestVerificationBtn" class="btn-primary px-6 py-3 rounded-md text-white">
+                            Request Verification
+                        </button>
+                    </div>
+                    <div id="codeSection" class="hidden">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-1" for="verificationCode">
+                                Verification Code
+                            </label>
+                            <input type="text" id="verificationCode" name="verificationCode"
+                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
+                                placeholder="Enter 6-digit code">
+                        </div>
+                        <div class="mb-4">
+                            <button id="submitVerificationBtn" class="btn-primary px-6 py-3 rounded-md text-white">
+                                Verify Code
+                            </button>
+                        </div>
+                    </div>
+                    <div id="verificationStatus" class="mt-4">
+                        <!-- Status message will appear here -->
                     </div>
                 </div>
             </div>
@@ -325,10 +412,22 @@
                             <p class="text-sm text-gray-300">Update your password every 3 months for better security.</p>
                         </div>
                     </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-mobile-alt text-blue-400 mt-1 mr-3"></i>
+                        <div>
+                            <h3 class="font-medium">Verify your phone number</h3>
+                            <p class="text-sm text-gray-300">Phone verification adds an extra layer of security to your account.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/254739119490" target="_blank" class="whatsapp-btn" title="Contact us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
     <!-- Mobile Bottom Nav -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">
@@ -414,13 +513,28 @@
                 const username = getUsernameFromEmail(user.email);
                 document.getElementById('profileName').textContent = user.name || username;
                 document.getElementById('profileEmail').textContent = user.email;
-                document.getElementById('profilePhone').textContent = user.phone || '+254 712 345 678';
+                
+                // Set phone with verification status
+                const phoneVerificationStatus = document.getElementById('phoneVerificationStatus');
+                if (user.phone_verified) {
+                    phoneVerificationStatus.className = 'verification-status status-verified';
+                    phoneVerificationStatus.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Verified';
+                } else {
+                    phoneVerificationStatus.className = 'verification-status status-pending';
+                    phoneVerificationStatus.innerHTML = '<i class="fas fa-clock mr-1"></i> Not Verified';
+                }
+                
+                document.getElementById('profilePhone').innerHTML = `
+                    ${user.phone || '+254 712 345 678'}
+                    ${phoneVerificationStatus.outerHTML}
+                `;
                 
                 // Set form values
                 document.getElementById('name').value = user.name || '';
                 document.getElementById('email').value = user.email || '';
                 document.getElementById('phone').value = user.phone || '';
                 document.getElementById('country').value = user.country || 'Kenya';
+                document.getElementById('verificationPhone').value = user.phone || '';
                 
                 // Render profile images
                 const savedPhoto = localStorage.getItem('forexpro_profile');
@@ -460,6 +574,112 @@
                     showNotification('Profile photo updated!', 'success');
                 };
                 reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        // Phone verification
+        document.getElementById('requestVerificationBtn').addEventListener('click', async function() {
+            const phone = document.getElementById('verificationPhone').value;
+            if (!phone) {
+                showNotification('Please enter your phone number', 'error');
+                return;
+            }
+
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="loading"></span> Requesting...';
+            this.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/user/verify-phone/request`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ phone })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showNotification('Verification code requested. Admin will send it via WhatsApp.', 'success');
+                    document.getElementById('codeSection').classList.remove('hidden');
+                    // Update user phone in localStorage
+                    user.phone = phone;
+                    localStorage.setItem('user', JSON.stringify(user));
+                } else {
+                    showNotification(data.message || 'Failed to request verification', 'error');
+                }
+            } catch (err) {
+                showNotification('Network error. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
+
+        document.getElementById('submitVerificationBtn').addEventListener('click', async function() {
+            const code = document.getElementById('verificationCode').value;
+            if (!code) {
+                showNotification('Please enter the verification code', 'error');
+                return;
+            }
+
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="loading"></span> Verifying...';
+            this.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/user/verify-phone/submit`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showNotification('Phone number verified successfully!', 'success');
+                    document.getElementById('verificationStatus').innerHTML = `
+                        <div class="bg-green-500/20 border-l-4 border-green-500 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-green-400">
+                                        Your phone number has been verified.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    // Update user in localStorage
+                    user.phone_verified = true;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    // Update verification status in profile header
+                    const phoneVerificationStatus = document.getElementById('phoneVerificationStatus');
+                    phoneVerificationStatus.className = 'verification-status status-verified';
+                    phoneVerificationStatus.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Verified';
+                    document.getElementById('profilePhone').innerHTML = `
+                        ${user.phone || '+254 712 345 678'}
+                        ${phoneVerificationStatus.outerHTML}
+                    `;
+                    // Hide the code section
+                    document.getElementById('codeSection').classList.add('hidden');
+                } else {
+                    showNotification(data.message || 'Verification failed', 'error');
+                }
+            } catch (err) {
+                showNotification('Network error. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                this.innerHTML = originalText;
+                this.disabled = false;
             }
         });
         
