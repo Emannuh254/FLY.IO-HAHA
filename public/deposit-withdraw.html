@@ -48,6 +48,7 @@
         }
         .notification.success { background-color: #3b82f6; }
         .notification.error { background-color: #ef4444; }
+        .notification.warning { background-color: #f59e0b; }
         .modal {
             display: none;
             position: fixed;
@@ -125,6 +126,65 @@
             color: white;
             font-size: 28px;
         }
+        .balance-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            margin-left: 1rem;
+            font-weight: bold;
+        }
+        .login-required {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .login-required.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .login-content {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .mobile-menu {
+            display: none;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
     </style>
 </head>
 <body class="gradient-bg text-white min-h-screen">
@@ -137,18 +197,46 @@
                     <i class="fas fa-chart-line text-2xl text-blue-400"></i>
                     <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
                 </div>
+                
+                <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="dashboard.html" class="hover:text-blue-300 transition">Dashboard</a>
-                    <a href="trading.html" class="hover:text-blue-300 transition">Trading</a>
-                    <a href="deposit-withdraw.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Wallet</a>
-                    <a href="referrals.html" class="hover:text-blue-300 transition">Referrals</a>
-                    <a href="profile.html" class="hover:text-blue-300 transition">Profile</a>
+                    <a href="dashboard.html" class="nav-link hover:text-blue-300 transition">Dashboard</a>
+                    <a href="trading.html" class="nav-link hover:text-blue-300 transition">Trading</a>
+                    <a href="deposit-withdraw.html" class="nav-link text-blue-400 font-bold active">Wallet</a>
+                    <a href="referrals.html" class="nav-link hover:text-blue-300 transition">Referrals</a>
+                    <a href="profile.html" class="nav-link hover:text-blue-300 transition">Profile</a>
+                    <button id="logoutBtn" class="text-red-400 hover:text-red-300 transition flex items-center space-x-1" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
                 </div>
+                
+                <!-- Right Side Items -->
                 <div class="flex items-center space-x-4">
+                    <div id="userBalance" class="balance-display hidden">KSH 0</div>
                     <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
                     <div class="user-avatar">
                         <img id="userImage" src="" alt="You" class="w-10 h-10 rounded-full ring-2 ring-blue-400">
                     </div>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="md:hidden p-2 hover:bg-white/10 rounded-full transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Menu -->
+            <div id="mobileMenu" class="mobile-menu md:hidden glass-card mt-2 rounded-lg p-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="dashboard.html" class="nav-link hover:text-blue-300 transition py-2">Dashboard</a>
+                    <a href="trading.html" class="nav-link hover:text-blue-300 transition py-2">Trading</a>
+                    <a href="deposit-withdraw.html" class="nav-link text-blue-400 font-bold active py-2">Wallet</a>
+                    <a href="referrals.html" class="nav-link hover:text-blue-300 transition py-2">Referrals</a>
+                    <a href="profile.html" class="nav-link hover:text-blue-300 transition py-2">Profile</a>
+                    <button id="logoutBtnMobile" class="text-red-400 hover:text-red-300 transition flex items-center space-x-1 py-2" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -542,6 +630,23 @@
         </div>
     </div>
 
+    <!-- Login Required Modal -->
+    <div id="loginRequiredModal" class="login-required">
+        <div class="login-content">
+            <i class="fas fa-exclamation-triangle text-yellow-400 text-5xl mb-4"></i>
+            <h2 class="text-2xl font-bold mb-4">Login Required</h2>
+            <p class="text-gray-300 mb-6">You need to login to your account to make deposits or withdrawals.</p>
+            <div class="flex flex-col gap-3">
+                <button id="goToLoginBtn" class="btn-primary py-3 rounded-xl font-bold">
+                    Go to Login
+                </button>
+                <button id="cancelLoginBtn" class="bg-gray-600 hover:bg-gray-700 py-3 rounded-xl font-bold">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification -->
     <div id="notification" class="notification"></div>
 
@@ -552,14 +657,66 @@
         // Check if user is logged in
         let token = localStorage.getItem('token');
         let user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+        let isLoggedIn = !!token;
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('active');
+        });
 
         // Load user data
-        if (user) {
-            document.getElementById('userImage').src = user.profile_image || 'https://randomuser.me/api/portraits/men/45.jpg';
-            updateBalances();
-            loadTransactions();
-            fetchDepositAddress();
+        function loadUserData() {
+            if (user) {
+                // Update UI with user data
+                document.getElementById('userBalance').textContent = `${user.currency || 'KSH'} ${parseFloat(user.balance || 0).toLocaleString()}`;
+                document.getElementById('userBalance').classList.remove('hidden');
+                document.getElementById('logoutBtn').style.display = 'flex';
+                document.getElementById('logoutBtnMobile').style.display = 'flex';
+                
+                // Load profile image
+                const savedPhoto = localStorage.getItem('forexpro_profile') || user.profile_image;
+                if (savedPhoto) {
+                    document.getElementById('userImage').src = savedPhoto;
+                } else {
+                    document.getElementById('userImage').src = 'https://randomuser.me/api/portraits/men/45.jpg';
+                }
+                
+                // Update balances
+                updateBalances();
+                // Load transactions
+                loadTransactions();
+                // Fetch deposit address
+                fetchDepositAddress();
+            } else {
+                document.getElementById('userBalance').classList.add('hidden');
+                document.getElementById('logoutBtn').style.display = 'none';
+                document.getElementById('logoutBtnMobile').style.display = 'none';
+                document.getElementById('userImage').src = 'https://randomuser.me/api/portraits/men/45.jpg';
+            }
         }
+
+        // Logout functionality
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            token = null;
+            user = null;
+            isLoggedIn = false;
+            loadUserData();
+            showNotification('Logged out successfully', 'success');
+            // Redirect to index.html after logout
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        // Add event listeners to both logout buttons
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        document.getElementById('logoutBtnMobile').addEventListener('click', handleLogout);
+
+        // Initialize user data on page load
+        loadUserData();
 
         // Update balances
         function updateBalances() {
@@ -583,6 +740,8 @@
 
         // Fetch deposit address from server
         async function fetchDepositAddress() {
+            if (!token) return;
+            
             try {
                 const response = await fetch(`${API_BASE}/api/deposit/address`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -765,10 +924,20 @@
             }, 2000);
         });
 
+        // Show login required modal
+        function showLoginRequired() {
+            document.getElementById('loginRequiredModal').classList.add('show');
+        }
+
+        // Hide login required modal
+        function hideLoginRequired() {
+            document.getElementById('loginRequiredModal').classList.remove('show');
+        }
+
         // Deposit buttons
         document.getElementById('crypto-deposit-btn').addEventListener('click', async function() {
-            if (!token) {
-                showNotification('Please login to make a deposit', 'error');
+            if (!isLoggedIn) {
+                showLoginRequired();
                 return;
             }
 
@@ -821,8 +990,8 @@
 
         // Withdrawal buttons
         document.getElementById('crypto-withdraw-btn').addEventListener('click', async function() {
-            if (!token) {
-                showNotification('Please login to make a withdrawal', 'error');
+            if (!isLoggedIn) {
+                showLoginRequired();
                 return;
             }
 
@@ -886,8 +1055,8 @@
         });
 
         document.getElementById('mpesa-withdraw-btn').addEventListener('click', async function() {
-            if (!token) {
-                showNotification('Please login to make a withdrawal', 'error');
+            if (!isLoggedIn) {
+                showLoginRequired();
                 return;
             }
 
@@ -948,6 +1117,16 @@
                 this.innerHTML = originalText;
                 this.disabled = false;
             }
+        });
+
+        // Go to login button
+        document.getElementById('goToLoginBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Cancel login button
+        document.getElementById('cancelLoginBtn').addEventListener('click', () => {
+            hideLoginRequired();
         });
 
         // View all transactions button

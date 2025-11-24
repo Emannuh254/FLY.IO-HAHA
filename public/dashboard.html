@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        /* Optimized base styles */
+        /* Core styles */
         :root {
             --primary: #3b82f6;
             --primary-dark: #1e40af;
@@ -18,19 +18,20 @@
         
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            margin: 0;
-            padding: 0;
             font-family: system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
+            padding-bottom: 70px; /* Space for fixed mobile nav */
         }
         
-        /* Simplified glass effect for better performance */
+        /* Glass effect */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(8px);
@@ -38,7 +39,7 @@
             border-radius: 1rem;
         }
         
-        /* Optimized button styles */
+        /* Buttons */
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -72,16 +73,12 @@
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
         
-        .btn-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
         }
         
-        /* Notification styles */
+        /* Notification */
         .notification {
             position: fixed;
             bottom: 1rem;
@@ -105,42 +102,13 @@
         .notification.success { background-color: var(--secondary); }
         .notification.error { background-color: #ef4444; }
         
-        /* Form styles */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .form-input, .form-select {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 0.5rem;
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-        }
-        
-        /* Bot card styles */
+        /* Bot cards */
         .bot-card {
             transition: all 0.2s ease;
             overflow: hidden;
             border-radius: 1rem;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            position: relative;
         }
         
         .bot-card:hover {
@@ -191,17 +159,9 @@
             font-weight: bold;
         }
         
-        .bot-status.active {
-            background: rgba(16, 185, 129, 0.8);
-        }
-        
-        .bot-status.demo {
-            background: rgba(239, 68, 68, 0.8);
-        }
-        
-        .bot-status.completed {
-            background: rgba(16, 185, 129, 0.8);
-        }
+        .bot-status.active { background: rgba(16, 185, 129, 0.8); }
+        .bot-status.completed { background: rgba(16, 185, 129, 0.8); }
+        .bot-status.available { background: rgba(59, 130, 246, 0.8); }
         
         .bot-stats {
             padding: 1rem;
@@ -221,50 +181,48 @@
             font-weight: bold;
         }
         
-        .bot-progress {
-            margin-top: 1rem;
-        }
-        
-        .bot-progress-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .bot-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            border-radius: 4px;
-            transition: width 1s ease;
-        }
-        
-        .bot-progress-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        /* Bot card enhancements */
-        .bot-card.completed-bot {
-            border: 1px solid rgba(16, 185, 129, 0.5);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
-        }
-
         .bot-actions {
             display: flex;
             justify-content: center;
             margin-top: 1rem;
             gap: 0.5rem;
         }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
+        
+        /* Stats cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
         }
-
+        
+        .stats-card {
+            text-align: center;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+        
+        .stats-icon {
+            font-size: 1.5rem;
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        
         /* Loading spinner */
         .loading-spinner {
             display: inline-block;
@@ -276,29 +234,12 @@
             animation: spin 1s ease-in-out infinite;
             margin: 0 auto;
         }
-
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Enhanced notification styles */
-        .notification {
-            max-width: 400px;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-        }
-
-        .notification.success {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-
-        .notification.error {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
         
-        /* Modal styles */
+        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -331,171 +272,42 @@
             overflow-y: auto;
         }
         
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            .modal-content {
-                padding: 1rem;
-            }
-            
-            .notification {
-                right: 0.5rem;
-                left: 0.5rem;
-                max-width: none;
-            }
-            
-            .bot-actions {
-                flex-direction: column;
-            }
-            
-            .btn-sm {
-                width: 100%;
-            }
-        }
-        
-        /* Utility classes */
-        .hidden { display: none !important; }
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 0.5rem; }
-        .gap-4 { gap: 1rem; }
-        .p-4 { padding: 1rem; }
-        .p-6 { padding: 1.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .text-center { text-align: center; }
-        .text-xl { font-size: 1.25rem; }
-        .text-2xl { font-size: 1.5rem; }
-        .text-3xl { font-size: 1.875rem; }
-        .text-4xl { font-size: 2.25rem; }
-        .text-5xl { font-size: 3rem; }
-        .font-bold { font-weight: 700; }
-        .w-full { width: 100%; }
-        .overflow-x-auto { overflow-x: auto; }
-        .rounded-lg { border-radius: 0.5rem; }
-        .sticky { position: sticky; }
-        .top-0 { top: 0; }
-        .z-50 { z-index: 50; }
-        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .text-gray-300 { color: rgba(255, 255, 255, 0.7); }
-        .text-blue-400 { color: #60a5fa; }
-        .bg-blue-600 { background-color: #2563eb; }
-        .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
-        .hover\:text-blue-300:hover { color: #93c5fd; }
-        .transition { transition: all 0.15s ease; }
-        .cursor-pointer { cursor: pointer; }
-        
-        /* Custom styles for specific elements */
-        .stats-card {
-            text-align: center;
-            padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stats-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-        }
-        
-        .stats-icon {
-            font-size: 2rem;
-            color: #60a5fa;
-            margin-bottom: 0.75rem;
-        }
-        
-        .stats-value {
-            font-size: 1.875rem;
-            font-weight: bold;
-        }
-        
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: bold;
+        /* Form */
+        .form-group {
             margin-bottom: 1rem;
         }
         
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Bot container */
         .bot-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
         }
         
-        .investment-card {
-            padding: 1.5rem;
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.2s ease;
-            position: relative;
-        }
-        
-        .investment-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .investment-price {
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 1rem 0;
-        }
-        
-        .timeline {
-            position: relative;
-            margin: 2rem 0;
-        }
-        
-        .timeline::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 1rem;
-            height: 100%;
-            width: 2px;
-            background: linear-gradient(to bottom, #3b82f6, #1e40af);
-        }
-        
-        .timeline-item {
-            position: relative;
-            padding-left: 3rem;
-            margin-bottom: 2rem;
-        }
-        
-        .timeline-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-            background: #3b82f6;
-            border: 2px solid white;
-        }
-        
-        .timeline-date {
-            font-weight: bold;
-            color: #60a5fa;
-            margin-bottom: 0.5rem;
-        }
-        
-        .timeline-content {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 0.5rem;
-            padding: 1rem;
-        }
-        
+        /* Certificate */
         .certificate {
             background: linear-gradient(135deg, #f8fafc, #e2e8f0);
             border: 2px solid #cbd5e1;
@@ -507,16 +319,16 @@
             overflow: hidden;
         }
         
-        .certificate::before {
-            content: '';
+        .certificate-watermark {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48Y2lyY2xlIGN4PSIyNSIgY3k9IjI1IiByPSIyIiBmaWxsPSIjZTJlOGYwIiBmaWxsLW9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==');
-            opacity: 0.1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 5rem;
+            color: rgba(30, 64, 175, 0.05);
+            font-weight: bold;
             z-index: 0;
+            pointer-events: none;
         }
         
         .certificate-header {
@@ -531,23 +343,6 @@
             font-weight: bold;
             color: #1e40af;
             margin-bottom: 0.25rem;
-        }
-        
-        .certificate-subtitle {
-            font-size: 1rem;
-            color: #64748b;
-        }
-        
-        .certificate-content {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1.25rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .certificate-left, .certificate-right {
-            flex: 1;
         }
         
         .certificate-seal {
@@ -577,15 +372,6 @@
             color: #1e40af;
         }
         
-        .certificate-footer {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-top: 1.25rem;
-            position: relative;
-            z-index: 1;
-        }
-        
         .kra-pin {
             background: #1e40af;
             color: white;
@@ -597,42 +383,7 @@
             margin-top: 0.5rem;
         }
         
-        .faq-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .faq-question {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .whatsapp-float {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            bottom: 80px;
-            right: 20px;
-            background-color: #25d366;
-            color: #FFF;
-            border-radius: 50px;
-            text-align: center;
-            font-size: 1.875rem;
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .whatsapp-float:hover {
-            transform: scale(1.1);
-        }
-        
+        /* Daily bonus */
         .daily-bonus {
             position: fixed;
             top: 100px;
@@ -677,38 +428,70 @@
             background: #f0fdfa;
         }
         
-        .signup-prompt {
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-        }
-        
-        .signup-prompt h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .signup-prompt p {
-            margin-bottom: 1rem;
-            opacity: 0.9;
-        }
-        
-        .signup-prompt button {
-            background: white;
-            color: #1e40af;
-            font-weight: bold;
-            padding: 0.5rem 1.5rem;
-            border-radius: 0.5rem;
+        /* WhatsApp button */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 80px;
+            right: 20px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 1.875rem;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .signup-prompt button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        .whatsapp-float:hover {
+            transform: scale(1.1);
         }
         
+        /* Mobile nav */
+        .mobile-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.75rem 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 50;
+        }
+        
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s ease;
+        }
+        
+        .mobile-nav-item.active {
+            color: #60a5fa;
+        }
+        
+        .mobile-nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mobile-nav-item span {
+            font-size: 0.75rem;
+        }
+        
+        /* User avatar */
         .user-avatar {
             position: relative;
             cursor: pointer;
@@ -741,372 +524,59 @@
             color: #3b82f6;
         }
         
-        .upload-overlay {
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            opacity: 0; 
-            transition: opacity 0.2s ease;
-        }
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .text-5xl { font-size: 3rem; }
+        .font-bold { font-weight: 700; }
+        .w-full { width: 100%; }
+        .overflow-x-auto { overflow-x: auto; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .sticky { position: sticky; }
+        .top-0 { top: 0; }
+        .z-50 { z-index: 50; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .text-gray-300 { color: rgba(255, 255, 255, 0.7); }
+        .text-blue-400 { color: #60a5fa; }
+        .bg-blue-600 { background-color: #2563eb; }
+        .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
+        .hover\:text-blue-300:hover { color: #93c5fd; }
+        .transition { transition: all 0.15s ease; }
+        .cursor-pointer { cursor: pointer; }
         
-        .user-avatar:hover .upload-overlay { 
-            opacity: 1; 
-        }
-        
-        .mobile-nav {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0.75rem 0;
-        }
-        
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.7);
-            transition: color 0.2s ease;
-        }
-        
-        .mobile-nav-item.active {
-            color: #60a5fa;
-        }
-        
-        .mobile-nav-item i {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .mobile-nav-item span {
-            font-size: 0.75rem;
-        }
-        
-        .company-story {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.2));
-            border-radius: 1.5rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        
-        .company-story h2 {
-            font-size: 1.75rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .partners {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .partner {
-            text-align: center;
-            margin: 1rem;
-            flex: 1;
-            min-width: 120px;
-        }
-        
-        .partner-logo {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.5rem;
-            font-size: 1.5rem;
-            color: #60a5fa;
-        }
-        
-        .invest-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
-        
-        .invest-btn:hover {
-            background: #1d4ed8;
-        }
-        
-        .most-popular {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #fbbf24;
-            color: #000;
-            font-size: 0.75rem;
-            font-weight: bold;
-            padding: 0.25rem 0.75rem;
-            border-bottom-left-radius: 0.5rem;
-        }
-        
-        .profit-glow {
-            text-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
-        }
-        
-        /* New styles for enhanced UI */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .bot-card-header .bot-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(59, 130, 246, 0.8);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            z-index: 2;
-        }
-        
-        .bot-card.completed-bot .bot-badge {
-            background: rgba(16, 185, 129, 0.8);
-        }
-        
-        .bot-card.demo-bot .bot-badge {
-            background: rgba(239, 68, 68, 0.8);
-        }
-        
-        .refresh-btn {
-            position: relative;
-        }
-        
-        .refresh-btn i {
-            transition: transform 0.5s ease;
-        }
-        
-        .refresh-btn.active i {
-            animation: spin 1s linear infinite;
-        }
-        
-        .bot-simulation {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 0.5rem;
-            text-align: center;
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .bot-simulation i {
-            margin-right: 0.5rem;
-            color: #60a5fa;
-        }
-        
-        .bot-simulation.active {
-            background: rgba(16, 185, 129, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .bot-simulation.active i {
-            color: #10b981;
-        }
-        
-        .bot-simulation.completed {
-            background: rgba(16, 185, 129, 0.2);
-            color: white;
-        }
-        
-        .bot-simulation.completed i {
-            color: #10b981;
-        }
-        
-        .certificate-watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 5rem;
-            color: rgba(30, 64, 175, 0.05);
-            font-weight: bold;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        
-        .close-btn:hover {
-            color: #ef4444;
-        }
-        
-        .bot-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .bot-stat-full {
-            grid-column: span 2;
-        }
-        
-        .timeline-item:hover .timeline-content {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-            transition: all 0.2s ease;
-        }
-        
-        .partner:hover .partner-logo {
-            transform: scale(1.1);
-            transition: transform 0.2s ease;
-        }
-        
-        .faq-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transition: background 0.2s ease;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
-        }
-        
-        .stats-card:hover .stats-icon {
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Certificate styles */
-        .certificate {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border: 2px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 1.25rem;
-            color: #1e293b;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .certificate-watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 5rem;
-            color: rgba(30, 64, 175, 0.05);
-            font-weight: bold;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        .certificate-header {
-            text-align: center;
-            margin-bottom: 1.25rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .certificate-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1e40af;
-            margin-bottom: 0.25rem;
-        }
-        
-        .certificate-subtitle {
-            font-size: 1rem;
-            color: #64748b;
-        }
-        
-        .certificate-content {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1.25rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .certificate-left, .certificate-right {
-            flex: 1;
-        }
-        
-        .certificate-seal {
-            width: 80px;
-            height: 80px;
-            border: 2px solid #1e40af;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .certificate-seal::before {
-            content: '';
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border: 1px solid #1e40af;
-            border-radius: 50%;
-        }
-        
-        .certificate-seal i {
-            font-size: 1.5rem;
-            color: #1e40af;
-        }
-        
-        .certificate-footer {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-top: 1.25rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .kra-pin {
-            background: #1e40af;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-family: monospace;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 0.5rem;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .bot-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 1rem;
+            }
+            
+            .notification {
+                right: 0.5rem;
+                left: 0.5rem;
+                max-width: none;
+            }
         }
     </style>
 </head>
@@ -1132,7 +602,6 @@
                 <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
                 <div class="user-avatar" id="userAvatar">
                     <div id="userImageContainer"></div>
-                    <div class="upload-overlay"><i class="fas fa-camera text-white"></i></div>
                     <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                 </div>
             </div>
@@ -1158,7 +627,7 @@
     </div>
 
     <div class="p-4 pb-20 md:pb-8 space-y-6">
-        <!-- Welcome with real name -->
+        <!-- Welcome Section -->
         <div class="text-center md:text-left">
             <h1 class="text-4xl md:text-5xl font-bold">Welcome back, <span id="userName">Guest</span>!</h1>
             <p class="text-gray-300 mt-2 text-lg">Your investments are growing strong</p>
@@ -1168,22 +637,22 @@
         <div class="stats-container">
             <div class="glass-card stats-card">
                 <i class="fas fa-wallet stats-icon"></i>
-                <p class="text-gray-300 text-sm">Total Balance</p>
+                <p class="text-gray-300 text-xs">Total Balance</p>
                 <p class="stats-value" id="totalBalance">KSH 0</p>
             </div>
             <div class="glass-card stats-card">
-                <i class="fas fa-arrow-trend-up stats-icon profit-glow"></i>
-                <p class="text-gray-300 text-sm">Total Profit</p>
+                <i class="fas fa-arrow-trend-up stats-icon"></i>
+                <p class="text-gray-300 text-xs">Total Profit</p>
                 <p class="stats-value" id="totalProfit">KSH 0</p>
             </div>
             <div class="glass-card stats-card">
                 <i class="fas fa-robot stats-icon"></i>
-                <p class="text-gray-300 text-sm">Active Bots</p>
+                <p class="text-gray-300 text-xs">Active Bots</p>
                 <p class="stats-value" id="activeBots">0</p>
             </div>
             <div class="glass-card stats-card">
                 <i class="fas fa-users stats-icon"></i>
-                <p class="text-gray-300 text-sm">Referrals</p>
+                <p class="text-gray-300 text-xs">Referrals</p>
                 <p class="stats-value" id="referrals">0</p>
             </div>
         </div>
@@ -1196,7 +665,7 @@
                     <p class="text-gray-300">Automated profits running 24/7</p>
                 </div>
                 <div class="flex gap-3">
-                    <button id="refreshBotsBtn" class="btn bg-blue-600 hover:bg-blue-700 refresh-btn">
+                    <button id="refreshBotsBtn" class="btn bg-blue-600 hover:bg-blue-700">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
                     <button id="addBotBtn" class="btn btn-primary">
@@ -1205,325 +674,92 @@
                 </div>
             </div>
             
-            <!-- Sign Up Prompt (shown only when not logged in) -->
-            <div id="signupPrompt" class="signup-prompt hidden">
-                <h3><i class="fas fa-gift mr-2"></i> Get KSH 200 Sign-Up Bonus!</h3>
-                <p>Sign up now to receive KSH 200 bonus and start trading with our automated bots.</p>
-                <button id="signupPromptBtn">Sign Up Now</button>
-            </div>
-            
             <div class="bot-container" id="bots-container">
                 <!-- Bots will be loaded here -->
             </div>
         </div>
 
-        <!-- Company Story Section -->
-        <div class="company-story">
-            <h2>Our Journey: Empowering Africa Through Cryptocurrency</h2>
-            
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-date">March 2020</div>
-                    <div class="timeline-content">
-                        <h3 class="text-lg font-bold mb-2">ForexPro Founded</h3>
-                        <p>Established with a vision to bring cryptocurrency mining and investment opportunities to Africa, creating financial empowerment for communities across the continent.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">June 2021</div>
-                    <div class="timeline-content">
-                        <h3 class="text-lg font-bold mb-2">Partnership with UNICEF</h3>
-                        <p>Formed a strategic alliance with UNICEF to launch "Crypto for Schools" initiative, providing solar-powered mining rigs to rural communities and funding education programs.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">January 2022</div>
-                    <div class="timeline-content">
-                        <h3 class="text-lg font-bold mb-2">Green Mining Initiative</h3>
-                        <p>Launched Africa's first fully renewable energy cryptocurrency mining facility in Kenya, reducing carbon emissions by 70% compared to traditional mining operations.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">September 2023</div>
-                    <div class="timeline-content">
-                        <h3 class="text-lg font-bold mb-2">Africa Blockchain Summit</h3>
-                        <p>Hosted the largest blockchain conference in Africa, bringing together industry leaders, government officials, and innovators to discuss the future of cryptocurrency on the continent.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">May 2024</div>
-                    <div class="timeline-content">
-                        <h3 class="text-lg font-bold mb-2">Digital Currency Expansion</h3>
-                        <p>Expanded operations to 15 African countries, providing accessible cryptocurrency investment opportunities to over 500,000 users and creating sustainable income for communities.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-8">
-                <h3 class="text-xl font-bold mb-4">Our Trusted Partners</h3>
-                <div class="partners">
-                    <div class="partner">
-                        <div class="partner-logo">
-                            <i class="fas fa-hand-holding-heart"></i>
-                        </div>
-                        <p>UNICEF</p>
-                    </div>
-                    <div class="partner">
-                        <div class="partner-logo">
-                            <i class="fas fa-leaf"></i>
-                        </div>
-                        <p>Green Energy Initiative</p>
-                    </div>
-                    <div class="partner">
-                        <div class="partner-logo">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <p>Africa Education Fund</p>
-                    </div>
-                    <div class="partner">
-                        <div class="partner-logo">
-                            <i class="fas fa-university"></i>
-                        </div>
-                        <p>African Development Bank</p>
-                    </div>
-                </div>
+        <!-- Available Bots -->
+        <div class="glass-card p-4 md:p-6">
+            <h2 class="text-2xl font-bold mb-6">Available Bots</h2>
+            <div class="bot-container" id="available-bots-container">
+                <!-- Available bots will be loaded here -->
             </div>
         </div>
 
         <!-- Investment Plans -->
         <div class="glass-card p-4 md:p-6">
-            <h2 class="text-2xl font-bold mb-6 text-center md:text-left">Choose Your Investment Plan</h2>
+            <h2 class="text-2xl font-bold mb-6 text-center">Investment Plans</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="investment-card">
-                    <h3 class="text-xl font-bold">Starter</h3>
-                    <p class="investment-price">KSH 1,000</p>
-                    <p class="text-blue-400 text-lg">Daily Profit: <strong>KSH 75</strong></p>
-                    <p class="text-sm text-gray-300 mt-2">30 Days → Total: <strong>KSH 2,250</strong></p>
-                    <button class="invest-btn mt-4" data-price="1000" data-plan="Starter">
-                        Invest Now
-                    </button>
+                <div class="glass-card p-6 text-center">
+                    <h3 class="text-xl font-bold mb-2">Starter</h3>
+                    <p class="text-3xl font-bold mb-4">KSH 1,000</p>
+                    <p class="text-blue-400 mb-2">Daily: <strong>KSH 75</strong></p>
+                    <p class="text-sm text-gray-300 mb-4">30 Days → <strong>KSH 2,250</strong></p>
+                    <button class="btn btn-primary w-full">Invest Now</button>
                 </div>
-                <div class="investment-card relative overflow-hidden">
-                    <div class="most-popular">MOST POPULAR</div>
-                    <h3 class="text-xl font-bold">Professional</h3>
-                    <p class="investment-price">KSH 10,000</p>
-                    <p class="text-white text-lg">Daily Profit: <strong>KSH 750</strong></p>
-                    <p class="text-sm mt-2">30 Days → Total: <strong>KSH 22,500</strong></p>
-                    <button class="invest-btn mt-4 bg-white text-black hover:bg-gray-200" data-price="10000" data-plan="Professional">
-                        Invest Now
-                    </button>
+                <div class="glass-card p-6 text-center relative">
+                    <div class="absolute top-0 right-0 bg-yellow-500 text-black px-3 py-1 rounded-bl-lg rounded-tr-lg text-xs font-bold">POPULAR</div>
+                    <h3 class="text-xl font-bold mb-2">Professional</h3>
+                    <p class="text-3xl font-bold mb-4">KSH 10,000</p>
+                    <p class="text-white mb-2">Daily: <strong>KSH 750</strong></p>
+                    <p class="text-sm mb-4">30 Days → <strong>KSH 22,500</strong></p>
+                    <button class="btn bg-white text-black hover:bg-gray-200 w-full">Invest Now</button>
                 </div>
-                <div class="investment-card">
-                    <h3 class="text-xl font-bold">Premium VIP</h3>
-                    <p class="investment-price">KSH 100,000</p>
-                    <p class="text-blue-400 text-lg">Daily Profit: <strong>KSH 7,500</strong></p>
-                    <p class="text-sm text-gray-300 mt-2">30 Days → Total: <strong>KSH 225,000</strong></p>
-                    <button class="invest-btn mt-4" data-price="100000" data-plan="Premium VIP">
-                        Invest Now
-                    </button>
+                <div class="glass-card p-6 text-center">
+                    <h3 class="text-xl font-bold mb-2">Premium VIP</h3>
+                    <p class="text-3xl font-bold mb-4">KSH 100,000</p>
+                    <p class="text-blue-400 mb-2">Daily: <strong>KSH 7,500</strong></p>
+                    <p class="text-sm text-gray-300 mb-4">30 Days → <strong>KSH 225,000</strong></p>
+                    <button class="btn btn-primary w-full">Invest Now</button>
                 </div>
             </div>
         </div>
 
-        <!-- How to Earn Section -->
+        <!-- Certificate -->
         <div class="glass-card p-4 md:p-6">
-            <h2 class="text-2xl font-bold mb-6 text-center md:text-left">How to Earn with ForexPro</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4 text-blue-400">Investment Strategies</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Invest in our trading bots that work 24/7 to generate profits</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Choose from various investment plans with different returns</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Refer friends and earn KSH 200 for each successful referral</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Get a KSH 200 sign-up bonus when you join</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Login daily to claim your KSH 50 daily bonus</span>
-                        </li>
-                    </ul>
+            <h2 class="text-2xl font-bold mb-6">Your Mining Certificate</h2>
+            <div class="certificate relative">
+                <div class="certificate-watermark">FOREXPRO</div>
+                <div class="certificate-header">
+                    <h2 class="certificate-title">CRYPTOCURRENCY MINING CERTIFICATE</h2>
+                    <p class="text-gray-600">Official Verification of Mining Capacity</p>
                 </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4 text-blue-400">Crypto Mining Certificate</h3>
-                    <!-- Crypto Mining Certificate - REALISTIC & PROFESSIONAL -->
-                    <div class="certificate relative overflow-hidden shadow-2xl">
-                        <!-- Subtle watermark -->
-                        <div class="certificate-watermark opacity-5 pointer-events-none select-none">
-                            FOREXPRO CERTIFIED
+                <div class="certificate-content mt-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-600">Certificate Holder</p>
+                            <p class="text-xl font-bold text-blue-900" id="certName">JOHN DOE</p>
                         </div>
-
-                        <!-- Decorative border pattern -->
-                        <div class="absolute inset-0 pointer-events-none">
-                            <div class="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-blue-900 to-transparent opacity-30"></div>
-                            <div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-blue-900 to-transparent opacity-30"></div>
-                            <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-blue-900 to-transparent opacity-30"></div>
-                            <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-blue-900 to-transparent opacity-30"></div>
-                            
-                            <!-- Corner ornaments -->
-                            <div class="absolute top-4 left-4 text-blue-900 opacity-40 text-4xl">❖</div>
-                            <div class="absolute top-4 right-4 text-blue-900 opacity-40 text-4xl rotate-90">❖</div>
-                            <div class="absolute bottom-4 left-4 text-blue-900 opacity-40 text-4xl -rotate-90">❖</div>
-                            <div class="absolute bottom-4 right-4 text-blue-900 opacity-40 text-4xl rotate-180">❖</div>
+                        <div>
+                            <p class="text-sm text-gray-600">Certificate Number</p>
+                            <p class="text-xl font-mono font-bold text-blue-900" id="certId">FXM-2025-KE742869</p>
                         </div>
-
-                        <div class="relative z-10 p-8 md:p-12">
-                            <!-- Header -->
-                            <div class="text-center mb-10">
-                                <div class="flex justify-center items-center gap-4 mb-4">
-                                    <img src="https://via.placeholder.com/80x80/1e40af/ffffff?text=FP" alt="ForexPro Seal" class="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-blue-900 shadow-lg">
-                                    <div>
-                                        <h2 class="text-3xl md:text-4xl font-bold text-blue-900 tracking-wider">FOREXPRO LIMITED</h2>
-                                        <p class="text-lg text-gray-700 font-medium">Registered Cryptocurrency Investment Platform</p>
-                                    </div>
-                                    <img src="https://via.placeholder.com/80x80/10b981/ffffff?text=✓" alt="Verified" class="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-green-700 shadow-lg">
-                                </div>
-                                <hr class="my-6 border-t-2 border-blue-900 opacity-50">
-                                <h1 class="text-4xl md:text-5xl font-bold text-blue-900 mb-2 tracking-widest">
-                                    CERTIFICATE OF CRYPTOCURRENCY MINING
-                                </h1>
-                                <p class="text-xl text-gray-700 italic">Official Verification of Mining Capacity Allocation</p>
-                            </div>
-
-                            <!-- Body -->
-                            <div class="bg-white bg-opacity-95 rounded-lg p-8 shadow-inner">
-                                <div class="grid md:grid-cols-2 gap-8 text-gray-800">
-                                    <div class="space-y-5">
-                                        <div>
-                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Certificate Number</p>
-                                            <p class="text-xl font-mono font-bold text-blue-900" id="certId">FXM-2025-KE742869</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-600 uppercase tracking-wider">This Certifies That</p>
-                                            <p class="text-2xl font-bold text-blue-900 border-b-2 border-blue-900 inline-block pb-1" id="certName">JOHN DOE</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Has Been Allocated Mining Capacity Of</p>
-                                            <p class="text-3xl font-bold text-green-600">0.0247 TH/s</p>
-                                            <p class="text-sm text-gray-600">Algorithm: SHA-256 | Network: Bitcoin</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-5">
-                                        <div>
-                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Issue Date</p>
-                                            <p class="text-lg font-semibold">23rd November 2025</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Valid Until</p>
-                                            <p class="text-lg font-semibold">23rd November 2026</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-600 uppercase tracking-wider">Kenya Revenue Authority PIN</p>
-                                            <p class="text-xl font-mono bg-blue-900 text-white inline-block px-3 py-1 rounded" id="kraPin">P0512345678Q</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Official Seal & Signatures -->
-                                <div class="mt-12 flex flex-col md:flex-row justify-between items-end gap-8">
-                                    <div class="text-center">
-                                        <div class="w-32 h-32 mx-auto relative">
-                                            <div class="absolute inset-0 rounded-full border-8 border-blue-900 opacity-20"></div>
-                                            <div class="absolute inset-4 rounded-full border-4 border-blue-900 opacity-40"></div>
-                                            <div class="absolute inset-0 flex items-center justify-center">
-                                                <i class="fas fa-shield-alt text-6xl text-blue-900"></i>
-                                            </div>
-                                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                                                OFFICIAL SEAL
-                                            </div>
-                                        </div>
-                                        <p class="mt-4 text-sm text-gray-600">Digital Verification Seal</p>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <div class="border-t-2 border-gray-800 w-48 mb-2"></div>
-                                        <p class="font-bold text-blue-900">Dr. Sarah Kamau</p>
-                                        <p class="text-sm text-gray-600">Chief Executive Officer<br>ForexPro Limited</p>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <div class="border-t-2 border-gray-800 w-48 mb-2"></div>
-                                        <p class="font-bold text-blue-900">Michael Ochieng</p>
-                                        <p class="text-sm text-gray-600">Chief Technology Officer<br>Blockchain Division</p>
-                                    </div>
-                                </div>
-
-                                <!-- Verification Footer -->
-                                <div class="mt-10 pt-6 border-t-2 border-dashed border-gray-400 text-center">
-                                    <p class="text-xs text-gray-600 mb-2">
-                                        <strong>Verify authenticity at:</strong> 
-                                        <span class="font-mono text-blue-700">https://forexpro.ke/verify?code=</span>
-                                        <span class="font-mono text-blue-900 font-bold" id="certCode">FX7A3B9C2D8E1F5G6H</span>
-                                    </p>
-                                    <p class="text-xs text-gray-500 italic">
-                                        This is a digitally issued certificate. No physical copy required.
-                                    </p>
-                                </div>
-                            </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Mining Capacity</p>
+                            <p class="text-xl font-bold text-green-600">0.0247 TH/s</p>
                         </div>
-
-                        <!-- Trust badges below certificate -->
-                        <div class="flex justify-center gap-6 mt-6 flex-wrap">
-                            <div class="bg-gray-800 text-green-400 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                                <i class="fas fa-lock"></i> SSL Secured
-                            </div>
-                            <div class="bg-gray-800 text-blue-400 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                                <i class="fas fa-shield-alt"></i> KRA Compliant
-                            </div>
-                            <div class="bg-gray-800 text-yellow-400 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                                <i class="fas fa-certificate"></i> ISO 27001 Certified
-                            </div>
+                        <div>
+                            <p class="text-sm text-gray-600">KRA PIN</p>
+                            <p class="kra-pin" id="kraPin">P0512345678Q</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- FAQ Section -->
-        <div class="glass-card p-4 md:p-6">
-            <h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
-            <div class="space-y-4">
-                <div class="faq-item">
-                    <h3 class="faq-question">How do I deposit funds?</h3>
-                    <p class="text-gray-300">You can deposit funds using cryptocurrency (USDT, BTC, ETH) or fiat methods like M-Pesa. Go to the Wallet section to make a deposit.</p>
+                <div class="text-center mt-8">
+                    <div class="certificate-seal inline-block">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <p class="mt-4 text-sm text-gray-600">Official Seal of Verification</p>
                 </div>
-                <div class="faq-item">
-                    <h3 class="faq-question">What is the minimum deposit amount?</h3>
-                    <p class="text-gray-300">The minimum deposit amount is KSH 1,000 for fiat deposits and $10 for cryptocurrency deposits.</p>
-                </div>
-                <div class="faq-item">
-                    <h3 class="faq-question">How long do withdrawals take?</h3>
-                    <p class="text-gray-300">Cryptocurrency withdrawals are processed within 24 hours, while fiat withdrawals may take 1-3 business days.</p>
-                </div>
-                <div class="faq-item">
-                    <h3 class="faq-question">How do I claim my daily login bonus?</h3>
-                    <p class="text-gray-300">Simply log in to your account each day to claim your KSH 50 daily bonus. The bonus will be automatically credited to your account.</p>
-                </div>
-                <div class="faq-item">
-                    <h3 class="faq-question">Need help?</h3>
-                    <p class="text-gray-300">Contact our support team at <a href="tel:+254739119490" class="text-blue-400">+254739119490</a> or click the WhatsApp button below for assistance.</p>
+                <div class="text-center mt-6 text-sm text-gray-500">
+                    <p>Verify at: <span class="font-mono text-blue-700" id="certCode">FX7A3B9C2D8E1F5G6H</span></p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Mobile Bottom Nav -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">
+    <div class="md:hidden">
         <div class="mobile-nav">
             <a href="dashboard.html" class="mobile-nav-item active">
                 <i class="fas fa-home"></i>
@@ -1541,40 +777,23 @@
                 <i class="fas fa-users"></i>
                 <span>Referrals</span>
             </a>
-            <a href="profile.html" id="mobileProfileLink" class="mobile-nav-item">
+            <a href="profile.html" class="mobile-nav-item">
                 <i class="fas fa-user"></i>
                 <span>Profile</span>
             </a>
         </div>
     </div>
 
-    <!-- WhatsApp Floating Button -->
-    <div class="whatsapp-float" id="whatsappBtn" title="Contact us on WhatsApp">
+    <!-- WhatsApp Button -->
+    <div class="whatsapp-float" id="whatsappBtn">
         <i class="fab fa-whatsapp"></i>
     </div>
 
-    <!-- Daily Bonus Notification -->
+    <!-- Daily Bonus -->
     <div class="daily-bonus" id="dailyBonus">
-        <h3><i class="fas fa-gift mr-2"></i> Daily Login Bonus!</h3>
-        <p>You've earned KSH 50 for logging in today!</p>
-        <button id="claimBonusBtn">Claim Bonus</button>
-    </div>
-
-    <!-- Auth Modal -->
-    <div id="authModal" class="modal">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4">Authentication Required</h3>
-            <p class="text-gray-300 mb-6">Please sign in to continue.</p>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <button id="signInBtn" class="btn btn-primary flex-1">
-                    Sign In
-                </button>
-                <button id="signUpBtn" class="btn bg-gray-700 hover:bg-gray-600 flex-1">
-                    Sign Up
-                </button>
-            </div>
-            <button id="closeModal" class="mt-4 text-gray-400 hover:text-white">Cancel</button>
-        </div>
+        <h3><i class="fas fa-gift mr-2"></i> Daily Bonus!</h3>
+        <p>Claim your KSH 50 daily login bonus</p>
+        <button id="claimBonusBtn">Claim Now</button>
     </div>
 
     <!-- Add Bot Modal -->
@@ -1582,7 +801,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold">Create New Trading Bot</h3>
-                <button class="close-btn" id="closeAddBotModal">&times;</button>
+                <button class="text-gray-400 hover:text-white text-2xl" id="closeAddBotModal">&times;</button>
             </div>
             <form id="addBotForm">
                 <div class="form-group">
@@ -1592,21 +811,20 @@
                 <div class="form-group">
                     <label class="form-label" for="botInvestment">Investment Amount (KSH)</label>
                     <input type="number" id="botInvestment" class="form-input" placeholder="Enter investment amount" min="1000" step="100" required>
-                    <p class="text-sm text-gray-400 mt-1">Minimum investment: KSH 1,000</p>
+                    <p class="text-sm text-gray-400 mt-1">Minimum: KSH 1,000</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="botImage">Bot Image (Optional)</label>
+                    <label class="form-label" for="botImage">Bot Image</label>
                     <select id="botImage" class="form-select">
                         <option value="https://images.unsplash.com/photo-1639762681485-074b7f938ba0">Bitcoin Miner</option>
                         <option value="https://images.unsplash.com/photo-1622630998477-20aa696ecb05">Ethereum Trader</option>
                         <option value="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3">Crypto Analyst</option>
-                        <option value="https://images.unsplash.com/photo-1640601454426-2c2428f0f744">Blockchain Expert</option>
-                        <option value="https://images.unsplash.com/photo-1621504450181-5d356f61d307">Digital Currency</option>
-                        <option value="https://images.unsplash.com/photo-1636678146495-0f3022d8f9e7">Crypto Portfolio</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">Create Bot</button>
-                <button type="button" class="btn bg-gray-700 hover:bg-gray-600 mt-3" id="cancelAddBot">Cancel</button>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1">Create Bot</button>
+                    <button type="button" class="btn bg-gray-700 hover:bg-gray-600 flex-1" id="cancelAddBot">Cancel</button>
+                </div>
             </form>
         </div>
     </div>
@@ -1614,7 +832,6 @@
     <!-- Notification -->
     <div id="notification" class="notification"></div>
 
-    <!-- Reference to external JavaScript file -->
     <script src="js/dashboard.js"></script>
 </body>
 </html>

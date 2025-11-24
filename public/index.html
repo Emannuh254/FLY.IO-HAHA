@@ -1,888 +1,957 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- REMOVED THE CSP META TAG THAT WAS CAUSING ERRORS -->
-  <title>ForexPro - Sign In / Sign Up</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    
-    :root {
-      --primary: #3b82f6;
-      --primary-dark: #1e40af;
-      --secondary: #06b6d4;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      --dark: #0f172a;
-      --darker: #020617;
-      --light: #f8fafc;
-      --gray: #64748b;
-      --light-gray: #e2e8f0;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
-      color: var(--light);
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 20px;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    .container {
-      width: 100%;
-      max-width: 900px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      overflow: visible;
-      display: grid;
-      grid-template-columns: 1fr;
-    }
-    
-    .form-section {
-      padding: 40px;
-      position: relative;
-    }
-    
-    .brand-section {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-    
-    .logo {
-      width: 80px;
-      height: 80px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    
-    .logo i {
-      font-size: 36px;
-      color: white;
-    }
-    
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin-bottom: 10px;
-      background: linear-gradient(to right, #fff, #e0f2fe);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .subtitle {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-    }
-    
-    .description {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.95rem;
-      max-width: 400px;
-      line-height: 1.6;
-    }
-    
-    .tab-container {
-      display: flex;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      margin-bottom: 30px;
-      overflow: hidden;
-    }
-    
-    .tab {
-      flex: 1;
-      padding: 14px;
-      text-align: center;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      color: var(--gray);
-    }
-    
-    .tab.active {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .form-container {
-      position: relative;
-      min-height: 400px;
-    }
-    
-    .form-panel {
-      position: absolute;
-      width: 100%;
-      opacity: 0;
-      transform: translateX(20px);
-      transition: all 0.3s ease;
-      pointer-events: none;
-    }
-    
-    .form-panel.active {
-      opacity: 1;
-      transform: translateX(0);
-      pointer-events: auto;
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #e2e8f0;
-    }
-    
-    .input-group {
-      position: relative;
-    }
-    
-    .input-group i {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--gray);
-    }
-    
-    .input-field {
-      width: 100%;
-      padding: 14px 16px 14px 46px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: var(--light);
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    
-    .input-field:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    }
-    
-    .input-field::placeholder {
-      color: var(--gray);
-    }
-    
-    .password-toggle {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--gray);
-      cursor: pointer;
-    }
-    
-    .password-requirements {
-      font-size: 0.85rem;
-      color: var(--gray);
-      margin-top: 8px;
-    }
-    
-    .requirement {
-      display: flex;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    
-    .requirement i {
-      margin-right: 6px;
-      font-size: 0.8rem;
-    }
-    
-    .requirement.valid {
-      color: var(--success);
-    }
-    
-    .requirement.invalid {
-      color: var(--error);
-    }
-    
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .checkbox-group input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--primary);
-      margin-right: 8px;
-    }
-    
-    .btn {
-      padding: 14px 24px;
-      border: none;
-      border-radius: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      color: white;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-    }
-    
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--light);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-    
-    .btn-demo {
-      background: linear-gradient(135deg, var(--warning), #d97706);
-      color: white;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-      width: 100%;
-      margin-top: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .btn-demo:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-    }
-    
-    .btn-demo::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-    
-    .btn-demo:hover::before {
-      left: 100%;
-    }
-    
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 10px;
-    }
-    
-    .error-message {
-      color: var(--error);
-      font-size: 0.85rem;
-      margin-top: 6px;
-      display: none;
-    }
-    
-    .input-group.error .input-field {
-      border-color: var(--error);
-    }
-    
-    .input-group.error .error-message {
-      display: block;
-    }
-    
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 16px 20px;
-      border-radius: 12px;
-      background: var(--dark);
-      color: var(--light);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      transform: translateY(20px);
-      opacity: 0;
-      transition: all 0.3s ease;
-      max-width: 350px;
-    }
-    
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    
-    .toast.error {
-      background: var(--error);
-    }
-    
-    .toast.success {
-      background: var(--success);
-    }
-    
-    .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: none;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    /* Responsive Design */
-    @media (min-width: 768px) {
-      .container {
-        grid-template-columns: 1fr 1fr;
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForexPro - Sign In / Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+      
+      :root {
+        --primary: #3b82f6;
+        --primary-dark: #1e40af;
+        --secondary: #06b6d4;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --dark: #0f172a;
+        --darker: #020617;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --light-gray: #e2e8f0;
       }
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
       body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        color: var(--light);
+        min-height: 100vh;
+        display: flex;
         align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
       
-      .brand-section {
-        text-align: left;
-        padding: 60px 40px;
-      }
-      
-      .logo {
-        margin-bottom: 30px;
-      }
-      
-      h1 {
-        font-size: 3rem;
-      }
-      
-      .description {
-        max-width: 450px;
-      }
-    }
-    
-    @media (max-width: 480px) {
       .container {
-        border-radius: 16px;
+        width: 100%;
+        max-width: 900px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: visible;
+        display: grid;
+        grid-template-columns: 1fr;
       }
       
       .form-section {
-        padding: 24px;
+        padding: 40px;
+        position: relative;
       }
       
       .brand-section {
-        padding: 30px 20px;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+      
+      .logo {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+      
+      .logo i {
+        font-size: 36px;
+        color: white;
       }
       
       h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        background: linear-gradient(to right, #fff, #e0f2fe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="brand-section">
-      <div class="logo">
-        <i class="fas fa-chart-line"></i>
-      </div>
-      <h1>ForexPro</h1>
-      <p class="subtitle">Trade Smarter. Earn More.</p>
-      <p class="description">Join thousands of traders who trust ForexPro for their investment needs. Secure, reliable, and profitable.</p>
-    </div>
-    
-    <div class="form-section">
-      <div class="tab-container">
-        <div id="loginTab" class="tab active">Sign In</div>
-        <div id="signupTab" class="tab">Sign Up</div>
+      
+      .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+      }
+      
+      .description {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.95rem;
+        max-width: 400px;
+        line-height: 1.6;
+      }
+      
+      .tab-container {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        margin-bottom: 30px;
+        overflow: hidden;
+      }
+      
+      .tab {
+        flex: 1;
+        padding: 14px;
+        text-align: center;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--gray);
+      }
+      
+      .tab.active {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        color: white;
+      }
+      
+      .form-container {
+        position: relative;
+        min-height: 400px;
+      }
+      
+      .form-panel {
+        position: absolute;
+        width: 100%;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: all 0.3s ease;
+        pointer-events: none;
+      }
+      
+      .form-panel.active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #e2e8f0;
+      }
+      
+      .input-group {
+        position: relative;
+      }
+      
+      .input-group i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray);
+      }
+      
+      .input-field {
+        width: 100%;
+        padding: 14px 16px 14px 46px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: var(--light);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+      
+      .input-field:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+      
+      .input-field::placeholder {
+        color: var(--gray);
+      }
+      
+      .password-toggle {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--gray);
+        cursor: pointer;
+      }
+      
+      .password-requirements {
+        font-size: 0.85rem;
+        color: var(--gray);
+        margin-top: 8px;
+      }
+      
+      .requirement {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      
+      .requirement i {
+        margin-right: 6px;
+        font-size: 0.8rem;
+      }
+      
+      .requirement.valid {
+        color: var(--success);
+      }
+      
+      .requirement.invalid {
+        color: var(--error);
+      }
+      
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      
+      .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+        margin-right: 8px;
+      }
+      
+      .btn {
+        padding: 14px 24px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        color: white;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      }
+      
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+      }
+      
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--light);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+      
+      .btn-demo {
+        background: linear-gradient(135deg, var(--warning), #d97706);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        width: 100%;
+        margin-top: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .btn-demo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+      }
+      
+      .btn-demo::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+      
+      .btn-demo:hover::before {
+        left: 100%;
+      }
+      
+      .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+      }
+      
+      .error-message {
+        color: var(--error);
+        font-size: 0.85rem;
+        margin-top: 6px;
+        display: none;
+      }
+      
+      .input-group.error .input-field {
+        border-color: var(--error);
+      }
+      
+      .input-group.error .error-message {
+        display: block;
+      }
+      
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        background: var(--dark);
+        color: var(--light);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.3s ease;
+        max-width: 350px;
+      }
+      
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      
+      .toast.error {
+        background: var(--error);
+      }
+      
+      .toast.success {
+        background: var(--success);
+      }
+      
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        display: none;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      .forgot-password {
+        text-align: center;
+        margin-top: 16px;
+      }
+      
+      .forgot-password a {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+      
+      .forgot-password a:hover {
+        color: var(--secondary);
+        text-decoration: underline;
+      }
+      
+      /* Responsive Design */
+      @media (min-width: 768px) {
+        .container {
+          grid-template-columns: 1fr 1fr;
+        }
+        
+        .brand-section {
+          text-align: left;
+          padding: 60px 40px;
+        }
+        
+        .logo {
+          margin-bottom: 30px;
+        }
+        
+        h1 {
+          font-size: 3rem;
+        }
+        
+        .description {
+          max-width: 450px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .container {
+          border-radius: 16px;
+        }
+        
+        .form-section {
+          padding: 24px;
+        }
+        
+        .brand-section {
+          padding: 30px 20px;
+        }
+        
+        h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="brand-section">
+        <div class="logo">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h1>ForexPro</h1>
+        <p class="subtitle">Trade Smarter. Earn More.</p>
+        <p class="description">Join thousands of traders who trust ForexPro for their investment needs. Secure, reliable, and profitable.</p>
       </div>
       
-      <div class="form-container">
-        <!-- Login Form -->
-        <div id="loginPanel" class="form-panel active">
-          <form id="loginForm">
-            <div class="form-group">
-              <label for="loginEmail">Email Address</label>
-              <div class="input-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="loginEmail" class="input-field" placeholder="you@example.com" required>
-                <span class="error-message">Please enter a valid email</span>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="loginPassword">Password</label>
-              <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="loginPassword" class="input-field" placeholder="•••••••••" required>
-                <button type="button" class="password-toggle" data-target="loginPassword">
-                  <i class="fas fa-eye-slash"></i>
-                </button>
-                <span class="error-message">Password is required</span>
-              </div>
-            </div>
-            
-            <div class="checkbox-group">
-              <input type="checkbox" id="rememberMe">
-              <label for="rememberMe">Remember me</label>
-            </div>
-            
-            <div class="btn-group">
-              <button type="submit" class="btn btn-primary">
-                <span>Sign In</span>
-                <div class="spinner"></div>
-              </button>
-            </div>
-            
-            <div style="text-align: center; margin-top: 16px;">
-              <a href="#" style="color: var(--primary); font-size: 0.9rem;">Forgot password?</a>
-            </div>
-            
-            <!-- Demo Mode Button -->
-            <button type="button" id="demoModeBtn" class="btn btn-demo">
-              <i class="fas fa-play mr-2"></i> Try Demo Mode
-            </button>
-          </form>
+      <div class="form-section">
+        <div class="tab-container">
+          <div id="loginTab" class="tab active">Sign In</div>
+          <div id="signupTab" class="tab">Sign Up</div>
         </div>
         
-        <!-- Signup Form -->
-        <div id="signupPanel" class="form-panel">
-          <form id="signupForm">
-            <div class="form-group">
-              <label for="signupEmail">Email Address</label>
-              <div class="input-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="signupEmail" class="input-field" placeholder="you@example.com" required>
-                <span class="error-message">Please enter a valid email</span>
+        <div class="form-container">
+          <!-- Login Form -->
+          <div id="loginPanel" class="form-panel active">
+            <form id="loginForm">
+              <div class="form-group">
+                <label for="loginEmail">Email Address</label>
+                <div class="input-group">
+                  <i class="fas fa-envelope"></i>
+                  <input type="email" id="loginEmail" class="input-field" placeholder="you@example.com" required>
+                  <span class="error-message">Please enter a valid email</span>
+                </div>
               </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="signupPassword">Password</label>
-              <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="signupPassword" class="input-field" placeholder="Create password" required>
-                <button type="button" class="password-toggle" data-target="signupPassword">
-                  <i class="fas fa-eye-slash"></i>
+              
+              <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <div class="input-group">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="loginPassword" class="input-field" placeholder="•••••••••" required>
+                  <button type="button" class="password-toggle" data-target="loginPassword">
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                  <span class="error-message">Password is required</span>
+                </div>
+              </div>
+              
+              <div class="checkbox-group">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe">Remember me</label>
+              </div>
+              
+              <div class="btn-group">
+                <button type="submit" class="btn btn-primary">
+                  <span>Sign In</span>
+                  <div class="spinner"></div>
                 </button>
-                <span class="error-message">Password does not meet requirements</span>
               </div>
-              <div class="password-requirements">
-                <div id="lengthReq" class="requirement invalid">
-                  <i class="fas fa-times-circle"></i>
-                  <span>At least 8 characters</span>
-                </div>
-                <div id="uppercaseReq" class="requirement invalid">
-                  <i class="fas fa-times-circle"></i>
-                  <span>One uppercase letter</span>
-                </div>
-                <div id="numberReq" class="requirement invalid">
-                  <i class="fas fa-times-circle"></i>
-                  <span>One number</span>
-                </div>
+              
+              <div class="forgot-password">
+                <a href="#" id="forgotPasswordLink">Forgot password?</a>
               </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="confirmPassword">Confirm Password</label>
-              <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="confirmPassword" class="input-field" placeholder="Confirm password" required>
-                <button type="button" class="password-toggle" data-target="confirmPassword">
-                  <i class="fas fa-eye-slash"></i>
-                </button>
-                <span class="error-message">Passwords do not match</span>
-              </div>
-            </div>
-            
-            <div class="checkbox-group">
-              <input type="checkbox" id="agreeTerms" required>
-              <label for="agreeTerms">I agree to the <a href="#" style="color: var(--primary);">Terms and Conditions</a></label>
-              <span class="error-message">You must agree to the terms</span>
-            </div>
-            
-            <div class="btn-group">
-              <button type="submit" class="btn btn-primary">
-                <span>Create Account</span>
-                <div class="spinner"></div>
+              
+              <!-- Demo Mode Button -->
+              <button type="button" id="demoModeBtn" class="btn btn-demo">
+                <i class="fas fa-play mr-2"></i> Try Demo Mode
               </button>
-              <button type="button" id="resetForm" class="btn btn-secondary">Clear</button>
-            </div>
-            
-            <!-- Demo Mode Button -->
-            <button type="button" id="demoModeBtnSignup" class="btn btn-demo">
-              <i class="fas fa-play mr-2"></i> Try Demo Mode
-            </button>
-          </form>
+            </form>
+          </div>
+          
+          <!-- Signup Form -->
+          <div id="signupPanel" class="form-panel">
+            <form id="signupForm">
+              <div class="form-group">
+                <label for="signupEmail">Email Address</label>
+                <div class="input-group">
+                  <i class="fas fa-envelope"></i>
+                  <input type="email" id="signupEmail" class="input-field" placeholder="you@example.com" required>
+                  <span class="error-message">Please enter a valid email</span>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <div class="input-group">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="signupPassword" class="input-field" placeholder="Create password" required>
+                  <button type="button" class="password-toggle" data-target="signupPassword">
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                  <span class="error-message">Password does not meet requirements</span>
+                </div>
+                <div class="password-requirements">
+                  <div id="lengthReq" class="requirement invalid">
+                    <i class="fas fa-times-circle"></i>
+                    <span>At least 8 characters</span>
+                  </div>
+                  <div id="uppercaseReq" class="requirement invalid">
+                    <i class="fas fa-times-circle"></i>
+                    <span>One uppercase letter</span>
+                  </div>
+                  <div id="numberReq" class="requirement invalid">
+                    <i class="fas fa-times-circle"></i>
+                    <span>One number</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-group">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="confirmPassword" class="input-field" placeholder="Confirm password" required>
+                  <button type="button" class="password-toggle" data-target="confirmPassword">
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                  <span class="error-message">Passwords do not match</span>
+                </div>
+              </div>
+              
+              <div class="checkbox-group">
+                <input type="checkbox" id="agreeTerms" required>
+                <label for="agreeTerms">I agree to the <a href="#" style="color: var(--primary);">Terms and Conditions</a></label>
+                <span class="error-message">You must agree to the terms</span>
+              </div>
+              
+              <div class="btn-group">
+                <button type="submit" class="btn btn-primary">
+                  <span>Create Account</span>
+                  <div class="spinner"></div>
+                </button>
+                <button type="button" id="resetForm" class="btn btn-secondary">Clear</button>
+              </div>
+              
+              <!-- Demo Mode Button -->
+              <button type="button" id="demoModeBtnSignup" class="btn btn-demo">
+                <i class="fas fa-play mr-2"></i> Try Demo Mode
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
-  <div id="toast" class="toast"></div>
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // DOM Elements
-      const loginTab = document.getElementById('loginTab');
-      const signupTab = document.getElementById('signupTab');
-      const loginPanel = document.getElementById('loginPanel');
-      const signupPanel = document.getElementById('signupPanel');
-      const loginForm = document.getElementById('loginForm');
-      const signupForm = document.getElementById('signupForm');
-      const toast = document.getElementById('toast');
-      const signupPassword = document.getElementById('signupPassword');
-      const confirmPassword = document.getElementById('confirmPassword');
-      const lengthReq = document.getElementById('lengthReq');
-      const uppercaseReq = document.getElementById('uppercaseReq');
-      const numberReq = document.getElementById('numberReq');
-      const demoModeBtn = document.getElementById('demoModeBtn');
-      const demoModeBtnSignup = document.getElementById('demoModeBtnSignup');
-      
-      // Tab Switching
-      loginTab.addEventListener('click', function() {
-        loginTab.classList.add('active');
-        signupTab.classList.remove('active');
-        loginPanel.classList.add('active');
-        signupPanel.classList.remove('active');
-      });
-      
-      signupTab.addEventListener('click', function() {
-        signupTab.classList.add('active');
-        loginTab.classList.remove('active');
-        signupPanel.classList.add('active');
-        loginPanel.classList.remove('active');
-      });
-      
-      // Password Toggle
-      document.querySelectorAll('.password-toggle').forEach(button => {
-        button.addEventListener('click', function() {
-          const targetId = this.getAttribute('data-target');
-          const input = document.getElementById(targetId);
-          const icon = this.querySelector('i');
-          
-          if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+    
+    <div id="toast" class="toast"></div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // DOM Elements
+        const loginTab = document.getElementById('loginTab');
+        const signupTab = document.getElementById('signupTab');
+        const loginPanel = document.getElementById('loginPanel');
+        const signupPanel = document.getElementById('signupPanel');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const toast = document.getElementById('toast');
+        const signupPassword = document.getElementById('signupPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const lengthReq = document.getElementById('lengthReq');
+        const uppercaseReq = document.getElementById('uppercaseReq');
+        const numberReq = document.getElementById('numberReq');
+        const demoModeBtn = document.getElementById('demoModeBtn');
+        const demoModeBtnSignup = document.getElementById('demoModeBtnSignup');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        
+        // API Configuration
+        const API_BASE = 'http://localhost:3000'; // Local development server
+        
+        // Tab Switching
+        loginTab.addEventListener('click', function() {
+          loginTab.classList.add('active');
+          signupTab.classList.remove('active');
+          loginPanel.classList.add('active');
+          signupPanel.classList.remove('active');
+        });
+        
+        signupTab.addEventListener('click', function() {
+          signupTab.classList.add('active');
+          loginTab.classList.remove('active');
+          signupPanel.classList.add('active');
+          loginPanel.classList.remove('active');
+        });
+        
+        // Password Toggle
+        document.querySelectorAll('.password-toggle').forEach(button => {
+          button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+              input.type = 'text';
+              icon.classList.remove('fa-eye-slash');
+              icon.classList.add('fa-eye');
+            } else {
+              input.type = 'password';
+              icon.classList.remove('fa-eye');
+              icon.classList.add('fa-eye-slash');
+            }
+          });
+        });
+        
+        // Password Requirements Validation
+        function validatePasswordRequirements(password) {
+          // Length requirement
+          if (password.length >= 8) {
+            lengthReq.classList.remove('invalid');
+            lengthReq.classList.add('valid');
+            lengthReq.querySelector('i').classList.remove('fa-times-circle');
+            lengthReq.querySelector('i').classList.add('fa-check-circle');
           } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
+            lengthReq.classList.remove('valid');
+            lengthReq.classList.add('invalid');
+            lengthReq.querySelector('i').classList.remove('fa-check-circle');
+            lengthReq.querySelector('i').classList.add('fa-times-circle');
+          }
+          
+          // Uppercase requirement
+          if (/[A-Z]/.test(password)) {
+            uppercaseReq.classList.remove('invalid');
+            uppercaseReq.classList.add('valid');
+            uppercaseReq.querySelector('i').classList.remove('fa-times-circle');
+            uppercaseReq.querySelector('i').classList.add('fa-check-circle');
+          } else {
+            uppercaseReq.classList.remove('valid');
+            uppercaseReq.classList.add('invalid');
+            uppercaseReq.querySelector('i').classList.remove('fa-check-circle');
+            uppercaseReq.querySelector('i').classList.add('fa-times-circle');
+          }
+          
+          // Number requirement
+          if (/[0-9]/.test(password)) {
+            numberReq.classList.remove('invalid');
+            numberReq.classList.add('valid');
+            numberReq.querySelector('i').classList.remove('fa-times-circle');
+            numberReq.querySelector('i').classList.add('fa-check-circle');
+          } else {
+            numberReq.classList.remove('valid');
+            numberReq.classList.add('invalid');
+            numberReq.querySelector('i').classList.remove('fa-check-circle');
+            numberReq.querySelector('i').classList.add('fa-times-circle');
+          }
+          
+          // Return true if all requirements are met
+          return password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
+        }
+        
+        // Form Validation
+        function validateEmail(email) {
+          const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return re.test(email);
+        }
+        
+        function validateField(field, validationFn, errorMsg) {
+          const inputGroup = field.closest('.input-group');
+          const errorMsgElement = inputGroup.querySelector('.error-message');
+          
+          if (validationFn(field.value)) {
+            inputGroup.classList.remove('error');
+            return true;
+          } else {
+            inputGroup.classList.add('error');
+            errorMsgElement.textContent = errorMsg;
+            return false;
+          }
+        }
+        
+        // Show Toast Notification
+        function showToast(message, type = 'info') {
+          toast.textContent = message;
+          toast.className = 'toast show';
+          
+          if (type === 'error') {
+            toast.classList.add('error');
+          } else if (type === 'success') {
+            toast.classList.add('success');
+          }
+          
+          setTimeout(() => {
+            toast.classList.remove('show');
+            toast.classList.remove('error', 'success');
+          }, 3000);
+        }
+        
+        // Demo Mode Button - Improved functionality
+        async function activateDemoMode() {
+          try {
+            // Show notification
+            showToast('Entering Demo Mode...', 'success');
+            
+            // Call the demo API endpoint
+            const response = await fetch(`${API_BASE}/api/auth/demo`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+              // Store authentication token and user data
+              localStorage.setItem('authToken', data.token);
+              localStorage.setItem('user', JSON.stringify(data.user));
+              
+              showToast('Demo mode activated! Redirecting...', 'success');
+              
+              // Redirect to dashboard
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 1500);
+            } else {
+              showToast(data.message || 'Failed to activate demo mode', 'error');
+            }
+          } catch (error) {
+            console.error('Demo mode error:', error);
+            showToast('Network error. Please try again.', 'error');
+          }
+        }
+        
+        // Demo Mode Button Event Listeners
+        demoModeBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          activateDemoMode();
+        });
+        
+        demoModeBtnSignup.addEventListener('click', function(e) {
+          e.preventDefault();
+          activateDemoMode();
+        });
+        
+        // Forgot Password Link
+        forgotPasswordLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          const phoneNumber = '+254739119490';
+          const message = 'Help I forgot my password';
+          const whatsappUrl = `https://wa.me/${phoneNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
+          window.open(whatsappUrl, '_blank');
+        });
+        
+        // Login Form Submission
+        loginForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const email = document.getElementById('loginEmail').value;
+          const password = document.getElementById('loginPassword').value;
+          const submitBtn = this.querySelector('button[type="submit"]');
+          const btnText = submitBtn.querySelector('span');
+          const spinner = submitBtn.querySelector('.spinner');
+          
+          // Validate form
+          let isValid = true;
+          isValid = validateField(document.getElementById('loginEmail'), validateEmail, 'Please enter a valid email') && isValid;
+          isValid = validateField(document.getElementById('loginPassword'), val => val.length > 0, 'Password is required') && isValid;
+          
+          if (!isValid) {
+            showToast('Please fix the errors in the form', 'error');
+            return;
+          }
+          
+          // Show loading state
+          submitBtn.disabled = true;
+          btnText.textContent = 'Signing In...';
+          spinner.style.display = 'inline-block';
+          
+          try {
+            // Call the login API endpoint
+            const response = await fetch(`${API_BASE}/api/auth/login`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email: email,
+                password: password
+              })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+              // Store authentication token and user data
+              localStorage.setItem('authToken', data.token);
+              localStorage.setItem('user', JSON.stringify(data.user));
+              
+              showToast('Login successful! Redirecting...', 'success');
+              
+              // Redirect to dashboard
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 1500);
+            } else {
+              showToast(data.message || 'Invalid email or password', 'error');
+            }
+          } catch (error) {
+            console.error('Login error:', error);
+            showToast('Network error. Please try again.', 'error');
+          } finally {
+            // Reset button state
+            submitBtn.disabled = false;
+            btnText.textContent = 'Sign In';
+            spinner.style.display = 'none';
           }
         });
-      });
-      
-      // Password Requirements Validation
-      function validatePasswordRequirements(password) {
-        // Length requirement
-        if (password.length >= 8) {
-          lengthReq.classList.remove('invalid');
-          lengthReq.classList.add('valid');
-          lengthReq.querySelector('i').classList.remove('fa-times-circle');
-          lengthReq.querySelector('i').classList.add('fa-check-circle');
-        } else {
+        
+        // Signup Form Submission
+        signupForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const email = document.getElementById('signupEmail').value;
+          const password = document.getElementById('signupPassword').value;
+          const confirmPass = document.getElementById('confirmPassword').value;
+          const agreeTerms = document.getElementById('agreeTerms').checked;
+          const submitBtn = this.querySelector('button[type="submit"]');
+          const btnText = submitBtn.querySelector('span');
+          const spinner = submitBtn.querySelector('.spinner');
+          
+          // Validate form
+          let isValid = true;
+          isValid = validateField(document.getElementById('signupEmail'), validateEmail, 'Please enter a valid email') && isValid;
+          isValid = validateField(document.getElementById('signupPassword'), val => validatePasswordRequirements(val), 'Password does not meet requirements') && isValid;
+          isValid = validateField(document.getElementById('confirmPassword'), val => val === password, 'Passwords do not match') && isValid;
+          
+          if (!agreeTerms) {
+            showToast('You must agree to the terms and conditions', 'error');
+            return;
+          }
+          
+          if (!isValid) {
+            showToast('Please fix the errors in the form', 'error');
+            return;
+          }
+          
+          // Show loading state
+          submitBtn.disabled = true;
+          btnText.textContent = 'Creating Account...';
+          spinner.style.display = 'inline-block';
+          
+          try {
+            // Call the signup API endpoint
+            const response = await fetch(`${API_BASE}/api/auth/signup`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                name: email.split('@')[0], // Use part of email as name
+                email: email,
+                password: password
+              })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+              // Store authentication token and user data
+              localStorage.setItem('authToken', data.token);
+              localStorage.setItem('user', JSON.stringify(data.user));
+              
+              showToast('Account created successfully! Redirecting...', 'success');
+              
+              // Redirect to dashboard
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 1500);
+            } else {
+              showToast(data.message || 'Failed to create account', 'error');
+            }
+          } catch (error) {
+            console.error('Signup error:', error);
+            showToast('Network error. Please try again.', 'error');
+          } finally {
+            // Reset button state
+            submitBtn.disabled = false;
+            btnText.textContent = 'Create Account';
+            spinner.style.display = 'none';
+          }
+        });
+        
+        // Reset Form Button
+        document.getElementById('resetForm').addEventListener('click', function() {
+          signupForm.reset();
+          document.querySelectorAll('.input-group').forEach(group => {
+            group.classList.remove('error');
+          });
+          
+          // Reset password requirements
           lengthReq.classList.remove('valid');
           lengthReq.classList.add('invalid');
           lengthReq.querySelector('i').classList.remove('fa-check-circle');
           lengthReq.querySelector('i').classList.add('fa-times-circle');
-        }
-        
-        // Uppercase requirement
-        if (/[A-Z]/.test(password)) {
-          uppercaseReq.classList.remove('invalid');
-          uppercaseReq.classList.add('valid');
-          uppercaseReq.querySelector('i').classList.remove('fa-times-circle');
-          uppercaseReq.querySelector('i').classList.add('fa-check-circle');
-        } else {
+          
           uppercaseReq.classList.remove('valid');
           uppercaseReq.classList.add('invalid');
           uppercaseReq.querySelector('i').classList.remove('fa-check-circle');
           uppercaseReq.querySelector('i').classList.add('fa-times-circle');
-        }
-        
-        // Number requirement
-        if (/[0-9]/.test(password)) {
-          numberReq.classList.remove('invalid');
-          numberReq.classList.add('valid');
-          numberReq.querySelector('i').classList.remove('fa-times-circle');
-          numberReq.querySelector('i').classList.add('fa-check-circle');
-        } else {
+          
           numberReq.classList.remove('valid');
           numberReq.classList.add('invalid');
           numberReq.querySelector('i').classList.remove('fa-check-circle');
           numberReq.querySelector('i').classList.add('fa-times-circle');
-        }
-        
-        // Return true if all requirements are met
-        return password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
-      }
-      
-      // Form Validation
-      function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-      }
-      
-      function validateField(field, validationFn, errorMsg) {
-        const inputGroup = field.closest('.input-group');
-        const errorMsgElement = inputGroup.querySelector('.error-message');
-        
-        if (validationFn(field.value)) {
-          inputGroup.classList.remove('error');
-          return true;
-        } else {
-          inputGroup.classList.add('error');
-          errorMsgElement.textContent = errorMsg;
-          return false;
-        }
-      }
-      
-      // Show Toast Notification
-      function showToast(message, type = 'info') {
-        toast.textContent = message;
-        toast.className = 'toast show';
-        
-        if (type === 'error') {
-          toast.classList.add('error');
-        } else if (type === 'success') {
-          toast.classList.add('success');
-        }
-        
-        setTimeout(() => {
-          toast.classList.remove('show');
-          toast.classList.remove('error', 'success');
-        }, 3000);
-      }
-      
-      // Demo Mode Button - Improved functionality
-      function activateDemoMode() {
-        // Store demo mode flag in localStorage
-        localStorage.setItem('demoMode', 'true');
-        
-        // Show notification
-        showToast('Entering Demo Mode...', 'success');
-        
-        // Add a slight delay before redirecting to allow the notification to show
-        setTimeout(() => {
-          // Redirect to demo page
-          window.location.href = 'demo.html';
-        }, 800);
-      }
-      
-      // Demo Mode Button Event Listeners
-      demoModeBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        activateDemoMode();
-      });
-      
-      demoModeBtnSignup.addEventListener('click', function(e) {
-        e.preventDefault();
-        activateDemoMode();
-      });
-      
-      // Login Form Submission
-      loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const btnText = submitBtn.querySelector('span');
-        const spinner = submitBtn.querySelector('.spinner');
-        
-        // Validate form
-        let isValid = true;
-        isValid = validateField(document.getElementById('loginEmail'), validateEmail, 'Please enter a valid email') && isValid;
-        isValid = validateField(document.getElementById('loginPassword'), val => val.length > 0, 'Password is required') && isValid;
-        
-        if (!isValid) {
-          showToast('Please fix the errors in the form', 'error');
-          return;
-        }
-        
-        // Show loading state
-        submitBtn.disabled = true;
-        btnText.textContent = 'Signing In...';
-        spinner.style.display = 'inline-block';
-        
-        try {
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 1500));
           
-          // For demo purposes, accept any email/password
-          if (email && password) {
-            showToast('Login successful! Redirecting...', 'success');
-            
-            // Store user info in localStorage
-            localStorage.setItem('user', JSON.stringify({
-              id: 1,
-              name: 'Demo User',
-              email: email
-            }));
-            
-            // Redirect to dashboard
-            setTimeout(() => {
-              window.location.href = 'dashboard.html';
-            }, 1500);
-          } else {
-            showToast('Invalid email or password', 'error');
-          }
-        } catch (error) {
-          showToast('Network error. Please try again.', 'error');
-        } finally {
-          // Reset button state
-          submitBtn.disabled = false;
-          btnText.textContent = 'Sign In';
-          spinner.style.display = 'none';
-        }
-      });
-      
-      // Signup Form Submission
-      signupForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        const confirmPass = document.getElementById('confirmPassword').value;
-        const agreeTerms = document.getElementById('agreeTerms').checked;
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const btnText = submitBtn.querySelector('span');
-        const spinner = submitBtn.querySelector('.spinner');
-        
-        // Validate form
-        let isValid = true;
-        isValid = validateField(document.getElementById('signupEmail'), validateEmail, 'Please enter a valid email') && isValid;
-        isValid = validateField(document.getElementById('signupPassword'), val => validatePasswordRequirements(val), 'Password does not meet requirements') && isValid;
-        isValid = validateField(document.getElementById('confirmPassword'), val => val === password, 'Passwords do not match') && isValid;
-        
-        if (!agreeTerms) {
-          showToast('You must agree to the terms and conditions', 'error');
-          return;
-        }
-        
-        if (!isValid) {
-          showToast('Please fix the errors in the form', 'error');
-          return;
-        }
-        
-        // Show loading state
-        submitBtn.disabled = true;
-        btnText.textContent = 'Creating Account...';
-        spinner.style.display = 'inline-block';
-        
-        try {
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // For demo purposes, accept any valid form
-          showToast('Account created successfully! Redirecting...', 'success');
-          
-          // Store user info in localStorage
-          localStorage.setItem('user', JSON.stringify({
-            id: 1,
-            name: email.split('@')[0], // Use part of email as name
-            email: email
-          }));
-          
-          // Redirect to dashboard
-          setTimeout(() => {
-            window.location.href = 'dashboard.html';
-          }, 1500);
-        } catch (error) {
-          showToast('Network error. Please try again.', 'error');
-        } finally {
-          // Reset button state
-          submitBtn.disabled = false;
-          btnText.textContent = 'Create Account';
-          spinner.style.display = 'none';
-        }
-      });
-      
-      // Reset Form Button
-      document.getElementById('resetForm').addEventListener('click', function() {
-        signupForm.reset();
-        document.querySelectorAll('.input-group').forEach(group => {
-          group.classList.remove('error');
+          showToast('Form cleared', 'success');
         });
         
-        // Reset password requirements
-        lengthReq.classList.remove('valid');
-        lengthReq.classList.add('invalid');
-        lengthReq.querySelector('i').classList.remove('fa-check-circle');
-        lengthReq.querySelector('i').classList.add('fa-times-circle');
+        // Real-time validation
+        document.getElementById('loginEmail').addEventListener('blur', function() {
+          validateField(this, validateEmail, 'Please enter a valid email');
+        });
         
-        uppercaseReq.classList.remove('valid');
-        uppercaseReq.classList.add('invalid');
-        uppercaseReq.querySelector('i').classList.remove('fa-check-circle');
-        uppercaseReq.querySelector('i').classList.add('fa-times-circle');
+        document.getElementById('signupEmail').addEventListener('blur', function() {
+          validateField(this, validateEmail, 'Please enter a valid email');
+        });
         
-        numberReq.classList.remove('valid');
-        numberReq.classList.add('invalid');
-        numberReq.querySelector('i').classList.remove('fa-check-circle');
-        numberReq.querySelector('i').classList.add('fa-times-circle');
+        // Password requirements real-time validation
+        signupPassword.addEventListener('input', function() {
+          validatePasswordRequirements(this.value);
+        });
         
-        showToast('Form cleared', 'success');
+        confirmPassword.addEventListener('input', function() {
+          validateField(this, val => val === signupPassword.value, 'Passwords do not match');
+        });
       });
-      
-      // Real-time validation
-      document.getElementById('loginEmail').addEventListener('blur', function() {
-        validateField(this, validateEmail, 'Please enter a valid email');
-      });
-      
-      document.getElementById('signupEmail').addEventListener('blur', function() {
-        validateField(this, validateEmail, 'Please enter a valid email');
-      });
-      
-      // Password requirements real-time validation
-      signupPassword.addEventListener('input', function() {
-        validatePasswordRequirements(this.value);
-      });
-      
-      confirmPassword.addEventListener('input', function() {
-        validateField(this, val => val === signupPassword.value, 'Passwords do not match');
-      });
-    });
-  </script>
-</body>
-</html>
+    </script>
+  </body>
+  </html>

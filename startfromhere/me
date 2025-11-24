@@ -1,0 +1,17 @@
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqb2ZrcmJ4dXdmdHJmZWp2YnNrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjM0ODY3MCwiZXhwIjoyMDc3OTI0NjcwfQ.bynvrmFnZg6Swxu6LBNeeSQdqqkYi2IxEZIolIM1Xyc
+service role key 
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqb2ZrcmJ4dXdmdHJmZWp2YnNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzNDg2NzAsImV4cCI6MjA3NzkyNDY3MH0.0_MTj-iwaTUdFfL2rSXGMq0LM4_9Hpuqj5dcWZ_fN6k
+public anon User Sessions
+Configure settings for user sessions and refresh tokens
+
+Refresh Tokens
+
+Detect and revoke potentially compromised refresh tokens
+Prevent replay attacks from potentially compromised refresh tokens.
+10000
+seconds
+Refresh token reuse interval
+Time interval where the same refresh token can be used multiple times to request for an access token. Recommendation: 10 seconds.
+aLSO THE PAGES WILL BE RENDERED FROM THE SERVERS....OKAY LIKE FROM LOCAL SERVER IN THE SAME FOLDER.....we srent usinf external servers.....we use the one we already are using 
+Save changes
+well be using that too send the fixed login page now 

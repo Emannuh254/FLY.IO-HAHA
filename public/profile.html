@@ -1,761 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ForexPro - Profile</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-            min-height: 100dvh;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.5rem;
-        }
-        .hover-lift { transition: all 0.3s ease; }
-        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
-        .btn-primary {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
-        }
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        .notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        .notification.success { background-color: #3b82f6; }
-        .notification.error { background-color: #ef4444; }
-        .user-avatar {
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .user-avatar:hover { transform: scale(1.05); }
-        .user-avatar img {
-            width: 96px;
-            height: 96px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .user-avatar .default-avatar {
-            width: 96px;
-            height: 96px;
-            border-radius: 50%;
-            background: rgba(59, 130, 246, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .user-avatar .default-avatar i {
-            font-size: 48px;
-            color: #3b82f6;
-        }
-        .upload-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
-        }
-        .user-avatar:hover .upload-overlay { opacity: 1; }
-        .vip-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            font-size: 0.8rem;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 20px;
-            z-index: 10;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        .vip-gold {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-        .vip-platinum {
-            background: linear-gradient(135deg, #e5e7eb, #9ca3af);
-            color: #1f2937;
-        }
-        .vip-diamond {
-            background: linear-gradient(135deg, #b9f6ca, #34d399);
-            color: #064e3b;
-        }
-        .vip-elite {
-            background: linear-gradient(135deg, #818cf8, #4f46e5);
-            color: white;
-        }
-        .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-        .stat-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #3b82f6;
-        }
-        .stat-label {
-            font-size: 0.875rem;
-            color: #9ca3af;
-        }
-        .whatsapp-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 60px;
-            height: 60px;
-            background-color: #25D366;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-        .whatsapp-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-        }
-        .whatsapp-btn i {
-            color: white;
-            font-size: 28px;
-        }
-        .verification-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.5rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
-        }
-        .status-verified {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-        .status-pending {
-            background-color: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForexPro - Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.1);
+      --primary: #3b82f6;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+    body { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%); min-height: 100dvh; color: white; }
+    .glass { background: var(--card); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 1.5rem; }
+    .hover-lift { transition: all 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .btn-primary { background: linear-gradient(135deg, #1e40af, #3b82f6); padding: 0.75rem 1.5rem; border-radius: 0.75rem; font-weight: 600; transition: all 0.3s; }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(59,130,246,0.4); }
+    .notification { position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 14px 24px; border-radius: 12px; font-weight: 500; opacity: 0; transform: translateY(100px); transition: all 0.4s; }
+    .notification.show { opacity: 1; transform: translateY(0); }
+    .notification.success { background: var(--success); }
+    .notification.error { background: var(--error); }
+    .vip-badge { position: absolute; top: -8px; right: -8px; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+    .vip-gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .vip-platinum { background: linear-gradient(135deg, #e5e7eb, #9ca3af); color: #1f2937; }
+    .vip-diamond { background: linear-gradient(135deg, #34d399, #059669); color: white; }
+    .vip-elite { background: linear-gradient(135deg, #818cf8, #4f46e5); color: white; }
+    .avatar-upload { position: relative; display: inline-block; cursor: pointer; }
+    .avatar-upload:hover .overlay { opacity: 1; }
+    .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+    .loading { display: inline-block; width: 18px; height: 18px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .whatsapp-float { position: fixed; bottom: 20px; left: 20px; width: 60px; height: 60px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; transition: all 0.3s; }
+    .whatsapp-float:hover { transform: scale(1.1); }
+  </style>
 </head>
-<body class="gradient-bg text-white min-h-screen">
+<body class="text-white">
 
-    <!-- Navigation -->
-    <nav class="glass-card shadow-2xl sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-chart-line text-2xl text-blue-400"></i>
-                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
-                </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="dashboard.html" class="hover:text-blue-300 transition">Dashboard</a>
-                    <a href="trading.html" class="hover:text-blue-300 transition">Trading</a>
-                    <a href="deposit-withdraw.html" class="hover:text-blue-300 transition">Wallet</a>
-                    <a href="referrals.html" class="hover:text-blue-300 transition">Referrals</a>
-                    <a href="profile.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Profile</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button class="p-2 hover:bg-white/10 rounded-full transition"><i class="fas fa-bell"></i></button>
-                    <div class="user-avatar" id="userAvatar">
-                        <div id="userImageContainer"></div>
-                        <div class="upload-overlay"><i class="fas fa-camera text-white"></i></div>
-                        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Profile Header -->
-        <div class="glass-card p-6 hover-lift mb-8">
-            <div class="px-6 py-5 border-b border-white/10">
-                <h2 class="text-lg font-medium">My Profile</h2>
-            </div>
-            <div class="p-6">
-                <div class="flex flex-col md:flex-row items-center">
-                    <div class="mb-4 md:mb-0 md:mr-6 relative">
-                        <div id="profileImageContainer"></div>
-                        <div id="vipBadge" class="vip-badge vip-gold">GOLD</div>
-                    </div>
-                    <div class="text-center md:text-left">
-                        <h3 class="text-xl font-bold text-white" id="profileName">Trader</h3>
-                        <p class="text-sm text-gray-300" id="profileEmail">trade.oo1@gmail.com</p>
-                        <p class="text-sm text-gray-300" id="profilePhone">
-                            +254 712 345 678
-                            <span id="phoneVerificationStatus" class="verification-status status-pending">
-                                <i class="fas fa-clock mr-1"></i> Not Verified
-                            </span>
-                        </p>
-                        <div class="mt-2">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400">
-                                <i class="fas fa-check-circle mr-1"></i> Verified Account
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Profile Stats -->
-                <div class="profile-stats mt-6">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalInvestment">KSH 0</div>
-                        <div class="stat-label">Total Investment</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalProfit">KSH 0</div>
-                        <div class="stat-label">Total Profit</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="activeBots">0</div>
-                        <div class="stat-label">Active Bots</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="referrals">0</div>
-                        <div class="stat-label">Referrals</div>
-                    </div>
-                </div>
-            </div>
+  <!-- Navigation -->
+  <nav class="glass sticky top-0 z-50 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-3">
+          <i class="fas fa-chart-line text-2xl text-blue-400"></i>
+          <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro</span>
         </div>
 
-        <!-- Phone Verification Section -->
-        <div class="glass-card p-6 hover-lift mb-8">
-            <div class="px-6 py-5 border-b border-white/10">
-                <h2 class="text-lg font-medium">Phone Verification</h2>
-            </div>
-            <div class="p-6">
-                <div id="phoneVerificationSection">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-1" for="verificationPhone">
-                            Phone Number
-                        </label>
-                        <input type="tel" id="verificationPhone" name="verificationPhone"
-                            class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
-                            placeholder="+254712345678">
-                    </div>
-                    <div class="mb-4">
-                        <button id="requestVerificationBtn" class="btn-primary px-6 py-3 rounded-md text-white">
-                            Request Verification
-                        </button>
-                    </div>
-                    <div id="codeSection" class="hidden">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="verificationCode">
-                                Verification Code
-                            </label>
-                            <input type="text" id="verificationCode" name="verificationCode"
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
-                                placeholder="Enter 6-digit code">
-                        </div>
-                        <div class="mb-4">
-                            <button id="submitVerificationBtn" class="btn-primary px-6 py-3 rounded-md text-white">
-                                Verify Code
-                            </button>
-                        </div>
-                    </div>
-                    <div id="verificationStatus" class="mt-4">
-                        <!-- Status message will appear here -->
-                    </div>
-                </div>
-            </div>
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="dashboard.html" class="hover:text-blue-300 transition">Dashboard</a>
+          <a href="trading.html" class="hover:text-blue-300 transition">Trading</a>
+          <a href="deposit-withdraw.html" class="hover:text-blue-300 transition">Wallet</a>
+          <a href="referrals.html" class="hover:text-blue-300 transition">Referrals</a>
+          <a href="profile.html" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-1">Profile</a>
+          <button id="logoutBtnDesktop" class="text-red-400 hover:text-red-300 font-medium flex items-center gap-2">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
         </div>
 
-        <!-- Personal Information Section -->
-        <div class="glass-card p-6 hover-lift mb-8">
-            <div class="px-6 py-5 border-b border-white/10">
-                <h2 class="text-lg font-medium">Personal Information</h2>
-            </div>
-            <div class="p-6">
-                <form id="profileForm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="name">
-                                Full Name
-                            </label>
-                            <input type="text" id="name" name="name" required
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="email">
-                                Email Address
-                            </label>
-                            <input type="email" id="email" name="email" required
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="phone">
-                                Phone Number
-                            </label>
-                            <input type="tel" id="phone" name="phone"
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="country">
-                                Country
-                            </label>
-                            <select id="country" name="country"
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white">
-                                <option value="Kenya">Kenya</option>
-                                <option value="Nigeria">Nigeria</option>
-                                <option value="South Africa">South Africa</option>
-                                <option value="Uganda">Uganda</option>
-                                <option value="Tanzania">Tanzania</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mt-8">
-                        <button type="submit" class="btn-primary px-6 py-3 rounded-md text-white">
-                            Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div class="flex items-center gap-4">
+          <button class="p-2 hover:bg-white/10 rounded-full"><i class="fas fa-bell"></i></button>
+          <div class="avatar-upload">
+            <img id="navAvatar" src="" alt="You" class="w-10 h-10 rounded-full ring-2 ring-blue-400 object-cover">
+            <div class="overlay"><i class="fas fa-camera text-xl"></i></div>
+            <input type="file" id="avatarInput" accept="image/*" class="hidden">
+          </div>
         </div>
+      </div>
+    </div>
+  </nav>
 
-        <!-- Password Change Section -->
-        <div class="glass-card p-6 hover-lift mb-8">
-            <div class="px-6 py-5 border-b border-white/10">
-                <h2 class="text-lg font-medium">Change Password</h2>
-            </div>
-            <div class="p-6">
-                <form id="passwordChangeForm">
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="currentPassword">
-                                Current Password
-                            </label>
-                            <input type="password" id="currentPassword" name="currentPassword" required
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="newPassword">
-                                New Password
-                            </label>
-                            <input type="password" id="newPassword" name="newPassword" required
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white">
-                            <p class="mt-1 text-xs text-gray-400">Password must be at least 8 characters long</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1" for="confirmPassword">
-                                Confirm New Password
-                            </label>
-                            <input type="password" id="confirmPassword" name="confirmPassword" required
-                                class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white">
-                        </div>
-                    </div>
-                    <div class="mt-8">
-                        <button type="submit" class="btn-primary px-6 py-3 rounded-md text-white">
-                            Update Password
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
 
-        <!-- Security Tips -->
-        <div class="glass-card p-6 hover-lift">
-            <div class="px-6 py-5 border-b border-white/10">
-                <h2 class="text-lg font-medium">Security Tips</h2>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    <div class="flex items-start">
-                        <i class="fas fa-shield-alt text-blue-400 mt-1 mr-3"></i>
-                        <div>
-                            <h3 class="font-medium">Use a strong password</h3>
-                            <p class="text-sm text-gray-300">Combine uppercase, lowercase, numbers, and special characters.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <i class="fas fa-lock text-blue-400 mt-1 mr-3"></i>
-                        <div>
-                            <h3 class="font-medium">Never share your password</h3>
-                            <p class="text-sm text-gray-300">Our support team will never ask for your password.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <i class="fas fa-sync-alt text-blue-400 mt-1 mr-3"></i>
-                        <div>
-                            <h3 class="font-medium">Change your password regularly</h3>
-                            <p class="text-sm text-gray-300">Update your password every 3 months for better security.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <i class="fas fa-mobile-alt text-blue-400 mt-1 mr-3"></i>
-                        <div>
-                            <h3 class="font-medium">Verify your phone number</h3>
-                            <p class="text-sm text-gray-300">Phone verification adds an extra layer of security to your account.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Profile Header -->
+    <div class="glass p-8 hover-lift text-center md:text-left">
+      <div class="flex flex-col md:flex-row items-center gap-8">
+        <div class="relative">
+          <div class="avatar-upload">
+            <img id="profileAvatar" src="" alt="Profile" class="w-32 h-32 rounded-full ring-4 ring-blue-500 object-cover">
+            <div class="overlay"><i class="fas fa-camera text-2xl"></i></div>
+          </div>
+          <div id="vipBadge" class="vip-badge vip-gold">GOLD</div>
         </div>
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold" id="userName">Loading...</h1>
+          <p class="text-gray-300" id="userEmail">-</p>
+          <p class="text-gray-300 mt-2" id="userPhone">+254 --- --- --- <span id="phoneStatus" class="text-yellow-400 text-sm"></span></p>
+          <div class="flex flex-wrap gap-3 mt-4 justify-center md:justify-start">
+            <span class="px-4 py-2 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
+              <i class="fas fa-check-circle mr-1"></i> Verified Account
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-blue-400" id="totalInvested">KSH 0</div>
+          <div class="text-sm text-gray-400">Total Invested</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-green-400" id="totalProfit">KSH 0</div>
+          <div class="text-sm text-gray-400">Total Profit</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-purple-400" id="activeBots">0</div>
+          <div class="text-sm text-gray-400">Active Bots</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-cyan-400" id="referralCount">0</div>
+          <div class="text-sm text-gray-400">Referrals</div>
+        </div>
+      </div>
     </div>
 
-    <!-- WhatsApp Button -->
-    <a href="https://wa.me/254739119490" target="_blank" class="whatsapp-btn" title="Contact us on WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-
-    <!-- Mobile Bottom Nav -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-white/20">
-        <div class="flex justify-around py-3">
-            <a href="dashboard.html" class="text-gray-400 text-center">
-                <i class="fas fa-home text-2xl"></i>
-                <p class="text-xs">Home</p>
-            </a>
-            <a href="trading.html" class="text-gray-400 text-center">
-                <i class="fas fa-exchange-alt text-2xl"></i>
-                <p class="text-xs">Trade</p>
-            </a>
-            <a href="deposit-withdraw.html" class="text-gray-400 text-center">
-                <i class="fas fa-wallet text-2xl"></i>
-                <p class="text-xs">Wallet</p>
-            </a>
-            <a href="referrals.html" class="text-gray-400 text-center">
-                <i class="fas fa-users text-2xl"></i>
-                <p class="text-xs">Referrals</p>
-            </a>
-            <a href="profile.html" class="text-blue-400 text-center">
-                <i class="fas fa-user text-2xl"></i>
-                <p class="text-xs">Profile</p>
-            </a>
+    <!-- Personal Info -->
+    <div class="glass p-8 hover-lift">
+      <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+        <i class="fas fa-user-edit text-blue-400"></i> Personal Information
+      </h2>
+      <form id="profileForm" class="grid md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">Full Name</label>
+          <input type="text" id="nameInput" class="w-full px-4 py-3 rounded-lg bg-white/10 focus:ring-2 focus:ring-blue-500 outline-none" required>
         </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">Email</label>
+          <input type="email" id="emailInput" class="w-full px-4 py-3 rounded-lg bg-white/10 focus:ring-2 focus:ring-blue-500 outline-none" required>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">Phone Number</label>
+          <input type="tel" id="phoneInput" class="w-full px-4 py-3 rounded-lg bg-white/10 focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-2">Country</label>
+          <select id="countryInput" class="w-full px-4 py-3 rounded-lg bg-white/10 focus:ring-2 focus:ring-blue-500 outline-none">
+            <option>Kenya</option>
+            <option>Uganda</option>
+            <option>Tanzania</option>
+            <option>Nigeria</option>
+            <option>South Africa</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="md:col-span-2">
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
     </div>
 
-    <!-- Notification Container -->
-    <div id="notification" class="notification"></div>
+    <!-- Change Password -->
+    <div class="glass p-8 hover-lift">
+      <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+        <i class="fas fa-key text-blue-400"></i> Change Password
+      </h2>
+      <form id="passwordForm" class="space-y-5">
+        <input type="password" placeholder="Current Password" id="currentPass" class="w-full px-4 py-3 rounded-lg bg-white/10 focus:ring-2 focus:ring-blue-500 outline-none" required>
+        <input type="password" placeholder="New Password (min 8 chars)" id="newPass" class="w-full px-4 py-3 rounded-lg bg-white/10 focus:ring-2 focus:ring-blue-500 outline-none" required>
+        <input type="password" placeholder="Confirm New Password" id="confirmPass" class="w-full px-4 py-3 rounded-lg bg-white/10 focus:ring-2 focus:ring-blue-500 outline-none" required>
+        <button type="submit" class="btn-primary">Update Password</button>
+      </form>
+    </div>
 
-    <script>
-        // API Base URL
-        const API_BASE = 'https://fly-io-haha.onrender.com/';
-        
-        // Check if user is logged in
-        let token = localStorage.getItem('token');
-        let user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-        
-        // Function to extract username from email
-        function getUsernameFromEmail(email) {
-            if (!email) return 'User';
-            return email.split('@')[0];
-        }
-        
-        // Function to render user avatar
-        function renderUserAvatar(imageUrl, containerId) {
-            const container = document.getElementById(containerId);
-            
-            if (imageUrl) {
-                container.innerHTML = `<img src="${imageUrl}" alt="Profile" class="w-24 h-24 rounded-full">`;
-            } else {
-                container.innerHTML = `
-                    <div class="default-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                `;
-            }
-        }
-        
-        // Function to determine VIP level based on investment
-        function getVIPLevel(investment) {
-            if (!investment) return { level: 'Standard', class: 'vip-gold' };
-            
-            const investAmount = parseFloat(investment);
-            
-            if (investAmount >= 100000) {
-                return { level: 'ELITE', class: 'vip-elite' };
-            } else if (investAmount >= 50000) {
-                return { level: 'DIAMOND', class: 'vip-diamond' };
-            } else if (investAmount >= 20000) {
-                return { level: 'PLATINUM', class: 'vip-platinum' };
-            } else if (investAmount >= 5000) {
-                return { level: 'GOLD', class: 'vip-gold' };
-            } else {
-                return { level: 'Standard', class: 'vip-gold' };
-            }
-        }
-        
-        // Load user data
-        function loadUserData() {
-            if (user) {
-                // Use email username for display
-                const username = getUsernameFromEmail(user.email);
-                document.getElementById('profileName').textContent = user.name || username;
-                document.getElementById('profileEmail').textContent = user.email;
-                
-                // Set phone with verification status
-                const phoneVerificationStatus = document.getElementById('phoneVerificationStatus');
-                if (user.phone_verified) {
-                    phoneVerificationStatus.className = 'verification-status status-verified';
-                    phoneVerificationStatus.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Verified';
-                } else {
-                    phoneVerificationStatus.className = 'verification-status status-pending';
-                    phoneVerificationStatus.innerHTML = '<i class="fas fa-clock mr-1"></i> Not Verified';
-                }
-                
-                document.getElementById('profilePhone').innerHTML = `
-                    ${user.phone || '+254 712 345 678'}
-                    ${phoneVerificationStatus.outerHTML}
-                `;
-                
-                // Set form values
-                document.getElementById('name').value = user.name || '';
-                document.getElementById('email').value = user.email || '';
-                document.getElementById('phone').value = user.phone || '';
-                document.getElementById('country').value = user.country || 'Kenya';
-                document.getElementById('verificationPhone').value = user.phone || '';
-                
-                // Render profile images
-                const savedPhoto = localStorage.getItem('forexpro_profile');
-                renderUserAvatar(savedPhoto || user.profile_image, 'profileImageContainer');
-                renderUserAvatar(savedPhoto || user.profile_image, 'userImageContainer');
-                
-                // Set stats
-                document.getElementById('totalInvestment').textContent = `KSH ${parseFloat(user.balance || 0).toLocaleString()}`;
-                document.getElementById('totalProfit').textContent = `KSH ${parseFloat(user.profit || 0).toLocaleString()}`;
-                document.getElementById('activeBots').textContent = user.active_bots || 0;
-                document.getElementById('referrals').textContent = user.referrals || 0;
-                
-                // Set VIP level
-                const vipInfo = getVIPLevel(user.balance);
-                const vipBadge = document.getElementById('vipBadge');
-                vipBadge.textContent = vipInfo.level;
-                vipBadge.className = `vip-badge ${vipInfo.class}`;
-            }
-        }
-        
-        // Load user data on page load
-        loadUserData();
-        
-        // Profile image upload
-        document.getElementById('userAvatar').addEventListener('click', () => {
-            document.getElementById('imageUpload').click();
-        });
-        
-        document.getElementById('imageUpload').addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const newImg = ev.target.result;
-                    renderUserAvatar(newImg, 'profileImageContainer');
-                    renderUserAvatar(newImg, 'userImageContainer');
-                    localStorage.setItem('forexpro_profile', newImg);
-                    showNotification('Profile photo updated!', 'success');
-                };
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
-        
-        // Phone verification
-        document.getElementById('requestVerificationBtn').addEventListener('click', async function() {
-            const phone = document.getElementById('verificationPhone').value;
-            if (!phone) {
-                showNotification('Please enter your phone number', 'error');
-                return;
-            }
+    <!-- Security Tips -->
+    <div class="glass p-8 hover-lift">
+      <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+        <i class="fas fa-shield-alt text-blue-400"></i> Security Tips
+      </h2>
+      <div class="space-y-4 text-sm text-gray-300">
+        <div class="flex items-start gap-3"><i class="fas fa-lock text-blue-400 mt-1"></i> <div>Never share your password with anyone</div></div>
+        <div class="flex items-start gap-3"><i class="fas fa-sync text-blue-400 mt-1"></i> <div>Change your password every 3 months</div></div>
+        <div class="flex items-start gap-3"><i class="fas fa-mobile text-blue-400 mt-1"></i> <div>Enable phone verification for extra security</div></div>
+      </div>
+    </div>
+  </div>
 
-            // Show loading state
-            const originalText = this.innerHTML;
-            this.innerHTML = '<span class="loading"></span> Requesting...';
-            this.disabled = true;
+  <!-- Mobile Bottom Nav -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/20">
+    <div class="flex justify-around py-3">
+      <a href="dashboard.html" class="text-center text-gray-400"><i class="fas fa-home text-2xl"></i><p class="text-xs">Home</p></a>
+      <a href="trading.html" class="text-center text-gray-400"><i class="fas fa-exchange-alt text-2xl"></i><p class="text-xs">Trade</p></a>
+      <a href="deposit-withdraw.html" class="text-center text-gray-400"><i class="fas fa-wallet text-2xl"></i><p class="text-xs">Wallet</p></a>
+      <a href="referrals.html" class="text-center text-gray-400"><i class="fas fa-users text-2xl"></i><p class="text-xs">Refer</p></a>
+      <a href="profile.html" class="text-center text-blue-400"><i class="fas fa-user text-2 managerxl"></i><p class="text-xs">Profile</p></a>
+    </div>
+  </div>
 
-            try {
-                const response = await fetch(`${API_BASE}/api/user/verify-phone/request`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ phone })
-                });
+  <!-- WhatsApp Float -->
+  <a href="https://wa.me/254739119490" target="_blank" class="whatsapp-float">
+    <i class="fab fa-whatsapp text-3xl"></i>
+  </a>
 
-                const data = await response.json();
-                if (response.ok) {
-                    showNotification('Verification code requested. Admin will send it via WhatsApp.', 'success');
-                    document.getElementById('codeSection').classList.remove('hidden');
-                    // Update user phone in localStorage
-                    user.phone = phone;
-                    localStorage.setItem('user', JSON.stringify(user));
-                } else {
-                    showNotification(data.message || 'Failed to request verification', 'error');
-                }
-            } catch (err) {
-                showNotification('Network error. Please try again.', 'error');
-            } finally {
-                // Reset button state
-                this.innerHTML = originalText;
-                this.disabled = false;
-            }
-        });
+  <!-- Notification -->
+  <div id="toast" class="notification"></div>
 
-        document.getElementById('submitVerificationBtn').addEventListener('click', async function() {
-            const code = document.getElementById('verificationCode').value;
-            if (!code) {
-                showNotification('Please enter the verification code', 'error');
-                return;
-            }
+  <script>
+    const API_BASE = 'https://fly-io-haha.onrender.com';
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    let user = JSON.parse(localStorage.getItem('user') || 'null');
 
-            // Show loading state
-            const originalText = this.innerHTML;
-            this.innerHTML = '<span class="loading"></span> Verifying...';
-            this.disabled = true;
+    // Redirect if not logged in
+    if (!token || !user) {
+      window.location.href = 'index.html';
+    }
 
-            try {
-                const response = await fetch(`${API_BASE}/api/user/verify-phone/submit`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ code })
-                });
+    // Logout function
+    const logout = () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    };
+    document.getElementById('logoutBtnDesktop')?.addEventListener('click', logout);
 
-                const data = await response.json();
-                if (response.ok) {
-                    showNotification('Phone number verified successfully!', 'success');
-                    document.getElementById('verificationStatus').innerHTML = `
-                        <div class="bg-green-500/20 border-l-4 border-green-500 p-4">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-check-circle text-green-500"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-green-400">
-                                        Your phone number has been verified.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    // Update user in localStorage
-                    user.phone_verified = true;
-                    localStorage.setItem('user', JSON.stringify(user));
-                    // Update verification status in profile header
-                    const phoneVerificationStatus = document.getElementById('phoneVerificationStatus');
-                    phoneVerificationStatus.className = 'verification-status status-verified';
-                    phoneVerificationStatus.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Verified';
-                    document.getElementById('profilePhone').innerHTML = `
-                        ${user.phone || '+254 712 345 678'}
-                        ${phoneVerificationStatus.outerHTML}
-                    `;
-                    // Hide the code section
-                    document.getElementById('codeSection').classList.add('hidden');
-                } else {
-                    showNotification(data.message || 'Verification failed', 'error');
-                }
-            } catch (err) {
-                showNotification('Network error. Please try again.', 'error');
-            } finally {
-                // Reset button state
-                this.innerHTML = originalText;
-                this.disabled = false;
-            }
-        });
-        
-        // Profile form submission
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!token) {
-                showNotification('Please login to update your profile', 'error');
-                return;
-            }
-            
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                country: document.getElementById('country').value
-            };
-            
-            // Update user data in localStorage
-            user = { ...user, ...formData };
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            // Simulate API call
-            setTimeout(() => {
-                showNotification('Profile updated successfully!', 'success');
-            }, 1000);
-        });
-        
-        // Password change form submission
-        document.getElementById('passwordChangeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!token) {
-                showNotification('Please login to change your password', 'error');
-                return;
-            }
-            
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Validate passwords
-            if (newPassword.length < 8) {
-                showNotification('Password must be at least 8 characters long!', 'error');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showNotification('Passwords do not match!', 'error');
-                return;
-            }
-            
-            if (currentPassword === newPassword) {
-                showNotification('New password must be different from current password!', 'error');
-                return;
-            }
-            
-            // Simulate API call
-            setTimeout(() => {
-                showNotification('Password updated successfully!', 'success');
-                document.getElementById('passwordChangeForm').reset();
-            }, 1000);
-        });
-        
-        // Notification function
-        function showNotification(message, type) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-    </script>
+    // Toast
+    const toast = (msg, type = 'success') => {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `notification ${type} show`;
+      setTimeout(() => t.className = 'notification', 3500);
+    };
+
+    // Load avatar
+    const loadAvatar = () => {
+      const saved = localStorage.getItem('forexpro_avatar');
+      const url = saved || user.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=3b82f6&color=fff&size=128`;
+      document.getElementById('profileAvatar').src = url;
+      document.getElementById('navAvatar').src = url;
+    };
+
+    // VIP Level
+    const getVIP = (balance = 0) => {
+      const b = parseFloat(balance);
+      if (b >= 100000) return { level: 'ELITE', cls: 'vip-elite' };
+      if (b >= 50000) return { level: 'DIAMOND', cls: 'vip-diamond' };
+      if (b >= 20000) return { level: 'PLATINUM', cls: 'vip-platinum' };
+      if (b >= 5000) return { level: 'GOLD', cls: 'vip-gold' };
+      return { level: 'STANDARD', cls: 'vip-gold' };
+    };
+
+    // Init Profile
+    const initProfile = () => {
+      document.getElementById('userName').textContent = user.name || user.email.split('@')[0];
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userPhone').innerHTML = `${user.phone || '+254 --- --- ---'} <span id="phoneStatus" class="text-yellow-400 text-sm">${user.phone_verified ? 'Verified' : 'Not Verified'}</span>`;
+
+      document.getElementById('nameInput').value = user.name || '';
+      document.getElementById('emailInput').value = user.email || '';
+      document.getElementById('phoneInput').value = user.phone || '';
+      document.getElementById('countryInput').value = user.country || 'Kenya';
+
+      document.getElementById('totalInvested').textContent = `KSH ${(user.balance || 0).toLocaleString()}`;
+      document.getElementById('totalProfit').textContent = `KSH ${(user.profit || 0).toLocaleString()}`;
+      document.getElementById('activeBots').textContent = user.active_bots || 0;
+      document.getElementById('referralCount').textContent = user.referrals || 0;
+
+      const vip = getVIP(user.balance);
+      const badge = document.getElementById('vipBadge');
+      badge.textContent = vip.level;
+      badge.className = `vip-badge ${vip.cls}`;
+
+      loadAvatar();
+    };
+
+    // Avatar Upload
+    document.querySelectorAll('.avatar-upload').forEach(el => {
+      el.addEventListener('click', () => document.getElementById('avatarInput').click());
+    });
+    document.getElementById('avatarInput').addEventListener('change', e => {
+      if (e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = ev.target.result;
+          localStorage.setItem('forexpro_avatar', img);
+          document.getElementById('profileAvatar').src = img;
+          document.getElementById('navAvatar').src = img;
+          toast('Profile picture updated!');
+        };
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    });
+
+    // Save Profile
+    document.getElementById('profileForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const updated = {
+        name: document.getElementById('nameInput').value.trim(),
+        email: document.getElementById('emailInput').value.trim(),
+        phone: document.getElementById('phoneInput').value.trim(),
+        country: document.getElementById('countryInput').value
+      };
+      user = { ...user, ...updated };
+      localStorage.setItem('user', JSON.stringify(user));
+      toast('Profile updated successfully!', 'success');
+      initProfile();
+    });
+
+    // Change Password
+    document.getElementById('passwordForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const curr = document.getElementById('currentPass').value;
+      const newP = document.getElementById('newPass').value;
+      const conf = document.getElementById('confirmPass').value;
+
+      if (newP.length < 8) return toast('Password too short!', 'error');
+      if (newP !== conf) return toast('Passwords do not match!', 'error');
+      if (curr === newP) return toast('New password must be different!', 'error');
+
+      toast('Password changed successfully!', 'success');
+      e.target.reset();
+    });
+
+    // Start
+    initProfile();
+  </script>
 </body>
 </html>

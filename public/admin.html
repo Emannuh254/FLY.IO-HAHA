@@ -7,21 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Optimized base styles */
+        /* Core variables */
         :root {
             --primary: #3b82f6;
             --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
         
+        /* Base styles */
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            margin: 0;
-            padding: 0;
             font-family: system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
             color: white;
@@ -29,7 +33,7 @@
             overflow-x: hidden;
         }
         
-        /* Simplified glass effect for better performance */
+        /* Glass card effect */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(8px);
@@ -37,7 +41,7 @@
             border-radius: 1rem;
         }
         
-        /* Optimized button styles */
+        /* Button styles */
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -61,6 +65,36 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
         
+        .btn-success {
+            background: linear-gradient(135deg, #059669, var(--secondary));
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, var(--danger));
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #d97706, var(--warning));
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
         .btn-icon {
             width: 2.5rem;
             height: 2.5rem;
@@ -70,29 +104,10 @@
             justify-content: center;
         }
         
-        /* Notification styles */
-        .notification {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            color: white;
-            font-weight: 500;
-            z-index: 1000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.2s ease;
-            max-width: 300px;
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
         }
-        
-        .notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .notification.success { background-color: var(--primary); }
-        .notification.error { background-color: #ef4444; }
         
         /* Form styles */
         .form-group {
@@ -106,7 +121,7 @@
             color: rgba(255, 255, 255, 0.8);
         }
         
-        .form-input, .form-select {
+        .form-input, .form-select, .form-textarea {
             width: 100%;
             padding: 0.75rem;
             background: var(--glass-bg);
@@ -116,7 +131,7 @@
             font-size: 1rem;
         }
         
-        .form-input:focus, .form-select:focus {
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
@@ -155,9 +170,10 @@
             display: inline-block;
         }
         
-        .status-pending { background-color: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .status-completed { background-color: rgba(16, 185, 129, 0.2); color: #10b981; }
-        .status-failed { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .status-pending { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-completed { background-color: rgba(16, 185, 129, 0.2); color: var(--secondary); }
+        .status-failed { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .status-active { background-color: rgba(16, 185, 129, 0.2); color: var(--secondary); }
         
         /* Modal styles */
         .modal {
@@ -186,10 +202,35 @@
             background: #1e293b;
             border-radius: 1rem;
             padding: 1.5rem;
-            max-width: 500px;
+            max-width: 90vw;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: white;
         }
         
         /* Loading spinner */
@@ -207,29 +248,345 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Mobile optimizations */
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.2s ease;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification.success { background-color: var(--primary); }
+        .notification.error { background-color: var(--danger); }
+        
+        /* Stats cards */
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), #60a5fa);
+        }
+        
+        .stats-icon {
+            font-size: 2rem;
+            color: #60a5fa;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stats-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+        }
+        
+        /* User search results */
+        .user-search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+            border-radius: 0.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .user-search-result-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .user-search-result-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .selected-user {
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .selected-user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .selected-user-name {
+            font-weight: 600;
+        }
+        
+        .selected-user-email {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Mobile Navigation Improvements */
         @media (max-width: 768px) {
-            .modal-content {
-                padding: 1rem;
+            /* Navigation adjustments */
+            nav {
+                padding: 0.75rem !important;
             }
             
+            .nav-title {
+                font-size: 1.1rem !important;
+            }
+            
+            #logoutBtn {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            /* Stats cards improvements */
+            .stats-card {
+                padding: 1rem !important;
+                margin-bottom: 0.75rem;
+            }
+            
+            .stats-icon {
+                font-size: 1.5rem !important;
+                margin-bottom: 0.5rem;
+            }
+            
+            .stats-value {
+                font-size: 1.5rem !important;
+            }
+            
+            /* Quick actions improvements */
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.75rem !important;
+            }
+            
+            .quick-actions button {
+                padding: 1rem !important;
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .quick-actions i {
+                font-size: 1.5rem !important;
+            }
+            
+            /* Table improvements */
             .data-table {
-                font-size: 0.875rem;
+                font-size: 0.8rem !important;
             }
             
             .data-table th, .data-table td {
-                padding: 0.5rem;
+                padding: 0.5rem !important;
+            }
+            
+            .data-table th {
+                font-size: 0.7rem !important;
+            }
+            
+            /* Status badges */
+            .status-badge {
+                font-size: 0.65rem !important;
+                padding: 0.2rem 0.4rem !important;
+            }
+            
+            /* Buttons improvements */
+            .btn {
+                padding: 0.6rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            .btn-icon {
+                width: 2.2rem !important;
+                height: 2.2rem !important;
+            }
+            
+            /* Modal improvements */
+            .modal-content {
+                padding: 1rem !important;
+                margin: 1rem !important;
+                max-height: calc(100vh - 2rem) !important;
+            }
+            
+            .modal-title {
+                font-size: 1.25rem !important;
+            }
+            
+            /* Form improvements */
+            .form-input, .form-select, .form-textarea {
+                padding: 0.6rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .form-label {
+                font-size: 0.8rem !important;
+                margin-bottom: 0.4rem !important;
+            }
+            
+            /* Notification improvements */
+            .notification {
+                left: 1rem !important;
+                right: 1rem !important;
+                max-width: none !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Search bar improvements */
+            #userSearch, #botUserSearch {
+                font-size: 0.9rem !important;
+                padding: 0.6rem !important;
+            }
+            
+            #searchUserBtn, #searchBotUserBtn {
+                padding: 0.6rem 1rem !important;
+            }
+            
+            /* Bot table actions */
+            .bot-actions {
+                display: flex !important;
+                gap: 0.5rem !important;
+            }
+            
+            .bot-actions button {
+                padding: 0.4rem !important;
+                font-size: 0.8rem !important;
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            button, .btn, input, select, textarea {
+                -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+            }
+            
+            .btn:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Loading spinner improvements */
+        .loading {
+            border-width: 3px !important;
+        }
+        
+        /* Card hover effects for touch devices */
+        @media (hover: none) {
+            .glass-card:hover {
+                transform: none !important;
+            }
+        }
+        
+        /* Better mobile table display */
+        @media (max-width: 640px) {
+            .data-table {
+                display: block !important;
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+            }
+            
+            .data-table thead, 
+            .data-table tbody, 
+            .data-table th, 
+            .data-table td, 
+            .data-table tr {
+                display: block !important;
+            }
+            
+            .data-table thead tr {
+                position: absolute !important;
+                top: -9999px !important;
+                left: -9999px !important;
+            }
+            
+            .data-table tr {
+                border: 1px solid var(--glass-border) !important;
+                margin-bottom: 0.75rem !important;
+                border-radius: 0.5rem !important;
+            }
+            
+            .data-table td {
+                border: none !important;
+                border-bottom: 1px solid var(--glass-border) !important;
+                position: relative !important;
+                padding-left: 50% !important;
+                text-align: left !important;
+            }
+            
+            .data-table td:before {
+                position: absolute !important;
+                top: 0.75rem !important;
+                left: 0.75rem !important;
+                width: 45% !important;
+                padding-right: 0.75rem !important;
+                white-space: nowrap !important;
+                font-weight: 600 !important;
+                content: attr(data-title) !important;
+                color: rgba(255, 255, 255, 0.6) !important;
+            }
+            
+            .data-table td:last-child {
+                border-bottom: none !important;
+            }
+        }
+        
+        /* Mobile-first modal improvements */
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 95% !important;
+                margin: 0.5rem !important;
+                padding: 0.75rem !important;
+            }
+            
+            .modal-header {
+                margin-bottom: 1rem !important;
+            }
+            
+            .modal-title {
+                font-size: 1.1rem !important;
+            }
+            
+            .modal-close {
+                font-size: 1.25rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 0.75rem !important;
             }
             
             .btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.875rem;
-            }
-            
-            .notification {
-                right: 0.5rem;
-                left: 0.5rem;
-                max-width: none;
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.85rem !important;
             }
         }
         
@@ -240,6 +597,7 @@
         .items-center { align-items: center; }
         .justify-between { justify-content: space-between; }
         .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
         .gap-4 { gap: 1rem; }
         .p-4 { padding: 1rem; }
         .p-6 { padding: 1.5rem; }
@@ -261,7 +619,7 @@
 </head>
 <body>
     <!-- Login Form -->
-    <div id="loginForm" class="flex items-center justify-center min-h-screen p-4">
+    <div id="loginFormContainer" class="flex items-center justify-center min-h-screen p-4">
         <div class="glass-card p-6 w-full max-w-md">
             <div class="text-center mb-6">
                 <i class="fas fa-user-shield text-4xl text-blue-400 mb-3"></i>
@@ -275,14 +633,14 @@
             <form id="adminLoginForm" class="space-y-4">
                 <div class="form-group">
                     <label class="form-label" for="username">Email</label>
-                    <input type="text" id="username" class="form-input" placeholder="mannuh" required>
+                    <input type="text" id="username" class="form-input" placeholder="admin@example.com" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
                     <input type="password" id="password" class="form-input" placeholder="•••••••••" required>
                 </div>
                 <div>
-                    <button type="submit" class="btn btn-primary w-full">
+                    <button type="submit" id="loginBtn" class="btn btn-primary w-full">
                         Login
                     </button>
                 </div>
@@ -299,14 +657,14 @@
     <!-- Admin Dashboard -->
     <div id="adminDashboard" class="hidden">
         <!-- Navigation -->
-        <nav class="glass-card sticky top-0 z-50 shadow-lg p-4">
+        <nav class="glass-card sticky top-0 z-50 shadow-lg p-3 md:p-4">
             <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-user-shield text-xl text-blue-400"></i>
-                    <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">ForexPro Admin</span>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <i class="fas fa-user-shield text-lg md:text-xl text-blue-400"></i>
+                    <span class="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent nav-title">ForexPro Admin</span>
                 </div>
-                <button id="logoutBtn" class="btn bg-red-600 hover:bg-red-700">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <button id="logoutBtn" class="btn bg-red-600 hover:bg-red-700 text-sm md:text-base">
+                    <i class="fas fa-sign-out-alt"></i> <span class="hidden sm:inline">Logout</span>
                 </button>
             </div>
         </nav>
@@ -314,32 +672,32 @@
         <div class="p-4 space-y-6">
             <!-- Stats Overview -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="glass-card p-4 text-center">
-                    <i class="fas fa-users text-2xl text-blue-400 mb-2"></i>
+                <div class="glass-card stats-card">
+                    <i class="fas fa-users stats-icon"></i>
                     <p class="text-sm text-gray-300">Total Users</p>
-                    <p class="text-xl font-bold" id="totalUsers">0</p>
+                    <p class="stats-value" id="totalUsers">0</p>
                 </div>
-                <div class="glass-card p-4 text-center">
-                    <i class="fas fa-exchange-alt text-2xl text-blue-400 mb-2"></i>
+                <div class="glass-card stats-card">
+                    <i class="fas fa-exchange-alt stats-icon"></i>
                     <p class="text-sm text-gray-300">Total Transactions</p>
-                    <p class="text-xl font-bold" id="totalTransactions">0</p>
+                    <p class="stats-value" id="totalTransactions">0</p>
                 </div>
-                <div class="glass-card p-4 text-center">
-                    <i class="fas fa-clock text-2xl text-blue-400 mb-2"></i>
+                <div class="glass-card stats-card">
+                    <i class="fas fa-clock stats-icon"></i>
                     <p class="text-sm text-gray-300">Pending Transactions</p>
-                    <p class="text-xl font-bold" id="pendingTransactions">0</p>
+                    <p class="stats-value" id="pendingTransactions">0</p>
                 </div>
-                <div class="glass-card p-4 text-center">
-                    <i class="fas fa-wallet text-2xl text-blue-400 mb-2"></i>
+                <div class="glass-card stats-card">
+                    <i class="fas fa-wallet stats-icon"></i>
                     <p class="text-sm text-gray-300">Total Volume</p>
-                    <p class="text-xl font-bold" id="totalVolume">$0</p>
+                    <p class="stats-value" id="totalVolume">$0</p>
                 </div>
             </div>
 
             <!-- Quick Actions -->
             <div class="glass-card p-4">
                 <h2 class="text-xl font-bold mb-4">Quick Actions</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 quick-actions">
                     <button id="depositToUserBtn" class="btn bg-blue-600 hover:bg-blue-700 flex-col p-3">
                         <i class="fas fa-hand-holding-usd text-xl mb-1"></i>
                         <span class="text-xs">Deposit to User</span>
@@ -424,7 +782,10 @@
     <!-- Deposit to User Modal -->
     <div id="depositModal" class="modal">
         <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4">Deposit to User</h3>
+            <div class="modal-header">
+                <h3 class="modal-title">Deposit to User</h3>
+                <button class="modal-close" id="cancelDeposit">&times;</button>
+            </div>
             <form id="depositForm" class="space-y-4">
                 <div class="form-group">
                     <label class="form-label" for="userSelect">Select User</label>
@@ -438,11 +799,11 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="depositNote">Note (Optional)</label>
-                    <textarea id="depositNote" class="form-input" rows="2" placeholder="Add a note for this transaction"></textarea>
+                    <textarea id="depositNote" class="form-textarea" rows="2" placeholder="Add a note for this transaction"></textarea>
                 </div>
                 <div class="flex gap-3">
                     <button type="submit" class="btn btn-primary flex-1">Deposit</button>
-                    <button type="button" id="cancelDeposit" class="btn bg-gray-600 hover:bg-gray-700 flex-1">Cancel</button>
+                    <button type="button" id="cancelDepositBtn" class="btn bg-gray-600 hover:bg-gray-700 flex-1">Cancel</button>
                 </div>
             </form>
         </div>
@@ -451,11 +812,9 @@
     <!-- Bots Management Modal -->
     <div id="botsModal" class="modal">
         <div class="modal-content max-w-4xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Trading Bots Management</h3>
-                <button id="cancelBots" class="btn-icon bg-gray-700 hover:bg-gray-600">
-                    <i class="fas fa-times"></i>
-                </button>
+            <div class="modal-header">
+                <h3 class="modal-title">Trading Bots Management</h3>
+                <button class="modal-close" id="cancelBots">&times;</button>
             </div>
             
             <div class="mb-4">
@@ -467,11 +826,33 @@
             <!-- Create Bot Form (Hidden by default) -->
             <form id="botsForm" class="glass-card p-4 mb-4 hidden">
                 <h4 class="text-lg font-bold mb-3">Create New Trading Bot</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-group">
-                        <label class="form-label" for="botUserId">User ID</label>
-                        <input type="number" id="botUserId" class="form-input" placeholder="User ID" required>
+                
+                <!-- User Search Section -->
+                <div class="form-group">
+                    <label class="form-label" for="botUserSearch">Search User</label>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <div class="flex-1">
+                            <input type="text" id="botUserSearch" class="form-input" placeholder="Search users by name or email">
+                        </div>
+                        <button type="button" id="searchBotUserBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
                     </div>
+                    <div id="botUserSearchResults" class="user-search-results hidden"></div>
+                </div>
+                
+                <!-- Selected User Display -->
+                <div id="selectedUserContainer" class="selected-user hidden">
+                    <div class="selected-user-info">
+                        <span class="selected-user-name" id="selectedUserName"></span>
+                        <span class="selected-user-email" id="selectedUserEmail"></span>
+                    </div>
+                    <button type="button" id="clearSelectedUser" class="btn btn-icon btn-sm bg-gray-600 hover:bg-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label" for="botName">Bot Name</label>
                         <input type="text" id="botName" class="form-input" placeholder="Bot name" required>
@@ -513,7 +894,10 @@
     <!-- Deposit Address Management Modal -->
     <div id="depositAddressModal" class="modal">
         <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4">Manage Deposit Address</h3>
+            <div class="modal-header">
+                <h3 class="modal-title">Manage Deposit Address</h3>
+                <button class="modal-close" id="cancelDepositAddress">&times;</button>
+            </div>
             <form id="depositAddressForm" class="space-y-4">
                 <div class="form-group">
                     <label class="form-label" for="coinSelect">Coin</label>
@@ -536,7 +920,7 @@
                 </div>
                 <div class="flex gap-3">
                     <button type="submit" class="btn btn-primary flex-1">Update Address</button>
-                    <button type="button" id="cancelDepositAddress" class="btn bg-gray-600 hover:bg-gray-700 flex-1">Cancel</button>
+                    <button type="button" id="cancelDepositAddressBtn" class="btn bg-gray-600 hover:bg-gray-700 flex-1">Cancel</button>
                 </div>
             </form>
         </div>

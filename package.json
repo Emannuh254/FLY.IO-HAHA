@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "description": "ForexPro Trading Platform Backend",
   "main": "mainServer.js",
-
   "scripts": {
     "start": "node mainServer.js",
-
     "start:index": "node servers/indexServer.js",
     "start:profile": "node servers/profileServer.js",
     "start:referrals": "node servers/referralsServer.js",
@@ -15,14 +13,13 @@
     "start:deposit-withdraw": "node servers/depositWithdrawServer.js",
     "start:dashboard": "node servers/dashboardServer.js",
     "start:admin": "node servers/adminServer.js",
-
     "dev": "nodemon mainServer.js",
     "test": "jest",
     "setup-db": "node setup-db.js"
   },
-
   "dependencies": {
     "@supabase/supabase-js": "^2.84.0",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "child_process": "^1.0.2",
     "compression": "^1.7.4",
@@ -37,15 +34,14 @@
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.35",
     "morgan": "^1.10.0",
+    "multer": "^2.0.2",
     "path": "^0.12.7"
   },
-
   "devDependencies": {
     "jest": "^29.5.0",
     "nodemon": "^3.1.11",
     "supertest": "^6.3.3"
   },
-
   "engines": {
     "node": ">=16.0.0"
   }

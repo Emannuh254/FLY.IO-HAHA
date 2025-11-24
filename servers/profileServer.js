@@ -1,134 +1,306 @@
 const express = require('express');
 const path = require('path');
-const { body } = require('express-validator'); // Missing import
+const multer = require('multer');
+const crypto = require('crypto');
+const fs = require('fs').promises;
+const rateLimit = require('express-rate-limit');
+
+const { body, validationResult } = require('express-validator');
 const supabase = require('../supabaseClient');
 const { setupMiddleware } = require('../shared/middleware');
-const { authenticateToken, comparePassword } = require('../shared/auth');
-const { validateRequest, validationSchemas } = require('../shared/helpers');
-const { formatCurrency, convertCurrency } = require('../shared/database');
+const { authenticateToken, hashPassword, comparePassword } = require('../shared/auth');
+const { convertCurrency, formatCurrency } = require('../shared/database');
 
 const app = express();
 const PORT = process.env.PROFILE_PORT || 3001;
 
-// Setup middleware
+// Security: Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', limiter);
+
+// Setup shared middleware (JSON, CORS, etc.)
 setupMiddleware(app);
 
-// Serve profile.html
-app.get(['/profile', '/profile.html'], (req, res) => {
-  const filePath = path.join(__dirname, '../public/profile.html');
-  res.setHeader('Content-Type', 'text/html');
-  res.sendFile(filePath);
+// Multer config for profile images
+const uploadDir = path.join(__dirname, '../public/uploads/profiles');
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    try {
+      await fs.mkdir(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    } catch (err) {
+      cb(err);
+    }
+  },
+  filename: (req, file, cb) => {
+    const unique = crypto.randomBytes(12).toString('hex');
+    const ext = path.extname(file.originalname);
+    cb(null, `${req.user.id}-${Date.now()}-${unique}${ext}`);
+  }
 });
 
-// Get user profile
+const upload = multer({
+  storage,
+  limits: { fileSize: 3 * 1024 * 1024 }, // 3MB
+  fileFilter: (req, file, cb) => {
+    if (/^image\//.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Only images allowed'));
+  }
+});
+
+// Serve profile page
+app.get(['/profile', '/profile.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/profile.html'));
+});
+
+// Validation helper
+const validate = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: errors.array()[0].msg });
+  }
+  return true;
+};
+
+// GET: Current user profile
 app.get('/api/user/profile', authenticateToken, async (req, res) => {
   try {
     const { data: user, error } = await supabase
       .from('users')
-      .select('*')
-      .eq('id', req.user.userId)
+      .select('id, name, email, phone, country, currency, balance, profit, active_bots, referrals, referral_code, profile_image, role, phone_verified')
+      .eq('id', req.user.id)
       .single();
-    
-    if (error || !user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    // Get exchange rate info
+
+    if (error || !user) return res.status(404).json({ message: 'User not found' });
+
     const otherCurrency = user.currency === 'KSH' ? 'USD' : 'KSH';
     const convertedBalance = convertCurrency(user.balance, user.currency, otherCurrency);
-    
-    res.status(200).json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      country: user.country,
-      currency: user.currency,
-      balance: user.balance,
-      convertedBalance: convertedBalance,
-      otherCurrency: otherCurrency,
-      profit: user.profit,
-      active_bots: user.active_bots,
-      referrals: user.referrals,
-      referral_code: user.referral_code,
-      profile_image: user.profile_image,
-      role: user.role,
-      phone_verified: user.phone_verified
+
+    // Count referral bonuses in one query
+    const { count: bonusCount = 0 } = await supabase
+      .from('referral_bonuses')
+      .select('*', { count: 'exact', head: true })
+      .eq('referrer_id', user.id);
+
+    const { count: completedCount = 0 } = await supabase
+      .from('referral_bonuses')
+      .select('*', { count: 'exact', head: true })
+      .eq('referrer_id', user.id)
+      .eq('status', 'completed');
+
+    res.json({
+      ...user,
+      convertedBalance,
+      otherCurrency,
+      bonusCount,
+      completedReferrals: completedCount
     });
   } catch (err) {
-    console.error(err);
+    console.error('Profile fetch error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Update user profile
-app.put('/api/user/profile', [
-  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-  body('email').optional().isEmail().withMessage('Valid email is required'),
-  body('phone').optional().isMobilePhone().withMessage('Invalid phone number'),
-  body('country').optional().isLength({ min: 2 }).withMessage('Country must be at least 2 characters'),
-  body('currency').optional().isIn(['KSH', 'USD']).withMessage('Currency must be KSH or USD'),
-], authenticateToken, async (req, res) => {
-  if (!validateRequest(req, res)) return;
-  
-  const { name, email, phone, country, currency } = req.body;
-  
-  try {
-    // Get current user data to check if currency is changing
-    const { data: currentUser, error: currentUserError } = await supabase
-      .from('users')
-      .select('currency, balance')
-      .eq('id', req.user.userId)
-      .single();
-    
-    if (currentUserError) throw currentUserError;
-    
-    let newBalance = currentUser.balance;
-    
-    // If currency is changing, convert the balance
-    if (currency && currency !== currentUser.currency) {
-      newBalance = convertCurrency(currentUser.balance, currentUser.currency, currency);
+// PUT: Update profile
+app.put('/api/user/profile',
+  authenticateToken,
+  [
+    body('name').optional().trim().isLength({ min: 2 }).withMessage('Name too short'),
+    body('email').optional().isEmail().withMessage('Invalid email'),
+    body('phone').optional().isMobilePhone('any').withMessage('Invalid phone'),
+    body('country').optional().isLength({ min: 2 }),
+    body('currency').optional().isIn(['KSH', 'USD'])
+  ],
+  async (req, res) => {
+    if (!validate(req, res)) return;
+
+    const updates = req.body;
+    let newBalance = null;
+
+    try {
+      // Get current currency if changing
+      if (updates.currency) {
+        const { data: current } = await supabase
+          .from('users')
+          .select('currency, balance')
+          .eq('id', req.user.id)
+          .single();
+
+        if (updates.currency !== current.currency) {
+          newBalance = convertCurrency(current.balance, current.currency, updates.currency);
+          updates.balance = newBalance;
+        }
+      }
+
+      const { error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', req.user.id);
+
+      if (error) throw error;
+
+      res.json({
+        message: 'Profile updated successfully',
+        currencyChanged: !!updates.currency,
+        newBalance
+      });
+    } catch (err) {
+      console.error('Profile update error:', err);
+      res.status(500).json({ message: 'Update failed' });
     }
-    
+  }
+);
+
+// PUT: Change password
+app.put('/api/user/password',
+  authenticateToken,
+  [
+    body('currentPassword').notEmpty(),
+    body('newPassword').isLength({ min: 8 }).withMessage('Password must be 8+ chars'),
+    body('confirmPassword').custom((value, { req }) => value === req.body.newPassword).withMessage('Passwords do not match')
+  ],
+  async (req, res) => {
+    if (!validate(req, res)) return;
+
+    const { currentPassword, newPassword } = req.body;
+
+    if (req.user.role === 'demo') {
+      return res.status(403).json({ message: 'Demo accounts cannot change password' });
+    }
+
+    try {
+      const { data: user } = await supabase
+        .from('users')
+        .select('password')
+        .eq('id', req.user.id)
+        .single();
+
+      const valid = await comparePassword(currentPassword, user.password);
+      if (!valid) return res.status(400).json({ message: 'Current password incorrect' });
+
+      const hashed = await hashPassword(newPassword);
+
+      const { error } = await supabase
+        .from('users')
+        .update({ password: hashed })
+        .eq('id', req.user.id);
+
+      if (error) throw error;
+
+      res.json({ message: 'Password changed successfully' });
+    } catch (err) {
+      console.error('Password change error:', err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
+
+// POST: Upload profile image
+app.post('/api/user/profile-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
+  if (req.user.role === 'demo') {
+    return res.status(403).json({ message: 'Demo users cannot upload images' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ message: 'No image uploaded' });
+  }
+
+  try {
+    const imageUrl = `/uploads/profiles/${req.file.filename}`;
+
+    // Delete old image if exists
+    const { data: user } = await supabase
+      .from('users')
+      .select('profile_image')
+      .eq('id', req.user.id)
+      .single();
+
+    if (user.profile_image) {
+      const oldPath = path.join(__dirname, '../public', user.profile_image);
+      await fs.unlink(oldPath).catch(() => {}); // Ignore if not found
+    }
+
     const { error } = await supabase
       .from('users')
-      .update({
-        name: name || supabase.raw('name'),
-        email: email || supabase.raw('email'),
-        phone: phone || supabase.raw('phone'),
-        country: country || supabase.raw('country'),
-        currency: currency || supabase.raw('currency'),
-        balance: newBalance
-      })
-      .eq('id', req.user.userId);
-    
+      .update({ profile_image: imageUrl })
+      .eq('id', req.user.id);
+
     if (error) throw error;
-    
-    res.status(200).json({ 
-      message: 'Profile updated successfully',
-      currencyChanged: currency && currency !== currentUser.currency,
-      newCurrency: currency || currentUser.currency,
-      convertedBalance: newBalance
-    });
+
+    res.json({ message: 'Profile picture updated', imageUrl });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Image upload error:', err);
+    res.status(500).json({ message: 'Upload failed' });
+  }
+});
+
+// GET: Referral bonuses
+app.get('/api/user/referral-bonuses', authenticateToken, async (req, res) => {
+  try {
+    const { data: user } = await supabase.from('users').select('currency').eq('id', req.user.id).single();
+
+    const { data: bonuses } = await supabase
+      .from('referral_bonuses')
+      .select('*, referred_user:referred_id(name, email, created_at)')
+      .eq('referrer_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    const formatted = (bonuses || []).map(b => ({
+      ...b,
+      formattedAmount: formatCurrency(b.amount, b.currency),
+      convertedAmount: b.currency !== user.currency
+        ? formatCurrency(convertCurrency(b.amount, b.currency, user.currency), user.currency)
+        : null
+    }));
+
+    res.json(formatted);
+  } catch (err) {
+    console.error('Referral bonuses error:', err);
+    res.status(500).json({ message: 'Failed to load bonuses' });
+  }
+});
+
+// GET: Referred users list
+app.get('/api/user/referred-users', authenticateToken, async (req, res) => {
+  try {
+    const { data: users } = await supabase
+      .from('users')
+      .select('id, name, email, created_at')
+      .eq('referred_by', req.user.referral_code)
+      .order('created_at', { ascending: false });
+
+    const withStatus = await Promise.all((users || []).map(async (u) => {
+      const { data } = await supabase
+        .from('referral_bonuses')
+        .select('status')
+        .eq('referrer_id', req.user.id)
+        .eq('referred_id', u.id)
+        .single()
+        .maybeSingle();
+
+      return { ...u, bonusStatus: data?.status || 'pending' };
+    }));
+
+    res.json(withStatus);
+  } catch (err) {
+    console.error('Referred users error:', err);
+    res.status(500).json({ message: 'Failed to load referrals' });
   }
 });
 
 // Start server
 const startServer = async () => {
-  try {
-    app.listen(PORT, () => {
-      console.log(`Profile server running on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('Failed to start profile server:', err);
-    process.exit(1);
-  }
+  app.listen(PORT, () => {
+    console.log(`Profile server running on http://localhost:${PORT}`);
+    console.log(`Serving profile page at /profile`);
+  });
 };
 
-// Only start if this file is run directly
 if (require.main === module) {
   startServer();
 }
