@@ -14,7 +14,7 @@ const PORT = process.env.ADMIN_PORT || 3007;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3006', 'http://localhost:3007'],
+    origin: ['http://localhost:3000', 'http://localhost:3006', 'http://localhost:3007', 'https://forexproo.onrender.com'],
     credentials: true
 }));
 
@@ -36,6 +36,59 @@ app.get(['/admin', '/admin.html'], (req, res) => {
     const filePath = path.join(__dirname, '../public/admin.html');
     res.setHeader('Content-Type', 'text/html');
     res.sendFile(filePath);
+});
+
+// In-memory chart config
+let chartConfig = {
+    min: 1,         // min chart value
+    max: 100,       // max chart value
+    maxReach: 80,   // admin decides highest "winning" value
+    profitFactor: 0.6 // 60% chance player loses, 40% wins
+};
+
+// Admin endpoint to update chart rules
+app.post('/api/admin/chart', authenticateAdmin, (req, res) => {
+    const { min, max, maxReach, profitFactor } = req.body;
+    chartConfig = { min, max, maxReach, profitFactor };
+    res.json({ message: 'Chart config updated', chartConfig });
+});
+
+// Get current chart config (frontend fetches for algorithm)
+app.get('/api/chart/config', (req, res) => {
+    res.json(chartConfig);
+});
+
+// Player bets
+app.post('/api/chart/bet', authenticateUser, (req, res) => {
+    const { betAmount } = req.body;
+    if (!betAmount || betAmount <= 0) return res.status(400).json({ message: 'Invalid bet' });
+
+    // Generate chart numbers
+    const chartLength = 30; // 30 points
+    const chart = [];
+    let current = chartConfig.min;
+
+    for (let i = 0; i < chartLength; i++) {
+        // Random movement up/down
+        let change = Math.random() * 5; // 0-5
+        if (Math.random() < 0.5) change *= -1;
+
+        current += change;
+        current = Math.max(chartConfig.min, Math.min(current, chartConfig.max));
+
+        // Apply admin maxReach bias
+        if (current > chartConfig.maxReach && Math.random() < chartConfig.profitFactor) {
+            current = chartConfig.maxReach - Math.random() * 5;
+        }
+
+        chart.push(parseFloat(current.toFixed(2)));
+    }
+
+    // Determine win/loss: simple if chart reaches maxReach player wins
+    const didWin = chart.some(val => val >= chartConfig.maxReach);
+    const payout = didWin ? betAmount * 1.8 : 0; // 80% profit if win
+
+    res.json({ chart, didWin, payout });
 });
 
 // Verify token endpoint
@@ -95,6 +148,26 @@ app.post('/api/admin/login', loginLimiter, [
 
 // Authentication middleware
 function authenticateAdmin(req, res, next) {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Authentication required' });
+    }
+    
+    const token = authHeader.substring(7);
+    
+    try {
+        const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+}
+
+// Authentication middleware for regular users
+function authenticateUser(req, res, next) {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -382,8 +455,6 @@ app.get('/api/admin/deposits', authenticateAdmin, async (req, res) => {
     }
 });
 
-
-
 // Create deposit (admin only)
 app.post('/api/admin/deposits', authenticateAdmin, [
     body('user_id').isInt().withMessage('User ID must be an integer'),
@@ -482,7 +553,6 @@ app.put('/api/admin/deposits/:id/status', authenticateAdmin, async (req, res) =>
     }
 });
 
-
 // Get all withdrawals
 app.get('/api/admin/withdrawals', authenticateAdmin, async (req, res) => {
     try {
@@ -578,7 +648,6 @@ app.get('/api/admin/bots', authenticateAdmin, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
 
 // Create trading bot (admin only)
 app.post('/api/admin/bots', authenticateAdmin, [

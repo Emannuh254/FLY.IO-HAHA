@@ -13,24 +13,40 @@ function setupMiddleware(app) {
   const NODE_ENV = process.env.NODE_ENV || 'development';
   
   // Configure helmet with proper CSP for external resources
+// FINAL FIX – Copy & paste this entire block
   app.use(helmet({
+    crossOriginEmbedderPolicy: false,             // crucial for COEP
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // allows CDN
+
     contentSecurityPolicy: {
+      useDefaults: false,
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
-        imgSrc: ["'self'", "data:", "https://randomuser.me", "https://images.unsplash.com"],
-        connectSrc: ["'self'", "https://fly-io-haha.onrender.com", "https://forexproo.onrender.com"],
-        fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",              // Tailwind injects inline scripts
+          "https://cdn.tailwindcss.com",
+          "https://cdn.jsdelivr.net",
+          "https://cdnjs.cloudflare.com"
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",              // Tailwind inline styles
+          "https://cdn.tailwindcss.com",
+          "https://cdnjs.cloudflare.com"
+        ],
+        imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
         objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
-      },
-    },
-    crossOriginEmbedderPolicy: false,
-    crossOriginOpenerPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"]
+      }
+    }
   }));
+
+
 
   app.use(compression());
   app.use(cors({
