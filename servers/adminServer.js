@@ -38,7 +38,8 @@ app.get(['/admin', '/admin.html'], (req, res) => {
     res.sendFile(filePath);
 });
 
-// In-memory chart config
+// Chart configuration endpoints
+// In-memory chart config (you can persist in DB)
 let chartConfig = {
     min: 1,         // min chart value
     max: 100,       // max chart value

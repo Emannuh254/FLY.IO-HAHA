@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const { rateLimit } = require('express-rate-limit');
@@ -8,47 +7,10 @@ const path = require('path');
 const fs = require('fs');
 const mime = require('mime-types');
 
-// Setup middleware
 function setupMiddleware(app) {
   const NODE_ENV = process.env.NODE_ENV || 'development';
-  
-  // Configure helmet with proper CSP for external resources
-// FINAL FIX – Copy & paste this entire block
-  app.use(helmet({
-    crossOriginEmbedderPolicy: false,             // crucial for COEP
-    crossOriginOpenerPolicy: { policy: "same-origin" },
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // allows CDN
 
-    contentSecurityPolicy: {
-      useDefaults: false,
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",              // Tailwind injects inline scripts
-          "https://cdn.tailwindcss.com",
-          "https://cdn.jsdelivr.net",
-          "https://cdnjs.cloudflare.com"
-        ],
-        styleSrc: [
-          "'self'",
-          "'unsafe-inline'",              // Tailwind inline styles
-          "https://cdn.tailwindcss.com",
-          "https://cdnjs.cloudflare.com"
-        ],
-        imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
-        objectSrc: ["'none'"],
-        baseUri: ["'self'"],
-        frameAncestors: ["'none'"]
-      }
-    }
-  }));
-
-
-
-  app.use(compression());
+  // Allow all external scripts/styles
   app.use(cors({
       origin: [
           'http://localhost:3000',
@@ -61,77 +23,55 @@ function setupMiddleware(app) {
       allowedHeaders: ['Content-Type', 'Authorization']
   }));
 
+  app.use(compression());
   app.use(express.json({ limit: '10kb' }));
   app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-  // Enhanced logging middleware
-  app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev', {
-    skip: (req, res) => NODE_ENV === 'production' && res.statusCode < 400
-  }));
+  // Logging
+  app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-  // Enhanced rate limiting
+  // Rate limiting
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    message: 'Too many requests from this IP, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
+    message: 'Too many requests from this IP, please try again later.'
   });
   app.use('/api/', limiter);
 
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 5,
-    message: 'Too many authentication attempts, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
+    message: 'Too many authentication attempts, please try again later.'
   });
   app.use('/api/auth/', authLimiter);
 
-  // Request logging middleware
+  // Request logging
   app.use((req, res, next) => {
-    const baseUrl = 'https://forexproo.onrender.com';
-    const fullUrl = `${baseUrl}${req.originalUrl}`;
-    console.log(`[${new Date().toISOString()}] ${req.method} ${fullUrl}`);
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
     next();
   });
 
-  // Setup static files
+  // Static files
   const publicDir = path.join(__dirname, '../public');
-  if (!fs.existsSync(publicDir)) {
-    console.log('Creating public directory...');
-    fs.mkdirSync(publicDir, { recursive: true });
-  }
+  if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
 
-  // Serve static files with proper MIME types and caching
   app.use(express.static(publicDir, {
     dotfiles: 'ignore',
     etag: true,
     maxAge: '1h',
     setHeaders: (res, filePath) => {
-      // Set proper MIME types
       const mimeType = mime.lookup(filePath);
-      if (mimeType) {
-        res.setHeader('Content-Type', mimeType);
-      }
-      
-      // No cache for HTML files
-      if (filePath.endsWith('.html')) {
-        res.setHeader('Cache-Control', 'no-cache');
-      }
+      if (mimeType) res.setHeader('Content-Type', mimeType);
+      if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
     }
   }));
 
   // Fallback for static files
   app.use((req, res, next) => {
-    // If the request is for a file with an extension, try to serve it
     if (path.extname(req.path).length > 0) {
       const filePath = path.join(publicDir, req.path);
       if (fs.existsSync(filePath)) {
-        // Explicitly set content type for HTML files
-        if (filePath.endsWith('.html')) {
-          res.setHeader('Content-Type', 'text/html');
-        }
+        if (filePath.endsWith('.html')) res.setHeader('Content-Type', 'text/html');
         return res.sendFile(filePath);
       }
     }

@@ -25,6 +25,17 @@ document.addEventListener('DOMContentLoaded', function() {
         refreshDataBtn: document.getElementById('refreshDataBtn'),
         manageDepositAddressBtn: document.getElementById('manageDepositAddressBtn'),
         
+        // Chart Configuration
+        chartConfigBtn: document.getElementById('chartConfigBtn'),
+        chartConfigModal: document.getElementById('chartConfigModal'),
+        chartConfigForm: document.getElementById('chartConfigForm'),
+        chartMin: document.getElementById('chartMin'),
+        chartMax: document.getElementById('chartMax'),
+        chartMaxReach: document.getElementById('chartMaxReach'),
+        chartProfitFactor: document.getElementById('chartProfitFactor'),
+        cancelChartConfig: document.getElementById('cancelChartConfig'),
+        cancelChartConfigBtn: document.getElementById('cancelChartConfigBtn'),
+        
         // Transactions
         transactionsTable: document.getElementById('transactionsTable'),
         filterBtns: document.querySelectorAll('.filter-btn'),
@@ -75,8 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
         serverUrl: document.getElementById('serverUrl')
     };
 
-    // API Configuration
-    const API_BASE = "http://localhost:3007";
+    // API Configuration - Updated to use the new URL
+    const API_BASE = "https://forexproo.onrender.com";
     let authToken = localStorage.getItem('adminAuthToken');
     let selectedUserId = null;
 
@@ -96,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadDashboardData();
                 loadUsers();
                 loadTransactions();
+                loadChartConfig(); // Load chart configuration
             } else {
                 console.log('Token invalid, showing login form');
                 showLoginForm();
@@ -168,6 +180,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 elements.depositAddressModal.classList.add('show');
                 loadDepositAddresses();
             });
+        }
+        
+        // Chart configuration
+        if (elements.chartConfigBtn) {
+            elements.chartConfigBtn.addEventListener('click', () => {
+                elements.chartConfigModal.classList.add('show');
+                loadChartConfig();
+            });
+        }
+        
+        if (elements.chartConfigForm) {
+            elements.chartConfigForm.addEventListener('submit', handleChartConfigUpdate);
+        }
+        
+        if (elements.cancelChartConfig || elements.cancelChartConfigBtn) {
+            const cancelHandler = () => {
+                elements.chartConfigModal.classList.remove('show');
+            };
+            if (elements.cancelChartConfig) elements.cancelChartConfig.addEventListener('click', cancelHandler);
+            if (elements.cancelChartConfigBtn) elements.cancelChartConfigBtn.addEventListener('click', cancelHandler);
         }
         
         // Transaction filters
@@ -332,6 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadDashboardData();
                 loadUsers();
                 loadTransactions();
+                loadChartConfig(); // Load chart configuration after login
             } else {
                 showNotification(data.message || 'Login failed', 'error');
             }
@@ -394,6 +427,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 const icon = elements.refreshDataBtn.querySelector('i');
                 if (icon) icon.classList.remove('fa-spin');
             }
+        }
+    }
+
+    async function loadChartConfig() {
+        try {
+            const response = await apiRequest('/api/chart/config');
+            
+            if (response && response.ok) {
+                const data = await response.json();
+                
+                if (elements.chartMin) elements.chartMin.value = data.min;
+                if (elements.chartMax) elements.chartMax.value = data.max;
+                if (elements.chartMaxReach) elements.chartMaxReach.value = data.maxReach;
+                if (elements.chartProfitFactor) elements.chartProfitFactor.value = data.profitFactor;
+            }
+        } catch (err) {
+            console.error('Error loading chart config:', err);
+            showNotification('Failed to load chart configuration', 'error');
+        }
+    }
+
+    async function handleChartConfigUpdate(e) {
+        e.preventDefault();
+        
+        const min = parseFloat(elements.chartMin.value);
+        const max = parseFloat(elements.chartMax.value);
+        const maxReach = parseFloat(elements.chartMaxReach.value);
+        const profitFactor = parseFloat(elements.chartProfitFactor.value);
+        
+        // Validate input
+        if (isNaN(min) || isNaN(max) || isNaN(maxReach) || isNaN(profitFactor) ||
+            min >= max || maxReach <= min || maxReach > max ||
+            profitFactor <= 0 || profitFactor >= 1) {
+            showNotification('Please enter valid chart configuration values', 'error');
+            return;
+        }
+        
+        try {
+            const response = await apiRequest('/api/admin/chart', {
+                method: 'POST',
+                body: JSON.stringify({ min, max, maxReach, profitFactor })
+            });
+            
+            if (response && response.ok) {
+                const data = await response.json();
+                showNotification('Chart configuration updated successfully!', 'success');
+                elements.chartConfigModal.classList.remove('show');
+            } else {
+                const errorData = await response.json();
+                showNotification(errorData.message || 'Failed to update chart configuration', 'error');
+            }
+        } catch (err) {
+            console.error('Error updating chart configuration:', err);
+            showNotification('Failed to update chart configuration', 'error');
         }
     }
 
@@ -592,6 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.botUserSearchResults.classList.add('hidden');
         elements.botUserSearch.value = '';
     }
+    
     async function handleDeposit(e) {
         e.preventDefault();
 
@@ -638,9 +726,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification('Server error: Failed to create deposit', 'error');
         }
     }
-
-
-
 
     async function loadBots() {
         if (!elements.botsTable) return;
@@ -692,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-        async function handleCreateBot(e) {
+    async function handleCreateBot(e) {
         e.preventDefault();
 
         const name = elements.botName.value.trim();
