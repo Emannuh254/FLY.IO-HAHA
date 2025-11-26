@@ -1,4 +1,4 @@
-/* referrals.css */
+/* wallet.css */
 :root {
     --primary: #3b82f6;
     --primary-dark: #1e40af;
@@ -107,118 +107,88 @@ body {
     display: block;
 }
 
-/* Stats cards */
-.stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+/* Tabs */
+.tab-btn {
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
 }
 
-.stats-card {
-    text-align: center;
-    padding: 1rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.stats-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
-}
-
-.stats-icon {
-    font-size: 1.5rem;
+.tab-btn.active {
     color: #60a5fa;
-    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #60a5fa;
 }
 
-.stats-value {
-    font-size: 1.25rem;
-    font-weight: bold;
+/* Deposit/Withdraw Methods */
+.deposit-method, .withdraw-method {
+    transition: all 0.2s ease;
 }
 
-/* Referral link */
-.referral-link-container {
-    display: flex;
-    margin-bottom: 1rem;
+.deposit-method:hover, .withdraw-method:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-.referral-link-input {
-    flex-grow: 1;
-    padding: 0.75rem;
+.deposit-method.selected, .withdraw-method.selected {
+    border-color: #60a5fa;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Coin/Network buttons */
+.coin-btn, .network-btn {
+    transition: all 0.2s ease;
+}
+
+.coin-btn:hover, .network-btn:hover {
+    transform: translateY(-2px);
+}
+
+.coin-btn.selected, .network-btn.selected {
+    border-color: #60a5fa;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Form inputs */
+input, select {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 0.5rem 0 0 0.5rem;
     color: white;
-    font-size: 1rem;
 }
 
-.referral-link-button {
-    padding: 0.75rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 0 0.5rem 0.5rem 0;
-    cursor: pointer;
-    transition: all 0.15s ease;
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
-.referral-link-button:hover {
-    background: var(--primary-dark);
-}
-
-/* Share buttons */
-.share-buttons {
+/* QR Code */
+.qr-code {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.share-button {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 1.25rem;
-    transition: all 0.15s ease;
+    align-items: center;
+    height: 200px;
 }
 
-.share-button:hover {
-    transform: scale(1.1);
-}
-
-.share-button.facebook { background: #1877f2; }
-.share-button.twitter { background: #1da1f2; }
-.share-button.whatsapp { background: #25d366; }
-.share-button.email { background: #ea4335; }
-
-/* Referral history table */
-.referral-table {
+/* Transaction table */
+table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.referral-table th,
-.referral-table td {
+th, td {
     padding: 0.75rem;
     text-align: left;
-    border-bottom: 1px solid var(--glass-border);
 }
 
-.referral-table th {
+th {
+    background: rgba(255, 255, 255, 0.05);
     color: rgba(255, 255, 255, 0.7);
     font-weight: 600;
 }
 
-.referral-table tr:hover {
+tr:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -245,89 +215,30 @@ body {
     color: #ef4444;
 }
 
-/* Referral rewards */
-.reward-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.reward-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background: rgba(59, 130, 246, 0.2);
+/* WhatsApp button */
+.whatsapp-btn {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 80px;
+    right: 20px;
+    background-color: #25d366;
+    color: #FFF;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 1.875rem;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 0.75rem;
-    color: #60a5fa;
-    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
 }
 
-.reward-content {
-    flex-grow;
-}
-
-.reward-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.reward-description {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.reward-status {
-    color: #10b981;
-}
-
-/* Progress bars */
-.progress-container {
-    margin-bottom: 1.5rem;
-}
-
-.progress-label {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-}
-
-.progress-bar {
-    height: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 0.25rem;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
-    border-radius: 0.25rem;
-}
-
-/* FAQ items */
-.faq-item {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.faq-question {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.faq-answer {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
+.whatsapp-btn:hover {
+    transform: scale(1.1);
 }
 
 /* Mobile nav */
@@ -368,8 +279,40 @@ body {
     font-size: 0.75rem;
 }
 
-/* Toast notification */
-.toast {
+/* Modal */
+.login-required {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    padding: 1rem;
+}
+
+.login-required.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.login-content {
+    background: #1e293b;
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Notification */
+.notification {
     position: fixed;
     bottom: 1rem;
     right: 1rem;
@@ -384,13 +327,13 @@ body {
     max-width: 300px;
 }
 
-.toast.show {
+.notification.show {
     transform: translateY(0);
     opacity: 1;
 }
 
-.toast.success { background-color: var(--secondary); }
-.toast.error { background-color: #ef4444; }
+.notification.success { background-color: var(--secondary); }
+.notification.error { background-color: #ef4444; }
 
 /* Utility classes */
 .hidden { display: none !important; }
@@ -440,7 +383,7 @@ body {
         padding: 1rem;
     }
     
-    .toast {
+    .notification {
         right: 0.5rem;
         left: 0.5rem;
         max-width: none;

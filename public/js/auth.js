@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const demoModeBtnSignup = document.getElementById('demoModeBtnSignup');
     
     // API Configuration
-    const API_BASE = 'https://fly-io-haha.onrender.com/';
+    const API_BASE = 'https://forexproo.onrender.com';
     
     // Tab Switching
     loginTab.addEventListener('click', function() {

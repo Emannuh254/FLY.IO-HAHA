@@ -12,12 +12,8 @@ const { formatCurrency, convertCurrency } = require('../shared/database');
 const app = express();
 const PORT = process.env.TRADING_PORT || 3003;
 
-// Security middleware
-app.use(helmet());
-app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3006'],
-    credentials: true
-}));
+// Setup middleware first (this includes static file serving)
+setupMiddleware(app);
 
 // Rate limiting for bot operations
 const botLimiter = rateLimit({
@@ -27,9 +23,6 @@ const botLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
-
-// Setup middleware
-setupMiddleware(app);
 
 // Serve trading.html
 app.get(['/trading', '/trading.html'], (req, res) => {
@@ -166,6 +159,7 @@ const startServer = async () => {
     try {
         const server = app.listen(PORT, () => {
             console.log(`Trading server running on port ${PORT}`);
+            console.log(`Static files being served from: ${path.join(__dirname, '../public')}`);
         });
         
         server.on('error', (error) => {

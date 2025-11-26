@@ -12,21 +12,39 @@ const mime = require('mime-types');
 function setupMiddleware(app) {
   const NODE_ENV = process.env.NODE_ENV || 'development';
   
-  // Disable CSP for development
+  // Configure helmet with proper CSP for external resources
   app.use(helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
+        imgSrc: ["'self'", "data:", "https://randomuser.me", "https://images.unsplash.com"],
+        connectSrc: ["'self'", "https://fly-io-haha.onrender.com", "https://forexproo.onrender.com"],
+        fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
     crossOriginEmbedderPolicy: false,
     crossOriginOpenerPolicy: false,
-    crossOriginResourcePolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
   }));
 
   app.use(compression());
   app.use(cors({
-    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'https://fly-io-haha.onrender.com'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+      origin: [
+          'http://localhost:3000',
+          'http://localhost:3006',
+          'https://fly-io-haha.onrender.com',
+          'https://forexproo.onrender.com'
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization']
   }));
+
   app.use(express.json({ limit: '10kb' }));
   app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
@@ -56,7 +74,7 @@ function setupMiddleware(app) {
 
   // Request logging middleware
   app.use((req, res, next) => {
-    const baseUrl = 'https://fly-io-haha.onrender.com';
+    const baseUrl = 'https://forexproo.onrender.com';
     const fullUrl = `${baseUrl}${req.originalUrl}`;
     console.log(`[${new Date().toISOString()}] ${req.method} ${fullUrl}`);
     next();
@@ -69,7 +87,8 @@ function setupMiddleware(app) {
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
-  app.use(express.static(path.join(__dirname, '../public'), {
+  // Serve static files with proper MIME types and caching
+  app.use(express.static(publicDir, {
     dotfiles: 'ignore',
     etag: true,
     maxAge: '1h',
